@@ -41,7 +41,7 @@ const CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchema<K>> }
     'boolean': () => ({ type: 'boolean' }),
     // Compositions
     'nullable': ({ wrapped }, convert) => ({ anyOf: [{ 'const': null }, convert(wrapped)!] }),
-    'enum': (schema) => ({ anyOf: schema.enum.map((v: any) => ({ const: v })) }),
+    'enum': (schema) => ({ enum: schema.enum.map((v: any) => assert(v, isJSONLiteral, 'Unsupported literal value type: %')) }),
     'union': ({ union }, convert) => ({ anyOf: union.map(convert) }),
     'intersection': ({ intersection }, convert) => ({ allOf: intersection.map(convert) }),
     // Complex types

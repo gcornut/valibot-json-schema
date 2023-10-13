@@ -223,14 +223,14 @@ describe('composition types', () => {
             {
                 testCase: 'enum single',
                 schema: v.enumType(['foo']),
-                jsonSchema: { $schema, anyOf: [{ const: 'foo' }] },
+                jsonSchema: { $schema, enum: ['foo'] },
                 validValues: ['foo'],
                 invalidValues: without(SAMPLE_VALUES, 'foo'),
             },
             {
                 testCase: 'enum multiple',
                 schema: v.enumType(['foo', 'bar']),
-                jsonSchema: { $schema, anyOf: [{ const: 'foo' }, { const: 'bar' }] },
+                jsonSchema: { $schema, enum: ['foo', 'bar'] },
                 validValues: ['foo', 'bar'],
                 invalidValues: without(SAMPLE_VALUES, 'foo', 'bar'),
             }],
@@ -260,8 +260,8 @@ describe('composition types', () => {
                 jsonSchema: {
                     $schema,
                     allOf: [
-                        { anyOf: [{ const: 'foo' }, { const: 'bar' }] },
-                        { anyOf: [{ const: 'bar' }, { const: 'baz' }] },
+                        { enum: ['foo', 'bar'] },
+                        { enum: ['bar', 'baz'] },
                     ],
                 },
                 validValues: ['bar'],
@@ -315,7 +315,8 @@ describe('recursive type', () => {
                                 items: {
                                     anyOf: [
                                         { type: 'string' },
-                                        { $ref: '#/definitions/list' }],
+                                        { $ref: '#/definitions/list' }
+                                    ],
                                 },
                             },
                         },
