@@ -13,7 +13,7 @@ import { and, negate } from './utils/predicate';
 
 const emptyObject = {} as const;
 const emptyArray = [] as const;
-const SAMPLE_VALUES = [undefined, null, 0, 9999, NaN, false, true, '', 'foo', emptyObject, { a: 1 }, emptyArray, ['foo']];
+const SAMPLE_VALUES = [undefined, null, 0, 9999, NaN, false, true, '', 'foo', emptyObject, { a: '1' }, emptyArray, ['foo']];
 
 /**
  * Valibot schema conversion test case
@@ -22,15 +22,11 @@ type TestCase = {
     testCase: string;
     options?: Options;
     schema: v.BaseSchema<any>;
-} & (
-    /** Throws an error */
-    { error: string } |
-    /** Produces a JSON schema we can test with valid and invalid values */
-    {
-        jsonSchema: JSONSchema7;
-        validValues?: any[];
-        invalidValues?: any[];
-    })
+    error?: string;
+    jsonSchema?: JSONSchema7;
+    validValues?: any[];
+    invalidValues?: any[];
+}
 
 function testSuite(testCases: TestCase[]) {
     it.each(testCases)(
@@ -43,12 +39,11 @@ function testSuite(testCases: TestCase[]) {
              validValues = [],
              invalidValues = [],
          }: any) => {
-            if (error) {
-                // Schema can't be converted to JSON schema
-                expect(() => toJSONSchema(schema, options)).toThrowError(error);
-            } else {
+            function test() {
                 // Schema converted properly
-                expect(toJSONSchema(schema, options)).toEqual(jsonSchema);
+                const convertedSchema = toJSONSchema(schema, options);
+                if (jsonSchema)
+                    expect(convertedSchema).toEqual(jsonSchema);
                 const jsonValidator = (new Ajv()).compile(jsonSchema);
 
                 for (let validValue of validValues) {
@@ -62,6 +57,13 @@ function testSuite(testCases: TestCase[]) {
                     expect(v.is(schema, invalidValue), `\`${JSON.stringify(invalidValue)}\` should not match the valibot schema`).toBe(false);
                     expect(jsonValidator(invalidValue), `\`${JSON.stringify(invalidValue)}\` should not match the json schema`).toBe(false);
                 }
+            }
+
+            if (error) {
+                // Schema can't be converted to JSON schema
+                expect(test).toThrowError(error);
+            } else {
+                test();
             }
         },
     );
@@ -100,12 +102,12 @@ describe('base types', () => {
         {
             testCase: 'literal symbol should throw',
             schema: v.literal(Symbol()),
-            error: 'Unrecognized literal value type: Symbol()',
+            error: 'Unsupported literal value type: Symbol()',
         },
         {
             testCase: 'literal NaN should throw',
             schema: v.literal(NaN),
-            error: 'Unrecognized literal value type: NaN',
+            error: 'Unsupported literal value type: NaN',
         },
         {
             testCase: 'number',
@@ -138,7 +140,7 @@ describe('base types', () => {
     ]);
 });
 
-describe('object & record', () => {
+describe('object', () => {
     testSuite([
         {
             testCase: 'object empty',
@@ -158,6 +160,29 @@ describe('object & record', () => {
             },
             validValues: [{ string: 'foo' }],
             invalidValues: [{ optionalString: 'foo' }, ...SAMPLE_VALUES],
+        },
+    ]);
+});
+
+describe('record', () => {
+    testSuite([
+        {
+            testCase: 'record as array not supported',
+            schema: v.record(v.number()),
+            validValues: [[]],
+            // ajv JSON Schema error:
+            error: 'schema must be object or boolean'
+        },
+        {
+            testCase: 'record of numbers',
+            schema: v.record(v.number()),
+            jsonSchema: {
+                $schema,
+                type: 'object',
+                additionalProperties: { type: 'number' },
+            },
+            validValues: [{}, { a: 2 }],
+            invalidValues: without(SAMPLE_VALUES, emptyObject, emptyArray),
         },
     ]);
 });

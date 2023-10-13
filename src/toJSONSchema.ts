@@ -2,7 +2,7 @@ import type * as v from 'valibot';
 import { type JSONSchema7 } from 'json-schema';
 import { $schema, isJSONLiteral } from './utils/json-schema';
 import { assert } from './utils/assert';
-import { isOptionalSchema } from './utils/isOptionalSchema';
+import { isOptionalSchema, isStringSchema } from './utils/valibot';
 
 type SupportedSchemas =
     v.AnySchema
@@ -14,6 +14,7 @@ type SupportedSchemas =
     | v.NullableSchema<any>
     | v.EnumSchema<any>
     | v.ObjectSchema<any>
+    | v.RecordSchema<any, any>
     | v.ArraySchema<any>
     | v.IntersectionSchema<any>
     | v.UnionSchema<any>
@@ -33,7 +34,7 @@ const CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchema<K>> }
     'any': () => ({}),
     // Core types
     'null': () => ({ const: null }),
-    'literal': ({ literal }) => ({ const: assert(literal, isJSONLiteral, 'Unrecognized literal value type: %') }),
+    'literal': ({ literal }) => ({ const: assert(literal, isJSONLiteral, 'Unsupported literal value type: %') }),
     'number': () => ({ type: 'number' }),
     'string': () => ({ type: 'string' }),
     'boolean': () => ({ type: 'boolean' }),
@@ -59,14 +60,18 @@ const CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchema<K>> }
         if (required.length) jsonSchema['required'] = required;
         return jsonSchema;
     },
+    'record': ({ record }, convert) => {
+        assert(record.key, isStringSchema, 'Unsupported record key type: %');
+        return { type: 'object', additionalProperties: convert(record.value) };
+    },
     'recursive': (schema, convert, context) => {
         const nested = schema.getter();
         const defName = context.schemaDefinitionNames.get(nested);
         if (!defName) {
-            throw new Error('Type inside recursive schema must be provided in the definitions')
+            throw new Error('Type inside recursive schema must be provided in the definitions');
         }
         return { $ref: toDefinitionURI(defName) };
-    }
+    },
 };
 
 function getDefinitionReverseMap(definitions: Record<string, SupportedSchemas> = {}) {

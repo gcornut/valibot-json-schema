@@ -40,8 +40,7 @@ if they have an equivalent in JSON schema.
 
 ### JSON Schema definitions
 
-To provide name for your schema and have them indexed in the JSON schema definitions, you need to provide your schemas
-in the `definitions` option of the `toJSONSchema` function.
+To export your schemas in JSON schema definitions, you can provide the `definitions` option of the `toJSONSchema` function in which each schema is attributed a name via it's key in the object.
 
 ```js
 import { toJSONSchema } from '@gcornut/valibot-json-schema/toJSONSchema';
@@ -79,6 +78,7 @@ toJSONSchema(Number, { definitions: { Number } });
 | `intersection` | supported                                                                                   |
 | `array`        | supported                                                                                   |
 | `object`       | supported                                                                                   |
+| `record`       | partial: only string key are allowed, applicable to plain object only, not arrays           |
 | `recursive`    | partial: only if the schema inside [is referenced in `definitions`](#jsonchema-definitions) |
 
 </details>
