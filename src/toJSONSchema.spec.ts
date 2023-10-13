@@ -158,8 +158,37 @@ describe('object', () => {
                 properties: { string: { type: 'string' }, optionalString: { type: 'string' } },
                 required: ['string'],
             },
-            validValues: [{ string: 'foo' }],
-            invalidValues: [{ optionalString: 'foo' }, ...SAMPLE_VALUES],
+            validValues: [
+                { string: 'foo', unknown: 'property' },
+                { string: 'foo', optionalString: 'foo' },
+            ],
+            invalidValues: [
+                { optionalString: 'foo' },
+                { string: 'foo', optionalString: 1 },
+                ...SAMPLE_VALUES,
+            ],
+        },
+        {
+            testCase: 'object strict properties',
+            options: { strictObjectTypes: true },
+            schema: v.strict(v.object({ string: v.string(), optionalString: v.optional(v.string()) })),
+            jsonSchema: {
+                $schema,
+                type: 'object',
+                additionalProperties: false,
+                properties: { string: { type: 'string' }, optionalString: { type: 'string' } },
+                required: ['string'],
+            },
+            validValues: [
+                { string: 'foo' },
+                { string: 'foo', optionalString: 'foo' },
+            ],
+            invalidValues: [
+                { string: 'foo', unknown: 'property' },
+                { optionalString: 'foo' },
+                { string: 'foo', optionalString: 1 },
+                ...SAMPLE_VALUES,
+            ],
         },
     ]);
 });
@@ -315,7 +344,7 @@ describe('recursive type', () => {
                                 items: {
                                     anyOf: [
                                         { type: 'string' },
-                                        { $ref: '#/definitions/list' }
+                                        { $ref: '#/definitions/list' },
                                     ],
                                 },
                             },

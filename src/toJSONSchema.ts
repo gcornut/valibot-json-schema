@@ -22,6 +22,13 @@ type SupportedSchemas =
     | v.RecursiveSchema<any>;
 
 export interface Options {
+    /**
+     * Make all object type strict (`additionalProperties: false`).
+     */
+    strictObjectTypes?: boolean
+    /**
+     * Index Valibot schemas by name to be reflected in the JSON schema output.
+     */
     definitions?: Record<string, SupportedSchemas>;
 }
 
@@ -40,7 +47,7 @@ const CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchema<K>> }
     'string': () => ({ type: 'string' }),
     'boolean': () => ({ type: 'boolean' }),
     // Compositions
-    'nullable': ({ wrapped }, convert) => ({ anyOf: [{ 'const': null }, convert(wrapped)!] }),
+    'nullable': ({ wrapped }, convert) => ({ anyOf: [{ const: null }, convert(wrapped)!] }),
     'enum': (schema) => ({ enum: schema.enum.map((v: any) => assert(v, isJSONLiteral, 'Unsupported literal value type: %')) }),
     'union': ({ union }, convert) => ({ anyOf: union.map(convert) }),
     'intersection': ({ intersection }, convert) => ({ allOf: intersection.map(convert) }),
@@ -54,7 +61,7 @@ const CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchema<K>> }
             items: tuple.items.map(convert),
         };
     },
-    'object': ({ object }, convert) => {
+    'object': ({ object }, convert, context) => {
         const jsonSchema: JSONSchema7 = { type: 'object' };
         const required: string[] = [];
         jsonSchema['properties'] = Object.fromEntries(Object.entries(object).map(([propKey, propValue]) => {
@@ -67,6 +74,7 @@ const CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchema<K>> }
             return [propKey, convert(propSchema)!];
         }));
         if (required.length) jsonSchema['required'] = required;
+        if (context.strictObjectTypes) jsonSchema['additionalProperties'] = false;
         return jsonSchema;
     },
     'record': ({ record }, convert) => {
@@ -94,6 +102,7 @@ function getDefinitionReverseMap(definitions: Record<string, SupportedSchemas> =
 interface Context {
     definitions: JSONSchemaDefinitions,
     schemaDefinitionNames: SchemaDefinitionReverseMap;
+    strictObjectTypes: Options['strictObjectTypes']
 }
 
 const toDefinitionURI = (name: string) => `#/definitions/${name}`;
@@ -126,7 +135,7 @@ function convertNode(context: Context) {
 export function toJSONSchema(schema: SupportedSchemas, options: Options = {}): JSONSchema7 | undefined {
     const definitions = {};
     const schemaDefinitionNames = getDefinitionReverseMap(options?.definitions);
-    const converted = convertNode({ definitions, schemaDefinitionNames })(schema);
+    const converted = convertNode({ definitions, schemaDefinitionNames, strictObjectTypes: options?.strictObjectTypes })(schema);
     if (!converted) {
         return undefined;
     }

@@ -8,7 +8,7 @@ Work in progress:
 - [x] Recursive types
 - [x] Definitions index
 - [x] Record & tuple types
-- [ ] Globally strict object types (`additionalProperties: false`).
+- [x] Globally strict object types (`additionalProperties: false`).
 - [ ] CLI `npx @gcornut/valibot-json-schema to-json --path ./schemas.ts`
 - [ ] NPM package
 - [ ] Write more documentation
@@ -58,6 +58,13 @@ toJSONSchema(Number, { definitions: { Number } });
  * }
  */
 ```
+
+### Strict object types
+
+While the converter can't handle the Valibot `strict` method that blocks unknown keys on object, you can however, set
+the `strictObjectTypes` in the options to force ALL object types to block unknown keys (`additionalProperties: false`).
+
+Example: `toJSONSchema(object({}), { strictObjectTypes: true });`
 
 ### Supported features
 
