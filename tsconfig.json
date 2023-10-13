@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "strict": true,
+    "lib": [
+      "es2020",
+      "dom"
+    ]
+  },
+  "include": ["src"],
+  "exclude": ["**/*.spec.*"]
+}
