@@ -16,6 +16,7 @@ type SupportedSchemas =
     | v.ObjectSchema<any>
     | v.RecordSchema<any, any>
     | v.ArraySchema<any>
+    | v.TupleSchema<any>
     | v.IntersectionSchema<any>
     | v.UnionSchema<any>
     | v.RecursiveSchema<any>;
@@ -45,6 +46,14 @@ const CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchema<K>> }
     'intersection': ({ intersection }, convert) => ({ allOf: intersection.map(convert) }),
     // Complex types
     'array': ({ array }, convert) => ({ type: 'array', items: convert(array.item) }),
+    'tuple': ({ tuple }, convert) => {
+        return {
+            type: 'array',
+            minItems: tuple.items.length,
+            maxItems: tuple.items.length,
+            items: tuple.items.map(convert),
+        };
+    },
     'object': ({ object }, convert) => {
         const jsonSchema: JSONSchema7 = { type: 'object' };
         const required: string[] = [];

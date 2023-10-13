@@ -171,7 +171,7 @@ describe('record', () => {
             schema: v.record(v.number()),
             validValues: [[]],
             // ajv JSON Schema error:
-            error: 'schema must be object or boolean'
+            error: 'schema must be object or boolean',
         },
         {
             testCase: 'record of numbers',
@@ -187,7 +187,7 @@ describe('record', () => {
     ]);
 });
 
-describe('array & tuple', () => {
+describe('array', () => {
     testSuite([
         {
             testCase: 'array of numbers',
@@ -199,8 +199,25 @@ describe('array & tuple', () => {
     ]);
 });
 
-describe('composition types', () => {
+describe('tuple', () => {
+    testSuite([
+        {
+            testCase: 'tuple of a number and a string',
+            schema: v.tuple([v.number(), v.string()]),
+            jsonSchema: {
+                $schema,
+                type: 'array',
+                items: [{ type: 'number' }, { type: 'string' }],
+                minItems: 2,
+                maxItems: 2,
+            },
+            validValues: [[1, 'foo']],
+            invalidValues: [[], [1], ['foo', 1], ['foo'], ...SAMPLE_VALUES],
+        },
+    ]);
+});
 
+describe('composition types', () => {
     describe('enum', () => {
         testSuite([
             {

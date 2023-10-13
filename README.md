@@ -7,7 +7,7 @@ Work in progress:
 - [x] Object & array types
 - [x] Recursive types
 - [x] Definitions index
-- [ ] Record & tuple types
+- [x] Record & tuple types
 - [ ] Globally strict object types (`additionalProperties: false`).
 - [ ] CLI `npx @gcornut/valibot-json-schema to-json --path ./schemas.ts`
 - [ ] NPM package
@@ -40,7 +40,8 @@ if they have an equivalent in JSON schema.
 
 ### JSON Schema definitions
 
-To export your schemas in JSON schema definitions, you can provide the `definitions` option of the `toJSONSchema` function in which each schema is attributed a name via it's key in the object.
+To export your schemas in JSON schema definitions, you can provide the `definitions` option of the `toJSONSchema`
+function in which each schema is attributed a name via it's key in the object.
 
 ```js
 import { toJSONSchema } from '@gcornut/valibot-json-schema/toJSONSchema';
@@ -60,6 +61,11 @@ toJSONSchema(Number, { definitions: { Number } });
 
 ### Supported features
 
+All Valibot pipelines and methods are not supported because they do not offer introspection at runtime even if they have
+equivalent JSON schema feature.
+
+Here is the list of supported Valibot schemas (some have partial support):
+
 <details>
 <summary>Supported schemas</summary>
 
@@ -72,11 +78,12 @@ toJSONSchema(Number, { definitions: { Number } });
 | `string`       | supported                                                                                   |
 | `boolean`      | supported                                                                                   |
 | `nullable`     | supported                                                                                   |
-| `optional`     | partial: only inside `object` schema                                                        |
+| `optional`     | partial: only inside `object` schemas                                                       |
 | `enum`         | supported                                                                                   |
 | `union`        | supported                                                                                   |
 | `intersection` | supported                                                                                   |
 | `array`        | supported                                                                                   |
+| `tuple`        | supported                                                                                   |
 | `object`       | supported                                                                                   |
 | `record`       | partial: only string key are allowed, applicable to plain object only, not arrays           |
 | `recursive`    | partial: only if the schema inside [is referenced in `definitions`](#jsonchema-definitions) |
