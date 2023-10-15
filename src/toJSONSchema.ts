@@ -164,11 +164,11 @@ export function toJSONSchema(
     } else {
         Object.assign(out, mainConverted);
     }
-    if (inputDefinitions) {
-        if (!schema) {
-            // No main schema => convert all definitions
-            Object.values(inputDefinitions).filter(Boolean).forEach(converter);
-        }
+    if (inputDefinitions && !schema) {
+        // No main schema => convert all definitions
+        Object.values(inputDefinitions).filter(Boolean).forEach(converter);
+    }
+    if (Object.keys(definitions).length) {
         out['definitions'] = definitions;
     }
     return out;

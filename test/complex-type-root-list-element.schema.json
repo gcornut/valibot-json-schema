@@ -1,0 +1,49 @@
+{
+  "$ref": "#/definitions/ListElement",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ListElement": {
+      "properties": {
+        "children": {
+          "items": {
+            "$ref": "#/definitions/ListItemElement"
+          },
+          "type": "array"
+        },
+        "type": {
+          "const": "ul"
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ],
+      "type": "object"
+    },
+    "ListItemElement": {
+      "properties": {
+        "children": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/ListElement"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "type": {
+          "const": "li"
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ],
+      "type": "object"
+    }
+  }
+}

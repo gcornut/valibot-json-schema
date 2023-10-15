@@ -2,46 +2,68 @@ import { Command } from 'commander';
 import stableStringify from 'safe-stable-stringify';
 import path from 'path';
 import fs from 'fs';
+import get from 'lodash/get';
+import last from 'lodash/last';
 
 import { toJSONSchema } from '../toJSONSchema';
 import { isSchema } from '../utils/valibot';
 
 const program = new Command();
 
-program.command('to-json-schema')
-    .description('Convert a Valibot schema exported from a JS module.')
-    .requiredOption('-p, --path <path>', 'Source file path')
-    .option('-t, --type <name>', 'Main type')
-    .option('-d, --definitions <name...>', 'Definition types')
+const parseList = (strings: string[]) => strings?.flatMap((name: string) => name.split(',')) || [];
+
+program.command('to-json-schema <path>')
+    .description('Convert a Valibot schema exported from a JS or TS module.')
     .option('-o, --out <file>', 'Set the output file (default: stdout)')
-    .action((args) => {
+    .option('-t, --type <type>', 'Main type')
+    .option('-i, --include <types...>', 'Exclude types')
+    .option('-e, --exclude <types...>', 'Include types')
+    .option('--strictObjectTypes', 'Make object strict object types (no unknown keys)')
+    .action((sourcePath, { type, include, exclude, out, strictObjectTypes }) => {
         // Enable auto transpile of ESM & TS modules required
         require('esbuild-runner/register');
 
-        const inputDefinitionNames = args.definitions && new Set(args.definitions?.flatMap((name: string) => name.split(',')));
+        // Load the source path module
+        const { default: defaultExport, ...module } = require(path.resolve(sourcePath));
 
-        const module = require(path.resolve(args.path));
+
         const definitions: any = {};
-        for (const [name, value] of Object.entries(module)) {
-            if (!isSchema(value)) continue;
-            if (inputDefinitionNames) {
-                if (!inputDefinitionNames.has(name)) continue;
-                inputDefinitionNames.delete(name);
+        if (include) {
+            for (const name of parseList(include)) {
+                const schema = get(module, name);
+                if (!schema) {
+                    throw new Error(`Include type '${name}' could not be found in ${sourcePath}`);
+                }
+                definitions[last(name.split('.'))!] = schema
             }
-            definitions[name] = value;
+        } else {
+            // Load all exported schemas
+            for (const [name, value] of Object.entries(module)) {
+                if (!isSchema(value)) continue;
+                definitions[name] = value;
+            }
         }
-        inputDefinitionNames?.forEach((name: string) => {
-            throw new Error(`Definition type '${name}' could not be found in ${args.path}`);
-        })
 
-        if (args.type && !(args.type in definitions)) {
-            throw new Error(`Main type '${args.type}' could not be found in ${args.path}`);
+        for (let name of parseList(exclude)) {
+            delete definitions[name]
         }
-        const jsonSchema = toJSONSchema({ schema: definitions[args.type], definitions });
+
+        // Main type
+        let schema = get(module, type);
+        if (type && !schema) {
+            throw new Error(`Main type '${type}' could not be found in ${sourcePath}`);
+        }
+        if (!type && defaultExport) {
+            // Fallback: use default export as the main type
+            schema = defaultExport;
+        }
+
+        // Convert
+        const jsonSchema = toJSONSchema({ schema, definitions, strictObjectTypes });
         const jsonSchemaString = stableStringify(jsonSchema, null, 2)!;
-        if (args.out) {
+        if (out) {
             // Output to file
-            fs.writeFileSync(args.out, jsonSchemaString);
+            fs.writeFileSync(out, jsonSchemaString);
         } else {
             // Output to stdout
             process.stdout.write(`${jsonSchemaString}\n`);

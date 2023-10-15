@@ -1,19 +1,49 @@
 # @gcornut/valibot-json-schema
 
-Work in progress:
+Convert Valibot schemas exported from a JS or TS module into JSON schema:
 
-- [x] Base types (any, null, string, etc.)
-- [x] Composition types (enum, union, intersection, etc.)
-- [x] Object & array types
-- [x] Recursive types
-- [x] Definitions index
-- [x] Record & tuple types
-- [x] Globally strict object types (`additionalProperties: false`).
-- [x] Command line interface
-- [ ] NPM package
-- [ ] Write more documentation
-- [ ] Extension system to fix the limitations on unsupported Valibot features (
-  handle `strict`, `maxLength`, `minLength`, etc.)
+```shell
+# Convert valibot schemas defined in typescript
+npx @gcornut/valibot-json-schema to-json-schema ./path/to/valibot-schemas.ts
+```
+
+Outputs a conversion of the Valibot schemas into JSON schema. If the default export is a Valibot schemas, it is used as the root definition. Other exported Valibot schemas are exported in the <code>definitions</code> section.
+
+<details><summary>Example</summary>
+
+_File `./path/to/valibot-schemas.ts`_:
+```js
+import * as v from 'valibot';
+
+export const AString = v.string();
+const AnObject = v.object({ aString: AString });
+export default AnObject;
+```
+
+_Previous command outputs_:
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "AString": { "type": "string" }
+  },
+  "properties": {
+    "aString": { "$ref": "#/definitions/AString" }
+  },
+  "required": ["aString"],
+  "type": "object"
+}
+```
+
+`AnObject` is the default export in the source module, so it is converted as the root definition. `AString` is exported separately , so it is exported to the `definitions` section.
+
+</details>
+
+Use `-o <file>` option to output the JSON schema to a file instead of `stdout`.
+
+Use `-t <type>` option to ignore the default export and use given exported type as the root definition.
+
+Use `--strictObjectTypes` to generate strict object types that do not allow unknown properties (`additionnalProperties: false`).
 
 ## Convert Valibot to JSON Schema
 
