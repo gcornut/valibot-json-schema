@@ -9,7 +9,7 @@ Work in progress:
 - [x] Definitions index
 - [x] Record & tuple types
 - [x] Globally strict object types (`additionalProperties: false`).
-- [ ] CLI `npx @gcornut/valibot-json-schema to-json --path ./schemas.ts`
+- [x] Command line interface
 - [ ] NPM package
 - [ ] Write more documentation
 - [ ] Extension system to fix the limitations on unsupported Valibot features (
@@ -23,7 +23,7 @@ Use the `toJSONSchema` function to convert a Valibot schema into JSON schema (v7
 import { toJSONSchema } from '@gcornut/valibot-json-schema/toJSONSchema';
 import { string } from 'valibot';
 
-toJSONSchema(string())
+toJSONSchema({ schema: string() })
 /**
  * Returns:
  * {
@@ -48,7 +48,7 @@ import { toJSONSchema } from '@gcornut/valibot-json-schema/toJSONSchema';
 import { number } from 'valibot';
 
 const Number = number();
-toJSONSchema(Number, { definitions: { Number } });
+toJSONSchema({ schema: Number, definitions: { Number } });
 /**
  * Returns:
  * {
@@ -64,7 +64,7 @@ toJSONSchema(Number, { definitions: { Number } });
 While the converter can't handle the Valibot `strict` method that blocks unknown keys on object, you can however, set
 the `strictObjectTypes` in the options to force ALL object types to block unknown keys (`additionalProperties: false`).
 
-Example: `toJSONSchema(object({}), { strictObjectTypes: true });`
+Example: `toJSONSchema({ schema: object({}), strictObjectTypes: true });`
 
 ### Supported features
 

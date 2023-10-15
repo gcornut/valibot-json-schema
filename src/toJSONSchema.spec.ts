@@ -41,10 +41,11 @@ function testSuite(testCases: TestCase[]) {
          }: any) => {
             function test() {
                 // Schema converted properly
-                const convertedSchema = toJSONSchema(schema, options);
+                const convertedSchema = toJSONSchema({ schema, ...options });
                 if (jsonSchema)
                     expect(convertedSchema).toEqual(jsonSchema);
-                const jsonValidator = (new Ajv()).compile(jsonSchema);
+                const ajv = new Ajv();
+                const jsonValidator = ajv.compile(jsonSchema);
 
                 for (let validValue of validValues) {
                     // Check valid values match the schema
@@ -353,18 +354,54 @@ describe('recursive type', () => {
                     },
                 },
             },
+            validValues: [
+                { type: 'ul', children: [{ type: 'li', children: ['List item 1'] }] },
+                {
+                    type: 'ul',
+                    children: [
+                        {
+                            type: 'li',
+                            children: [
+                                'List item 1',
+                                // Nested lists !
+                                {
+                                    type: 'ul',
+                                    children: [
+                                        { type: 'li', children: ['List item 2 (nested)'] },
+                                    ],
+                                },
+                            ],
+                        },
+
+                    ],
+                },
+            ],
         },
     ]);
 });
 
 describe('definitions', () => {
-    it('should convert and move to definitions', () => {
-        const NumberSchema = v.number();
-        const actual = toJSONSchema(NumberSchema, { definitions: { NumberSchema } });
+    const NumberSchema = v.number();
+    const StringSchema = v.string();
+
+    it('should convert definitions without a main schema', () => {
+        const actual = toJSONSchema({ definitions: { NumberSchema } });
+        const expected = {
+            $schema,
+            definitions: {
+                NumberSchema: { type: 'number' },
+            },
+        };
+        expect(actual).toEqual(expected);
+    });
+
+    it('should convert with both a main schema and definitions', () => {
+        const actual = toJSONSchema({ schema: NumberSchema, definitions: { NumberSchema, StringSchema } });
         const expected = {
             $schema,
             $ref: '#/definitions/NumberSchema',
             definitions: {
+                // Tree shaken (no StringSchema)
                 NumberSchema: { type: 'number' },
             },
         };

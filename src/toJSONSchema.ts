@@ -23,22 +23,25 @@ type SupportedSchemas =
 
 export interface Options {
     /**
+     * Main schema (referenced at the root of the JSON schema).
+     */
+    schema?: SupportedSchemas,
+    /**
+     * Additional schemas (referenced in the JSON schema `definitions`).
+     */
+    definitions?: Record<string, SupportedSchemas>;
+    /**
      * Make all object type strict (`additionalProperties: false`).
      */
     strictObjectTypes?: boolean
-    /**
-     * Index Valibot schemas by name to be reflected in the JSON schema output.
-     */
-    definitions?: Record<string, SupportedSchemas>;
 }
 
-type Converter<S extends SupportedSchemas> = (schema: S, convert: ReturnType<typeof convertNode>, context: Context) => JSONSchema7;
+type Converter<S extends SupportedSchemas> = (schema: S, convert: ReturnType<typeof createConverter>, context: Context) => JSONSchema7;
 
 type GetSchema<T extends string> = Extract<SupportedSchemas, { schema: T }>
 type SchemaDefinitionReverseMap = Map<SupportedSchemas, string>;
-type JSONSchemaDefinitions = Required<JSONSchema7>['definitions'];
 
-const CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchema<K>> } = {
+const SCHEMA_CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchema<K>> } = {
     'any': () => ({}),
     // Core types
     'null': () => ({ const: null }),
@@ -54,12 +57,8 @@ const CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchema<K>> }
     // Complex types
     'array': ({ array }, convert) => ({ type: 'array', items: convert(array.item) }),
     'tuple': ({ tuple }, convert) => {
-        return {
-            type: 'array',
-            minItems: tuple.items.length,
-            maxItems: tuple.items.length,
-            items: tuple.items.map(convert),
-        };
+        const length = tuple.items.length;
+        return { type: 'array', minItems: length, maxItems: length, items: tuple.items.map(convert) };
     },
     'object': ({ object }, convert, context) => {
         const jsonSchema: JSONSchema7 = { type: 'object' };
@@ -100,24 +99,33 @@ function getDefinitionReverseMap(definitions: Record<string, SupportedSchemas> =
 }
 
 interface Context {
-    definitions: JSONSchemaDefinitions,
+    /**
+     * JSON Schema definitions
+     */
+    definitions: Required<JSONSchema7>['definitions'],
+    /**
+     * Mapping from schema to name
+     */
     schemaDefinitionNames: SchemaDefinitionReverseMap;
+    /**
+     * Activate strict object types
+     */
     strictObjectTypes: Options['strictObjectTypes']
 }
 
 const toDefinitionURI = (name: string) => `#/definitions/${name}`;
 
-function convertNode(context: Context) {
-    return function inner(schema: SupportedSchemas): JSONSchema7 | undefined {
+function createConverter(context: Context) {
+    return function converter(schema: SupportedSchemas): JSONSchema7 | undefined {
         const defName = context.schemaDefinitionNames.get(schema);
         const defURI = defName && toDefinitionURI(defName);
         if (defURI && defURI in context.definitions) {
             return { $ref: defURI };
         }
 
-        const converter = CONVERTERS[schema.schema];
-        assert(converter, Boolean, `Unsupported valibot schema: ${(schema as any)?.schema || schema}`);
-        let converted = converter?.(schema as any, inner, context);
+        const schemaConverter = SCHEMA_CONVERTERS[schema.schema];
+        assert(schemaConverter, Boolean, `Unsupported valibot schema: ${(schema as any)?.schema || schema}`);
+        let converted = schemaConverter?.(schema as any, converter, context);
         if (defURI) {
             context.definitions[defName] = converted;
             return { $ref: defURI };
@@ -126,29 +134,42 @@ function convertNode(context: Context) {
     };
 }
 
-// TODO: closed object type ? (additionalProperties: false)
-// TODO: warn on pipeline? (can't be converted?)
-// TODO: warn on any (can't work exactly the same as json schema)
-// TODO: print schema path on error/assert
-// TODO: tuple & record
-// TODO: extension system (ex: a size/length pipeline wrapper that produce an introspectable schema convertable to JSON schema)
-export function toJSONSchema(schema: SupportedSchemas, options: Options = {}): JSONSchema7 | undefined {
+/**
+ * Convert Valibot schemas to JSON schema.
+ *
+ * @param schema            Main schema to be converted to the root JSON schema definition
+ * @param definitions       Schemas indexed by name to be converted to the JSON schema `definitions`
+ * @param strictObjectTypes Produce strict object types that do not allow unknown properties
+ */
+export function toJSONSchema(
+    {
+        schema,
+        strictObjectTypes,
+        definitions: inputDefinitions,
+    }: Options,
+): JSONSchema7 | undefined {
     const definitions = {};
-    const schemaDefinitionNames = getDefinitionReverseMap(options?.definitions);
-    const converted = convertNode({ definitions, schemaDefinitionNames, strictObjectTypes: options?.strictObjectTypes })(schema);
-    if (!converted) {
-        return undefined;
+    const schemaDefinitionNames = getDefinitionReverseMap(inputDefinitions);
+    const converter = createConverter({ definitions, schemaDefinitionNames, strictObjectTypes });
+
+    if (!schema && !inputDefinitions) {
+        throw new Error('No main schema or definitions provided.');
     }
 
-    const defName = schemaDefinitionNames.get(schema);
+    const mainConverted = schema && converter(schema);
+    const mainDefName = schema && schemaDefinitionNames.get(schema);
     const out: JSONSchema7 = { $schema };
-    if (Object.keys(definitions).length) {
-        out['definitions'] = definitions;
-    }
-    if (defName) {
-        out['$ref'] = toDefinitionURI(defName);
+    if (mainDefName) {
+        out['$ref'] = toDefinitionURI(mainDefName);
     } else {
-        Object.assign(out, converted);
+        Object.assign(out, mainConverted);
+    }
+    if (inputDefinitions) {
+        if (!schema) {
+            // No main schema => convert all definitions
+            Object.values(inputDefinitions).filter(Boolean).forEach(converter);
+        }
+        out['definitions'] = definitions;
     }
     return out;
 }
