@@ -1,6 +1,6 @@
 {
   "name": "@gcornut/valibot-json-schema",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "packageManager": "yarn@3.6.4",
   "repository": {
     "type": "git",
@@ -9,11 +9,11 @@
   "publishConfig": {
     "access": "public"
   },
-  "keywords": ["valibot", "json-schema"],
+  "keywords": [
+    "valibot",
+    "json-schema"
+  ],
   "bin": "dist/cli.js",
-  "dependencies": {
-    "esbuild-runner": "^2.2.2"
-  },
   "scripts": {
     "build:cli": "esbuild --platform=node --target=node16 --bundle --external:esbuild-runner ./src/cli --outfile=dist/cli.js --banner:js=\"#!/usr/bin/env node\" && chmod +x dist/cli.js",
     "build:dist": "yarn build:cli",
@@ -21,6 +21,9 @@
     "publish": "yarn build:dist && yarn npm publish",
     "run:cli": "esr src/cli",
     "test": "vitest"
+  },
+  "dependencies": {
+    "esbuild-runner": "^2.2.2"
   },
   "devDependencies": {
     "@types/command-line-args": "^5.2.1",

@@ -7,11 +7,13 @@ Convert Valibot schemas exported from a JS or TS module into JSON schema:
 npx @gcornut/valibot-json-schema to-json-schema ./path/to/valibot-schemas.ts
 ```
 
-Outputs a conversion of the Valibot schemas into JSON schema. If the default export is a Valibot schemas, it is used as the root definition. Other exported Valibot schemas are exported in the <code>definitions</code> section.
+Outputs a conversion of the Valibot schemas into JSON schema. If the default export is a Valibot schemas, it is used as
+the root definition. Other exported Valibot schemas are exported in the <code>definitions</code> section.
 
 <details><summary>Example</summary>
 
 _File `./path/to/valibot-schemas.ts`_:
+
 ```js
 import * as v from 'valibot';
 
@@ -21,21 +23,29 @@ export default AnObject;
 ```
 
 _Previous command outputs_:
+
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "AString": { "type": "string" }
+    "AString": {
+      "type": "string"
+    }
   },
   "properties": {
-    "aString": { "$ref": "#/definitions/AString" }
+    "aString": {
+      "$ref": "#/definitions/AString"
+    }
   },
-  "required": ["aString"],
+  "required": [
+    "aString"
+  ],
   "type": "object"
 }
 ```
 
-`AnObject` is the default export in the source module, so it is converted as the root definition. `AString` is exported separately , so it is exported to the `definitions` section.
+`AnObject` is the default export in the source module, so it is converted as the root definition. `AString` is exported
+separately , so it is exported to the `definitions` section.
 
 </details>
 
@@ -43,7 +53,8 @@ Use `-o <file>` option to output the JSON schema to a file instead of `stdout`.
 
 Use `-t <type>` option to ignore the default export and use given exported type as the root definition.
 
-Use `--strictObjectTypes` to generate strict object types that do not allow unknown properties (`additionnalProperties: false`).
+Use `--strictObjectTypes` to generate strict object types that do not allow unknown
+properties (`additionnalProperties: false`).
 
 ## Convert Valibot to JSON Schema
 
@@ -106,23 +117,23 @@ Here is the list of supported Valibot schemas (some have partial support):
 <details>
 <summary>Supported schemas</summary>
 
-|                | status                                                                                      |
-|----------------|---------------------------------------------------------------------------------------------|
-| `any`          | supported                                                                                   |
-| `null`         | supported                                                                                   |
-| `literal`      | partial: only JSON literal are supported                                                    |
-| `number`       | supported                                                                                   |
-| `string`       | supported                                                                                   |
-| `boolean`      | supported                                                                                   |
-| `nullable`     | supported                                                                                   |
-| `optional`     | partial: only inside `object` schemas                                                       |
-| `enum`         | supported                                                                                   |
-| `union`        | supported                                                                                   |
-| `intersection` | supported                                                                                   |
-| `array`        | supported                                                                                   |
-| `tuple`        | supported                                                                                   |
-| `object`       | supported                                                                                   |
-| `record`       | partial: only string key are allowed, applicable to plain object only, not arrays           |
-| `recursive`    | partial: only if the schema inside [is referenced in `definitions`](#jsonchema-definitions) |
+|                | status                                                                                        |
+|----------------|-----------------------------------------------------------------------------------------------|
+| `any`          | supported                                                                                     |
+| `null`         | supported                                                                                     |
+| `literal`      | partial: only JSON literal are supported                                                      |
+| `number`       | supported                                                                                     |
+| `string`       | supported                                                                                     |
+| `boolean`      | supported                                                                                     |
+| `nullable`     | supported                                                                                     |
+| `optional`     | partial: only inside `object` schemas                                                         |
+| `enum`         | supported                                                                                     |
+| `union`        | supported                                                                                     |
+| `intersection` | supported                                                                                     |
+| `array`        | supported                                                                                     |
+| `tuple`        | supported                                                                                     |
+| `object`       | supported                                                                                     |
+| `record`       | partial: only string key are allowed, applicable to plain object only, not arrays             |
+| `recursive`    | partial: only if the schema inside [is referenced in `definitions`](#json-schema-definitions) |
 
 </details>

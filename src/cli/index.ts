@@ -34,7 +34,7 @@ program.command('to-json-schema <path>')
                 if (!schema) {
                     throw new Error(`Include type '${name}' could not be found in ${sourcePath}`);
                 }
-                definitions[last(name.split('.'))!] = schema
+                definitions[last(name.split('.'))!] = schema;
             }
         } else {
             // Load all exported schemas
@@ -45,7 +45,7 @@ program.command('to-json-schema <path>')
         }
 
         for (let name of parseList(exclude)) {
-            delete definitions[name]
+            delete definitions[name];
         }
 
         // Main type
