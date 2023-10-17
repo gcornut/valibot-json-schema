@@ -33,12 +33,12 @@ test('Choose main type', testCase({
     expectedOutput: './complex-type-root-list-element.schema.json',
 }));
 
-test('Exclude type from definitions', testCase({
-    run: 'to-json-schema ./complex-type.valibot.ts -e ListItemElement',
-    expectedOutput: './complex-type-exclude-list-item-element.schema.json',
+test('Convert nested main type', testCase({
+    run: 'to-json-schema ./single-type-nested.valibot.ts -t schemas.NumberSchema',
+    expectedOutput: './single-type-nested-with-main.schema.json',
 }));
 
-test('Convert nested type', testCase({
-    run: 'to-json-schema ./single-type-nested.valibot.ts -t schemas.NumberSchema',
-    expectedOutput: './single-type-nested.schema.json',
+test('Convert nested definitions type', testCase({
+    run: 'to-json-schema ./single-type-nested.valibot.ts --definitions schemas',
+    expectedOutput: './single-type-nested-with-definitions.schema.json',
 }));

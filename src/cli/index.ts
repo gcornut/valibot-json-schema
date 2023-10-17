@@ -15,37 +15,30 @@ const parseList = (strings: string[]) => strings?.flatMap((name: string) => name
 program.command('to-json-schema <path>')
     .description('Convert a Valibot schema exported from a JS or TS module.')
     .option('-o, --out <file>', 'Set the output file (default: stdout)')
-    .option('-t, --type <type>', 'Main type')
-    .option('-i, --include <types...>', 'Exclude types')
-    .option('-e, --exclude <types...>', 'Include types')
+    .option('-t, --type <type>', 'Path to the main type')
+    .option('--definitions <object_path>', 'Path to the definitions')
     .option('--strictObjectTypes', 'Make object strict object types (no unknown keys)')
-    .action((sourcePath, { type, include, exclude, out, strictObjectTypes }) => {
-        // Enable auto transpile of ESM & TS modules required
-        require('esbuild-runner/register');
+    .action((sourcePath, { type, definitions: definitionsPath, out, strictObjectTypes }) => {
+        try {
+            // Enable auto transpile of ESM & TS modules required
+            require('esbuild-runner/register');
+        } catch (e) {
+        }
 
         // Load the source path module
-        const { default: defaultExport, ...module } = require(path.resolve(sourcePath));
-
-
-        const definitions: any = {};
-        if (include) {
-            for (const name of parseList(include)) {
-                const schema = get(module, name);
-                if (!schema) {
-                    throw new Error(`Include type '${name}' could not be found in ${sourcePath}`);
-                }
-                definitions[last(name.split('.'))!] = schema;
+        const module = require(path.resolve(sourcePath));
+        let definitions: any = {};
+        if (definitionsPath) {
+            definitions = get(module, definitionsPath);
+            if (!definitions) {
+                throw new Error(`Definitions path '${definitionsPath}' could not be found in ${sourcePath}`);
             }
         } else {
             // Load all exported schemas
             for (const [name, value] of Object.entries(module)) {
-                if (!isSchema(value)) continue;
+                if (name === 'default' || !isSchema(value)) continue;
                 definitions[name] = value;
             }
-        }
-
-        for (let name of parseList(exclude)) {
-            delete definitions[name];
         }
 
         // Main type
@@ -53,9 +46,9 @@ program.command('to-json-schema <path>')
         if (type && !schema) {
             throw new Error(`Main type '${type}' could not be found in ${sourcePath}`);
         }
-        if (!type && defaultExport) {
+        if (!type && module.default) {
             // Fallback: use default export as the main type
-            schema = defaultExport;
+            schema = module.default;
         }
 
         // Convert

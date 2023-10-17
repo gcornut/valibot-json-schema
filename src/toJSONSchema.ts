@@ -4,7 +4,7 @@ import { $schema, isJSONLiteral } from './utils/json-schema';
 import { assert } from './utils/assert';
 import { isOptionalSchema, isStringSchema } from './utils/valibot';
 
-type SupportedSchemas =
+export type SupportedSchemas =
     v.AnySchema
     | v.LiteralSchema<any>
     | v.NullSchema
