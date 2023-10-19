@@ -19,5 +19,7 @@ node_modules/
 # macOS
 .DS_Store
 
-#
+# Generated
 dist
+bin
+coverage

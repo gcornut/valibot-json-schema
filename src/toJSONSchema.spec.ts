@@ -7,9 +7,10 @@ import * as v from 'valibot';
 import { JSONSchema7 } from 'json-schema';
 import Ajv from 'ajv';
 
-import { toJSONSchema, Options } from './toJSONSchema';
+import { toJSONSchema, Options, SupportedSchemas } from './toJSONSchema';
 import { $schema } from './utils/json-schema';
 import { and, negate } from './utils/predicate';
+import { withJSONSchemaFeatures } from './extension/withJSONSchemaFeatures';
 
 const emptyObject = {} as const;
 const emptyArray = [] as const;
@@ -21,7 +22,7 @@ const SAMPLE_VALUES = [undefined, null, 0, 9999, NaN, false, true, '', 'foo', em
 type TestCase = {
     testCase: string;
     options?: Options;
-    schema: v.BaseSchema<any>;
+    schema: SupportedSchemas;
     error?: string;
     jsonSchema?: JSONSchema7;
     validValues?: any[];
@@ -45,7 +46,7 @@ function testSuite(testCases: TestCase[]) {
                 if (jsonSchema)
                     expect(convertedSchema).toEqual(jsonSchema);
                 const ajv = new Ajv();
-                const jsonValidator = ajv.compile(jsonSchema);
+                const jsonValidator = ajv.compile(convertedSchema!);
 
                 for (let validValue of validValues) {
                     // Check valid values match the schema
@@ -73,7 +74,7 @@ function testSuite(testCases: TestCase[]) {
 describe('exceptions', () => {
     testSuite([{
         testCase: 'unsupported schema',
-        schema: v.nan(),
+        schema: v.nan() as any,
         error: 'Unsupported valibot schema: nan',
     }]);
 });
@@ -201,7 +202,7 @@ describe('record', () => {
             schema: v.record(v.number()),
             validValues: [[]],
             // ajv JSON Schema error:
-            error: 'schema must be object or boolean',
+            error: '`[]` should match the json schema: expected false to be true // Object.is equality',
         },
         {
             testCase: 'record of numbers',
@@ -407,4 +408,24 @@ describe('definitions', () => {
         };
         expect(actual).toEqual(expected);
     });
+});
+
+
+describe(withJSONSchemaFeatures.name, () => {
+    testSuite([
+        {
+            testCase: 'array min length with json schema min items',
+            schema: withJSONSchemaFeatures(v.array(v.string(), [v.minLength(2)]), { minItems: 2 }),
+            jsonSchema: {
+                $schema,
+                items: {
+                    type: 'string',
+                },
+                minItems: 2,
+                type: 'array',
+            },
+            validValues: [['a', 'b'], ['a', 'b', 'c']],
+            invalidValues: [['a'], []],
+        },
+    ]);
 });

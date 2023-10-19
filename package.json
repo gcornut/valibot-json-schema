@@ -1,6 +1,6 @@
 {
   "name": "@gcornut/valibot-json-schema",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "packageManager": "yarn@3.6.4",
   "repository": {
     "type": "git",
@@ -13,12 +13,20 @@
     "valibot",
     "json-schema"
   ],
-  "bin": "dist/cli.js",
+  "type": "module",
+  "bin": "bin/valibot-json-schema.cjs",
+  "files": ["dist", "bin"],
+  "exports": {
+    "./toJSONSchema": "./dist/toJSONSchema.js",
+    "./extension/withJSONSchemaFeatures": "./dist/extension/withJSONSchemaFeatures.js"
+  },
+  "sideEffects": false,
   "scripts": {
-    "build:cli": "esbuild --platform=node --target=node16 --bundle --external:esbuild-runner ./src/cli --outfile=dist/cli.js --banner:js=\"#!/usr/bin/env node\" && chmod +x dist/cli.js",
-    "build:dist": "yarn build:cli",
+    "build:lib": "rm -rf dist && mkdir dist && esbuild --bundle --format=esm src/toJSONSchema.ts src/extension/withJSONSchemaFeatures.ts --outdir=dist",
+    "build:cli": "rm -rf bin && mkdir bin && esbuild --platform=node --target=node16 --bundle --external:esbuild-runner ./src/cli --outfile=bin/valibot-json-schema.cjs --banner:js=\"#!/usr/bin/env node\" && chmod +x bin/valibot-json-schema.cjs",
+    "build": "yarn build:cli && yarn build:lib",
     "check:types": "tsc --noEmit",
-    "publish": "yarn build:dist && yarn npm publish",
+    "publish": "yarn build && yarn npm publish",
     "run:cli": "esr src/cli",
     "test": "vitest"
   },

@@ -3,6 +3,7 @@ import { type JSONSchema7 } from 'json-schema';
 import { $schema, isJSONLiteral } from './utils/json-schema';
 import { assert } from './utils/assert';
 import { isOptionalSchema, isStringSchema } from './utils/valibot';
+import { getJSONSchemaFeatures } from './extension/withJSONSchemaFeatures';
 
 export type SupportedSchemas =
     v.AnySchema
@@ -125,7 +126,11 @@ function createConverter(context: Context) {
 
         const schemaConverter = SCHEMA_CONVERTERS[schema.schema];
         assert(schemaConverter, Boolean, `Unsupported valibot schema: ${(schema as any)?.schema || schema}`);
-        let converted = schemaConverter?.(schema as any, converter, context);
+        const converted = schemaConverter(schema as any, converter, context);
+        const jsonSchemaFeatures = getJSONSchemaFeatures(schema as any);
+        if (jsonSchemaFeatures) {
+            Object.assign(converted, jsonSchemaFeatures);
+        }
         if (defURI) {
             context.definitions[defName] = converted;
             return { $ref: defURI };
