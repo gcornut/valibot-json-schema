@@ -161,6 +161,10 @@ export function toJSONSchema(
         throw new Error('No main schema or definitions provided.');
     }
 
+    if (inputDefinitions) {
+        Object.values(inputDefinitions).forEach(converter);
+    }
+
     const mainConverted = schema && converter(schema);
     const mainDefName = schema && schemaDefinitionNames.get(schema);
     const out: JSONSchema7 = { $schema };
@@ -168,10 +172,6 @@ export function toJSONSchema(
         out['$ref'] = toDefinitionURI(mainDefName);
     } else {
         Object.assign(out, mainConverted);
-    }
-    if (inputDefinitions && !schema) {
-        // No main schema => convert all definitions
-        Object.values(inputDefinitions).filter(Boolean).forEach(converter);
     }
     if (Object.keys(definitions).length) {
         out['definitions'] = definitions;

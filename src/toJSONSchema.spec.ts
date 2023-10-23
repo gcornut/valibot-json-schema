@@ -402,8 +402,8 @@ describe('definitions', () => {
             $schema,
             $ref: '#/definitions/NumberSchema',
             definitions: {
-                // Tree shaken (no StringSchema)
                 NumberSchema: { type: 'number' },
+                StringSchema: { type: 'string' },
             },
         };
         expect(actual).toEqual(expected);

@@ -1,7 +1,7 @@
 import type { BaseSchema } from 'valibot';
 import type { JSONSchema7 } from 'json-schema';
 
-const JSON_SCHEMA_FEATURES_KEY = Symbol();
+const JSON_SCHEMA_FEATURES_KEY = '__json_schema_features';
 
 export type JSONSchemaFeatures = Partial<JSONSchema7>;
 

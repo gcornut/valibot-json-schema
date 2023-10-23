@@ -13,7 +13,7 @@ let cliBuiltPromise: Promise<void> | undefined;
 // Build it once
 async function buildOnce() {
     if (cliBuiltPromise) return cliBuiltPromise;
-    const command = `yarn build:cli`;
+    const command = `yarn build`;
     cliBuiltPromise = exec(command) as Promise<any>;
     await cliBuiltPromise;
 }

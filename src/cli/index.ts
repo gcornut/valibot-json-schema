@@ -3,26 +3,24 @@ import stableStringify from 'safe-stable-stringify';
 import path from 'path';
 import fs from 'fs';
 import get from 'lodash/get';
-import last from 'lodash/last';
 
 import { toJSONSchema } from '../toJSONSchema';
 import { isSchema } from '../utils/valibot';
 
 const program = new Command();
 
-const parseList = (strings: string[]) => strings?.flatMap((name: string) => name.split(',')) || [];
-
 program.command('to-json-schema <path>')
     .description('Convert a Valibot schema exported from a JS or TS module.')
     .option('-o, --out <file>', 'Set the output file (default: stdout)')
     .option('-t, --type <type>', 'Path to the main type')
-    .option('--definitions <object_path>', 'Path to the definitions')
+    .option('-d, --definitions <object_path>', 'Path to the definitions')
     .option('--strictObjectTypes', 'Make object strict object types (no unknown keys)')
     .action((sourcePath, { type, definitions: definitionsPath, out, strictObjectTypes }) => {
         try {
             // Enable auto transpile of ESM & TS modules required
             require('esbuild-runner/register');
         } catch (e) {
+            console.warn('Could not load module `esbuild-runner`: ESM/TS modules might not load properly.\n');
         }
 
         // Load the source path module
