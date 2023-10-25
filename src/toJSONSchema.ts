@@ -1,6 +1,7 @@
 import type * as v from 'valibot';
 import { type JSONSchema7 } from 'json-schema';
 import { $schema, isJSONLiteral } from './utils/json-schema';
+import { isEqual } from './utils/isEqual';
 import { assert } from './utils/assert';
 import { isOptionalSchema, isStringSchema } from './utils/valibot';
 import { getJSONSchemaFeatures } from './extension/withJSONSchemaFeatures';
@@ -17,7 +18,7 @@ export type SupportedSchemas =
     | v.ObjectSchema<any>
     | v.RecordSchema<any, any>
     | v.ArraySchema<any>
-    | v.TupleSchema<any>
+    | v.TupleSchema<any, any>
     | v.IntersectionSchema<any>
     | v.UnionSchema<any>
     | v.RecursiveSchema<any>;
@@ -59,7 +60,18 @@ const SCHEMA_CONVERTERS: { [K in SupportedSchemas['schema']]: Converter<GetSchem
     'array': ({ array }, convert) => ({ type: 'array', items: convert(array.item) }),
     'tuple': ({ tuple }, convert) => {
         const length = tuple.items.length;
-        return { type: 'array', minItems: length, maxItems: length, items: tuple.items.map(convert) };
+        const array: JSONSchema7 = { type: 'array', minItems: length, items: tuple.items.map(convert) };
+        if (tuple.rest) {
+            array.additionalItems = convert(tuple.rest);
+            // Simplification of uniform 1-tuple => simple array schema with min length = 1
+            if (Array.isArray(array.items) && array.items.length === 1 && isEqual(array.items[0], array.additionalItems)) {
+                array.items = array.items[0];
+                delete array.additionalItems;
+            }
+        } else {
+            array.maxItems = length;
+        }
+        return array;
     },
     'object': ({ object }, convert, context) => {
         const jsonSchema: JSONSchema7 = { type: 'object' };

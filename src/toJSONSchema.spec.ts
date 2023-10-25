@@ -50,7 +50,8 @@ function testSuite(testCases: TestCase[]) {
 
                 for (let validValue of validValues) {
                     // Check valid values match the schema
-                    expect(v.is(schema, validValue), `\`${JSON.stringify(validValue)}\` should match the valibot schema`).toBe(true);
+                    let safeParse = v.safeParse(schema, validValue);
+                    expect(safeParse.success, `\`${JSON.stringify(validValue)}\` should match the valibot schema\n${JSON.stringify((safeParse as any).issues)}\n`).toBe(true);
                     expect(jsonValidator(validValue), `\`${JSON.stringify(validValue)}\` should match the json schema`).toBe(true);
                 }
 
@@ -244,6 +245,31 @@ describe('tuple', () => {
             },
             validValues: [[1, 'foo']],
             invalidValues: [[], [1], ['foo', 1], ['foo'], ...SAMPLE_VALUES],
+        },
+        {
+            testCase: 'tuple of a number and then strings',
+            schema: v.tuple([v.number()], v.string()),
+            jsonSchema: {
+                $schema,
+                type: 'array',
+                items: [{ type: 'number' }],
+                additionalItems: { type: 'string' },
+                minItems: 1,
+            },
+            validValues: [[1], [1, 'a'], [2, 'a', 'b', 'c']],
+            invalidValues: [[], ['foo', 1], ['foo'], ...SAMPLE_VALUES],
+        },
+        {
+            testCase: 'tuple of a string and then more strings',
+            schema: v.tuple([v.string()], v.string()),
+            jsonSchema: {
+                $schema,
+                type: 'array',
+                items: { type: 'string' },
+                minItems: 1,
+            },
+            validValues: [['a'], ['a', 'b'], ['a', 'b', 'c']],
+            invalidValues: [[], ['foo', 1]],
         },
     ]);
 });
