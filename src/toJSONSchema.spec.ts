@@ -263,16 +263,16 @@ describe('tuple', () => {
 });
 
 describe('composition types', () => {
-    describe('enum', () => {
+    describe('picklist', () => {
         it('should convert enum schema with single members', testCase({
-            schema: v.enumType(['foo']),
+            schema: v.picklist(['foo']),
             jsonSchema: { $schema, enum: ['foo'] },
             validValues: ['foo'],
             invalidValues: without(SAMPLE_VALUES, 'foo'),
         }));
 
         it('should convert enum schema with multiple members', testCase({
-            schema: v.enumType(['foo', 'bar']),
+            schema: v.picklist(['foo', 'bar']),
             jsonSchema: { $schema, enum: ['foo', 'bar'] },
             validValues: ['foo', 'bar'],
             invalidValues: without(SAMPLE_VALUES, 'foo', 'bar'),
@@ -290,9 +290,9 @@ describe('composition types', () => {
 
     describe('intersection', () => {
         it('should convert intersection of enums', testCase({
-            schema: v.intersection([
-                v.enumType(['foo', 'bar']),
-                v.enumType(['bar', 'baz']),
+            schema: v.intersect([
+                v.picklist(['foo', 'bar']),
+                v.picklist(['bar', 'baz']),
             ]),
             jsonSchema: {
                 $schema,

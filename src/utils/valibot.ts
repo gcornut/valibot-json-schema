@@ -1,13 +1,13 @@
 import type * as v from 'valibot';
 
 export function isSchema(schema: any): boolean {
-    return schema?.schema;
+    return schema?.type;
 }
 
 export function isOptionalSchema(schema: any): schema is v.OptionalSchema<any> {
-    return schema?.schema === 'optional';
+    return schema?.type === 'optional';
 }
 
 export function isStringSchema(schema: any): schema is v.StringSchema<any> {
-    return schema?.schema === 'string';
+    return schema?.type === 'string';
 }
