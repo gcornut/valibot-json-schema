@@ -127,6 +127,7 @@ Here is the list of supported Valibot schemas (some have partial support):
 | `boolean`      | supported                                                                                     |
 | `nullable`     | supported                                                                                     |
 | `optional`     | partial: only inside `object` schemas                                                         |
+| `never`        | partial: only inside `object` rest or `tuple` rest params                                     |
 | `enum`         | supported                                                                                     |
 | `union`        | supported                                                                                     |
 | `intersection` | supported                                                                                     |

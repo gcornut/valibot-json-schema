@@ -7,8 +7,9 @@ export default [
         format: ['esm', 'cjs'],
         dts: {
             resolve: true,
-            compilerOptions: { 'moduleResolution': 'node' },
+            compilerOptions: { moduleResolution: 'node' },
         },
+        external: ['valibot', 'json-schema'],
         outDir: './dist',
     }),
     defineConfig({

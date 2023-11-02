@@ -1,6 +1,6 @@
 {
   "name": "@gcornut/valibot-json-schema",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "packageManager": "yarn@3.6.4",
   "repository": {
     "type": "git",
@@ -11,6 +11,8 @@
   },
   "keywords": [
     "valibot",
+    "schema",
+    "cli",
     "json-schema"
   ],
   "type": "commonjs",
@@ -42,11 +44,13 @@
     "test": "vitest"
   },
   "peerDependencies": {
-    "esbuild": "*",
-    "esbuild-runner": "*"
+    "@types/json-schema": ">= 7.0.14",
+    "esbuild": ">= 0.18.20",
+    "esbuild-runner": ">= 2.2.2",
+    "valibot": ">= 0.20.0"
   },
   "devDependencies": {
-    "@types/json-schema": "^7.0.13",
+    "@types/json-schema": "^7.0.14",
     "@types/lodash": "^4.14.199",
     "@vitest/coverage-v8": "^0.34.6",
     "ajv": "^8.12.0",

@@ -73,7 +73,7 @@ function testCase(
 describe('exceptions', () => {
     it('should fail with undefined schema', testCase({
         schema: undefined as any,
-        error: 'No main schema or definitions provided.'
+        error: 'No main schema or definitions provided.',
     }));
 
     it('should fail on unsupported schema', testCase({
@@ -144,11 +144,24 @@ describe('base types', () => {
 });
 
 describe('object', () => {
-    it('should convert empty object schema', testCase({
+    it('should convert an open empty object schema', testCase({
         schema: v.object({}),
         jsonSchema: { $schema, type: 'object', properties: {} },
-        validValues: [{}],
+        validValues: [{}, { foo: 'bar' }],
         invalidValues: SAMPLE_VALUES.filter(negate(isObject)),
+    }));
+
+    it('should convert a closed empty object schema', testCase({
+        schema: v.object({}, v.never()),
+        jsonSchema: { $schema, type: 'object', properties: {}, additionalProperties: false },
+        validValues: [{}],
+        invalidValues: without(SAMPLE_VALUES, emptyObject, emptyArray),
+    }));
+
+    it('should force an open empty object schema into a closed schema', testCase({
+        options: { strictObjectTypes: true },
+        schema: v.object({}),
+        jsonSchema: { $schema, type: 'object', properties: {}, additionalProperties: false },
     }));
 
     it('should convert object schema with props', testCase({
@@ -170,9 +183,8 @@ describe('object', () => {
         ],
     }));
 
-    it('should convert object schema with strict props', testCase({
-        options: { strictObjectTypes: true },
-        schema: v.strict(v.object({ string: v.string(), optionalString: v.optional(v.string()) })),
+    it('should convert object closed schema with props', testCase({
+        schema: v.object({ string: v.string(), optionalString: v.optional(v.string()) }, v.never()),
         jsonSchema: {
             $schema,
             type: 'object',
@@ -223,6 +235,31 @@ describe('array', () => {
 });
 
 describe('tuple', () => {
+    it('should convert open 1-tuple schema', testCase({
+        schema: v.tuple([v.number()]),
+        jsonSchema: {
+            $schema,
+            type: 'array',
+            items: [{ type: 'number' }],
+            minItems: 1,
+        },
+        validValues: [[1], [1, 'foo']],
+        invalidValues: [[], ['foo', 1], ['foo'], ...SAMPLE_VALUES],
+    }));
+
+    it('should convert closed 1-tuple schema', testCase({
+        schema: v.tuple([v.number()], v.never()),
+        jsonSchema: {
+            $schema,
+            type: 'array',
+            items: [{ type: 'number' }],
+            minItems: 1,
+            maxItems: 1,
+        },
+        validValues: [[1], [0]],
+        invalidValues: [[], ['foo', 1], ['foo'], ...SAMPLE_VALUES],
+    }));
+
     it('should convert tuple of a number and a string schema', testCase({
         schema: v.tuple([v.number(), v.string()]),
         jsonSchema: {
@@ -230,7 +267,6 @@ describe('tuple', () => {
             type: 'array',
             items: [{ type: 'number' }, { type: 'string' }],
             minItems: 2,
-            maxItems: 2,
         },
         validValues: [[1, 'foo']],
         invalidValues: [[], [1], ['foo', 1], ['foo'], ...SAMPLE_VALUES],

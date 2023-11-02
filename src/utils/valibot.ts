@@ -4,10 +4,13 @@ export function isSchema(schema: any): boolean {
     return schema?.type;
 }
 
-export function isOptionalSchema(schema: any): schema is v.OptionalSchema<any> {
-    return schema?.type === 'optional';
-}
+type KnownSchemas = v.OptionalSchema<any> | v.StringSchema | v.NeverSchema;
+type GetSchema<T extends string> = Extract<KnownSchemas, { type: T }>
 
-export function isStringSchema(schema: any): schema is v.StringSchema<any> {
-    return schema?.type === 'string';
-}
+export const isSchemaType = <T extends KnownSchemas['type']>(type: T) => {
+    return (schema: any): schema is GetSchema<T> => !!schema && schema.type === type;
+};
+
+export const isOptionalSchema = isSchemaType('optional');
+export const isStringSchema = isSchemaType('string');
+export const isNeverSchema = isSchemaType('never');

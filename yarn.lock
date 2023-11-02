@@ -180,7 +180,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@gcornut/valibot-json-schema@workspace:."
   dependencies:
-    "@types/json-schema": ^7.0.13
+    "@types/json-schema": ^7.0.14
     "@types/lodash": ^4.14.199
     "@vitest/coverage-v8": ^0.34.6
     ajv: ^8.12.0
@@ -195,8 +195,10 @@ __metadata:
     valibot: ^0.20.0
     vitest: 0.32.2
   peerDependencies:
-    esbuild: "*"
-    esbuild-runner: "*"
+    "@types/json-schema": ">= 7.0.14"
+    esbuild: ">= 0.18.20"
+    esbuild-runner: ">= 2.2.2"
+    valibot: ">= 0.20.0"
   bin:
     valibot-json-schema: bin/index.js
   languageName: unknown
@@ -338,10 +340,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-schema@npm:^7.0.13":
-  version: 7.0.13
-  resolution: "@types/json-schema@npm:7.0.13"
-  checksum: 345df21a678fa72fb389f35f33de77833d09d4a142bb2bcb27c18690efa4cf70fc2876e43843cefb3fbdb9fcb12cd3e970a90936df30f53bbee899865ff605ab
+"@types/json-schema@npm:^7.0.14":
+  version: 7.0.14
+  resolution: "@types/json-schema@npm:7.0.14"
+  checksum: 4b3dd99616c7c808201c56f6c7f6552eb67b5c0c753ab3fa03a6cb549aae950da537e9558e53fa65fba23d1be624a1e4e8d20c15027efbe41e03ca56f2b04fb0
   languageName: node
   linkType: hard
 

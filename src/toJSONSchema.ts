@@ -1,27 +1,43 @@
-import type * as v from 'valibot';
+import type {
+    AnySchema,
+    ArraySchema,
+    BooleanSchema,
+    IntersectSchema,
+    LiteralSchema,
+    NullableSchema,
+    NullSchema,
+    NumberSchema,
+    ObjectSchema,
+    PicklistSchema,
+    RecordSchema,
+    RecursiveSchema,
+    StringSchema,
+    TupleSchema,
+    UnionSchema,
+} from 'valibot';
 import { type JSONSchema7 } from 'json-schema';
-import { $schema, isJSONLiteral } from './utils/json-schema';
+import { $schema, assertJSONLiteral } from './utils/json-schema';
 import { isEqual } from './utils/isEqual';
 import { assert } from './utils/assert';
-import { isOptionalSchema, isStringSchema } from './utils/valibot';
+import { isNeverSchema, isOptionalSchema, isStringSchema } from './utils/valibot';
 import { getJSONSchemaFeatures } from './extension/withJSONSchemaFeatures';
 
 export type SupportedSchemas =
-    v.AnySchema
-    | v.LiteralSchema<any>
-    | v.NullSchema
-    | v.NumberSchema
-    | v.StringSchema
-    | v.BooleanSchema
-    | v.NullableSchema<any>
-    | v.ObjectSchema<any>
-    | v.RecordSchema<any, any>
-    | v.ArraySchema<any>
-    | v.TupleSchema<any, any>
-    | v.IntersectSchema<any>
-    | v.UnionSchema<any>
-    | v.PicklistSchema<any>
-    | v.RecursiveSchema<any>;
+    AnySchema
+    | LiteralSchema<any>
+    | NullSchema
+    | NumberSchema
+    | StringSchema
+    | BooleanSchema
+    | NullableSchema<any>
+    | ObjectSchema<any, any>
+    | RecordSchema<any, any>
+    | ArraySchema<any>
+    | TupleSchema<any, any>
+    | IntersectSchema<any>
+    | UnionSchema<any>
+    | PicklistSchema<any>
+    | RecursiveSchema<any>;
 
 export interface Options {
     /**
@@ -47,13 +63,13 @@ const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<GetSchema<
     'any': () => ({}),
     // Core types
     'null': () => ({ const: null }),
-    'literal': ({ literal }) => ({ const: assert(literal, isJSONLiteral, 'Unsupported literal value type: %') }),
+    'literal': ({ literal }) => ({ const: assertJSONLiteral(literal) }),
     'number': () => ({ type: 'number' }),
     'string': () => ({ type: 'string' }),
     'boolean': () => ({ type: 'boolean' }),
     // Compositions
     'nullable': ({ wrapped }, convert) => ({ anyOf: [{ const: null }, convert(wrapped)!] }),
-    'picklist': ({ options }) => ({ enum: options.map((v: any) => assert(v, isJSONLiteral, 'Unsupported literal value type: %')) }),
+    'picklist': ({ options }) => ({ enum: options.map(assertJSONLiteral) }),
     'union': ({ options }, convert) => ({ anyOf: options.map(convert) }),
     'intersect': ({ options }, convert) => ({ allOf: options.map(convert) }),
     // Complex types
@@ -62,18 +78,20 @@ const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<GetSchema<
         const length = items.length;
         const array: JSONSchema7 = { type: 'array', minItems: length, items: items.map(convert) };
         if (rest) {
-            array.additionalItems = convert(rest);
-            // Simplification of uniform 1-tuple => simple array schema with min length = 1
-            if (Array.isArray(array.items) && array.items.length === 1 && isEqual(array.items[0], array.additionalItems)) {
-                array.items = array.items[0];
-                delete array.additionalItems;
+            if (isNeverSchema(rest)) {
+                array.maxItems = length;
+            } else {
+                array.additionalItems = convert(rest);
+                // Simplification of uniform 1-tuple => simple array schema with min length = 1
+                if (Array.isArray(array.items) && array.items.length === 1 && isEqual(array.items[0], array.additionalItems)) {
+                    array.items = array.items[0];
+                    delete array.additionalItems;
+                }
             }
-        } else {
-            array.maxItems = length;
         }
         return array;
     },
-    'object': ({ entries }, convert, context) => {
+    'object': ({ entries, rest }, convert, context) => {
         const jsonSchema: JSONSchema7 = { type: 'object' };
         const required: string[] = [];
         jsonSchema['properties'] = Object.fromEntries(Object.entries(entries).map(([propKey, propValue]) => {
@@ -86,14 +104,18 @@ const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<GetSchema<
             return [propKey, convert(propSchema)!];
         }));
         if (required.length) jsonSchema['required'] = required;
-        if (context.strictObjectTypes) jsonSchema['additionalProperties'] = false;
+        if (rest) {
+            jsonSchema['additionalProperties'] = isNeverSchema(rest) ? false : convert(rest);
+        } else if (context.strictObjectTypes) {
+            jsonSchema['additionalProperties'] = false;
+        }
         return jsonSchema;
     },
     'record': ({ key, value }, convert) => {
         assert(key, isStringSchema, 'Unsupported record key type: %');
         return { type: 'object', additionalProperties: convert(value) };
     },
-    'recursive': (schema, convert, context) => {
+    'recursive': (schema, _, context) => {
         const nested = schema.getter();
         const defName = context.schemaDefinitionNames.get(nested);
         if (!defName) {
