@@ -54,10 +54,10 @@ export interface Options {
     strictObjectTypes?: boolean
 }
 
-type Converter<S extends SupportedSchemas> = (schema: S, convert: ReturnType<typeof createConverter>, context: Context) => JSONSchema7;
+type Converter<S extends SupportedSchemas> = (schema: S, convert: ReturnType<typeof createConverter>['converter'], context: Context) => JSONSchema7;
 
 type GetSchema<T extends string> = Extract<SupportedSchemas, { type: T }>
-type SchemaDefinitionReverseMap = Map<SupportedSchemas, string>;
+type DefinitionNameMap = Map<SupportedSchemas, string>;
 
 const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<GetSchema<K>> } = {
     'any': () => ({}),
@@ -68,48 +68,49 @@ const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<GetSchema<
     'string': () => ({ type: 'string' }),
     'boolean': () => ({ type: 'boolean' }),
     // Compositions
-    'nullable': ({ wrapped }, convert) => ({ anyOf: [{ const: null }, convert(wrapped)!] }),
+    'nullable': ({ wrapped }, convert) => ({ anyOf: [{ const: null }, convert(wrapped)] }),
     'picklist': ({ options }) => ({ enum: options.map(assertJSONLiteral) }),
     'union': ({ options }, convert) => ({ anyOf: options.map(convert) }),
     'intersect': ({ options }, convert) => ({ allOf: options.map(convert) }),
     // Complex types
     'array': ({ item }, convert) => ({ type: 'array', items: convert(item) }),
-    'tuple': ({ items, rest }, convert) => {
-        const length = items.length;
-        const array: JSONSchema7 = { type: 'array', minItems: length, items: items.map(convert) };
-        if (rest) {
-            if (isNeverSchema(rest)) {
-                array.maxItems = length;
+    'tuple': ({ items: originalItems, rest }, convert) => {
+        const minItems = originalItems.length;
+        let maxItems: JSONSchema7['maxItems'];
+        let items = originalItems.map(convert);
+        let additionalItems: JSONSchema7['additionalItems'] = undefined;
+        if (isNeverSchema(rest)) {
+            maxItems = minItems;
+        } else if (rest) {
+            const restItems = convert(rest);
+            // Simplification of uniform 1-tuple => simple array schema with min length = 1
+            if (items.length === 1 && isEqual(items[0], restItems)) {
+                items = items[0];
             } else {
-                array.additionalItems = convert(rest);
-                // Simplification of uniform 1-tuple => simple array schema with min length = 1
-                if (Array.isArray(array.items) && array.items.length === 1 && isEqual(array.items[0], array.additionalItems)) {
-                    array.items = array.items[0];
-                    delete array.additionalItems;
-                }
+                additionalItems = restItems;
             }
         }
-        return array;
+        return { type: 'array', items, additionalItems, minItems, maxItems };
     },
     'object': ({ entries, rest }, convert, context) => {
-        const jsonSchema: JSONSchema7 = { type: 'object' };
+        const properties: any = {};
         const required: string[] = [];
-        jsonSchema['properties'] = Object.fromEntries(Object.entries(entries).map(([propKey, propValue]) => {
+        for (const [propKey, propValue] of Object.entries(entries)) {
             let propSchema = propValue as any;
             if (isOptionalSchema(propSchema)) {
                 propSchema = propSchema.wrapped;
             } else {
                 required.push(propKey);
             }
-            return [propKey, convert(propSchema)!];
-        }));
-        if (required.length) jsonSchema['required'] = required;
-        if (rest) {
-            jsonSchema['additionalProperties'] = isNeverSchema(rest) ? false : convert(rest);
-        } else if (context.strictObjectTypes) {
-            jsonSchema['additionalProperties'] = false;
+            properties[propKey] = convert(propSchema)!;
         }
-        return jsonSchema;
+        let additionalProperties: JSONSchema7['additionalProperties'];
+        if (rest) {
+            additionalProperties = isNeverSchema(rest) ? false : convert(rest);
+        } else if (context.strictObjectTypes) {
+            additionalProperties = false;
+        }
+        return { type: 'object', properties, required: required.length ? required : undefined, additionalProperties };
     },
     'record': ({ key, value }, convert) => {
         assert(key, isStringSchema, 'Unsupported record key type: %');
@@ -117,7 +118,7 @@ const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<GetSchema<
     },
     'recursive': (schema, _, context) => {
         const nested = schema.getter();
-        const defName = context.schemaDefinitionNames.get(nested);
+        const defName = context.defNameMap.get(nested);
         if (!defName) {
             throw new Error('Type inside recursive schema must be provided in the definitions');
         }
@@ -125,8 +126,8 @@ const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<GetSchema<
     },
 };
 
-function getDefinitionReverseMap(definitions: Record<string, SupportedSchemas> = {}) {
-    const map: SchemaDefinitionReverseMap = new Map();
+function getDefNameMap(definitions: Record<string, SupportedSchemas> = {}) {
+    const map: DefinitionNameMap = new Map();
     for (let [name, definition] of Object.entries(definitions)) {
         map.set(definition, name);
     }
@@ -135,61 +136,56 @@ function getDefinitionReverseMap(definitions: Record<string, SupportedSchemas> =
 
 interface Context {
     /**
-     * JSON Schema definitions
-     */
-    definitions: Required<JSONSchema7>['definitions'],
-    /**
      * Mapping from schema to name
      */
-    schemaDefinitionNames: SchemaDefinitionReverseMap;
+    defNameMap: DefinitionNameMap;
     /**
      * Activate strict object types
      */
-    strictObjectTypes: Options['strictObjectTypes']
+    strictObjectTypes?: Options['strictObjectTypes']
 }
 
 const toDefinitionURI = (name: string) => `#/definitions/${name}`;
 
 function createConverter(context: Context) {
-    return function converter(schema: SupportedSchemas): JSONSchema7 | undefined {
-        const defName = context.schemaDefinitionNames.get(schema);
-        const defURI = defName && toDefinitionURI(defName);
-        if (defURI && defURI in context.definitions) {
-            return { $ref: defURI };
-        }
+    const definitions: Required<JSONSchema7['definitions']> = {};
+    return {
+        definitions,
+        converter: function converter(schema: SupportedSchemas): JSONSchema7 {
+            const defName = context.defNameMap.get(schema);
+            const defURI = defName && toDefinitionURI(defName);
+            if (defURI && defURI in definitions) {
+                return { $ref: defURI };
+            }
 
-        const schemaConverter = SCHEMA_CONVERTERS[schema.type];
-        assert(schemaConverter, Boolean, `Unsupported valibot schema: ${schema?.type || schema}`);
-        const converted = schemaConverter(schema as any, converter, context);
-        const jsonSchemaFeatures = getJSONSchemaFeatures(schema as any);
-        if (jsonSchemaFeatures) {
-            Object.assign(converted, jsonSchemaFeatures);
-        }
-        if (defURI) {
-            context.definitions[defName] = converted;
-            return { $ref: defURI };
-        }
-        return converted;
+            const schemaConverter = SCHEMA_CONVERTERS[schema.type];
+            assert(schemaConverter, Boolean, `Unsupported valibot schema: ${schema?.type || schema}`);
+            const converted = schemaConverter(schema as any, converter, context);
+            const jsonSchemaFeatures = getJSONSchemaFeatures(schema as any);
+            if (jsonSchemaFeatures) {
+                Object.assign(converted, jsonSchemaFeatures);
+            }
+            if (defURI) {
+                definitions[defName] = converted;
+                return { $ref: defURI };
+            }
+            return converted;
+        },
     };
 }
 
 /**
  * Convert Valibot schemas to JSON schema.
- *
- * @param schema            Main schema to be converted to the root JSON schema definition
- * @param definitions       Schemas indexed by name to be converted to the JSON schema `definitions`
- * @param strictObjectTypes Produce strict object types that do not allow unknown properties
  */
 export function toJSONSchema(
     {
         schema,
-        strictObjectTypes,
         definitions: inputDefinitions,
+        ...more
     }: Options,
 ): JSONSchema7 | undefined {
-    const definitions = {};
-    const schemaDefinitionNames = getDefinitionReverseMap(inputDefinitions);
-    const converter = createConverter({ definitions, schemaDefinitionNames, strictObjectTypes });
+    const defNameMap = getDefNameMap(inputDefinitions);
+    const { definitions, converter } = createConverter({ defNameMap, ...more });
 
     if (!schema && !inputDefinitions) {
         throw new Error('No main schema or definitions provided.');
@@ -200,7 +196,7 @@ export function toJSONSchema(
     }
 
     const mainConverted = schema && converter(schema);
-    const mainDefName = schema && schemaDefinitionNames.get(schema);
+    const mainDefName = schema && defNameMap.get(schema);
     const out: JSONSchema7 = { $schema };
     if (mainDefName) {
         out['$ref'] = toDefinitionURI(mainDefName);

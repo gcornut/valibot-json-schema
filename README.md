@@ -1,14 +1,19 @@
 # @gcornut/valibot-json-schema
 
-Convert Valibot schemas exported from a JS or TS module into JSON schema:
+CLI and JS utility to convert valibot schemas to JSON schema (draft 07).
+
+## Command line tool
 
 ```shell
-# Convert valibot schemas defined in typescript
-npx @gcornut/valibot-json-schema to-json-schema ./path/to/valibot-schemas.ts
+# Convert valibot schemas defined in commonjs
+npx @gcornut/valibot-json-schema to-json-schema ./path/to/valibot-schemas.cjs
+# Convert valibot schemas defined in typescript (requires esbuild-runner)
+yarn dlx -p esbuild -p esbuild-runner -p @gcornut/valibot-json-schema valibot-json-schema to-json-schema ./path/to/valibot-schemas.ts
 ```
 
-Outputs a conversion of the Valibot schemas into JSON schema. If the default export is a Valibot schemas, it is used as
-the root definition. Other exported Valibot schemas are exported in the <code>definitions</code> section.
+This outputs a conversion of the Valibot schemas into JSON schema. If the default export is a Valibot schemas, it is
+used as
+the root definition. Other exported Valibot schemas are converted in the JSON schema <code>definitions</code> section.
 
 <details><summary>Example</summary>
 
@@ -51,12 +56,16 @@ separately , so it is exported to the `definitions` section.
 
 Use `-o <file>` option to output the JSON schema to a file instead of `stdout`.
 
-Use `-t <type>` option to ignore the default export and use given exported type as the root definition.
+Use `-t <type>` option to select the root definitions from the module exports (instead of using the default export).
+Example: `-t foo.bar` will get the property `bar` on the `foo` export of the input JS module.
+
+Use `-d <type>` option to select the definitions from the module exports (instead of using all non-default export).
+Example: `-d foo.bar` will get the property `bar` on the `foo` export of the input JS module.
 
 Use `--strictObjectTypes` to generate strict object types that do not allow unknown
 properties (`additionnalProperties: false`).
 
-## Convert Valibot to JSON Schema
+## Programmatic usage
 
 Use the `toJSONSchema` function to convert a Valibot schema into JSON schema (v7).
 
@@ -107,10 +116,11 @@ the `strictObjectTypes` in the options to force ALL object types to block unknow
 
 Example: `toJSONSchema({ schema: object({}), strictObjectTypes: true });`
 
-### Supported features
+## Supported features
 
-All Valibot pipelines and methods are not supported because they do not offer introspection at runtime even if they have
-equivalent JSON schema feature.
+All Valibot pipelines and methods are not yet supported because they do not offer introspection at runtime even if they
+have
+equivalent JSON schema feature (will probably come with https://github.com/fabian-hiller/valibot/pull/211).
 
 Here is the list of supported Valibot schemas (some have partial support):
 
@@ -128,7 +138,7 @@ Here is the list of supported Valibot schemas (some have partial support):
 | `nullable`     | supported                                                                                     |
 | `optional`     | partial: only inside `object` schemas                                                         |
 | `never`        | partial: only inside `object` rest or `tuple` rest params                                     |
-| `enum`         | supported                                                                                     |
+| `picklist`     | partial: only JSON literal are supported                                                      |
 | `union`        | supported                                                                                     |
 | `intersection` | supported                                                                                     |
 | `array`        | supported                                                                                     |
