@@ -19,6 +19,8 @@ test(isEqual, () => {
     expect(isEqual([1, 2], [2, 1])).toBe(false);
 
     expect(isEqual({ a: 1 }, { a: 2 })).toBe(false);
+    expect(isEqual({ a: 1 }, {})).toBe(false);
+    expect(isEqual({}, { a: 1 })).toBe(false);
     expect(isEqual({ a: { a: 1 } }, { a: { a: 2 } })).toBe(false);
     expect(isEqual({ a: 1 }, { a: 1, b: 1 })).toBe(false);
 });

@@ -56,10 +56,9 @@ export interface Options {
 
 type Converter<S extends SupportedSchemas> = (schema: S, convert: ReturnType<typeof createConverter>['converter'], context: Context) => JSONSchema7;
 
-type GetSchema<T extends string> = Extract<SupportedSchemas, { type: T }>
 type DefinitionNameMap = Map<SupportedSchemas, string>;
 
-const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<GetSchema<K>> } = {
+const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<Extract<SupportedSchemas, { type: K }>> } = {
     'any': () => ({}),
     // Core types
     'null': () => ({ const: null }),
@@ -78,7 +77,7 @@ const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<GetSchema<
         const minItems = originalItems.length;
         let maxItems: JSONSchema7['maxItems'];
         let items = originalItems.map(convert);
-        let additionalItems: JSONSchema7['additionalItems'] = undefined;
+        let additionalItems: JSONSchema7['additionalItems'];
         if (isNeverSchema(rest)) {
             maxItems = minItems;
         } else if (rest) {
@@ -126,7 +125,7 @@ const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<GetSchema<
     },
 };
 
-function getDefNameMap(definitions: Record<string, SupportedSchemas> = {}) {
+function getDefNameMap(definitions: Options['definitions'] = {}) {
     const map: DefinitionNameMap = new Map();
     for (let [name, definition] of Object.entries(definitions)) {
         map.set(definition, name);
@@ -142,36 +141,36 @@ interface Context {
     /**
      * Activate strict object types
      */
-    strictObjectTypes?: Options['strictObjectTypes']
+    strictObjectTypes?: Options['strictObjectTypes'];
 }
 
 const toDefinitionURI = (name: string) => `#/definitions/${name}`;
 
 function createConverter(context: Context) {
-    const definitions: Required<JSONSchema7['definitions']> = {};
-    return {
-        definitions,
-        converter: function converter(schema: SupportedSchemas): JSONSchema7 {
-            const defName = context.defNameMap.get(schema);
-            const defURI = defName && toDefinitionURI(defName);
-            if (defURI && defURI in definitions) {
-                return { $ref: defURI };
-            }
+    const definitions: Record<string, JSONSchema7> = {};
 
-            const schemaConverter = SCHEMA_CONVERTERS[schema.type];
-            assert(schemaConverter, Boolean, `Unsupported valibot schema: ${schema?.type || schema}`);
-            const converted = schemaConverter(schema as any, converter, context);
-            const jsonSchemaFeatures = getJSONSchemaFeatures(schema as any);
-            if (jsonSchemaFeatures) {
-                Object.assign(converted, jsonSchemaFeatures);
-            }
-            if (defURI) {
-                definitions[defName] = converted;
-                return { $ref: defURI };
-            }
-            return converted;
-        },
-    };
+    function converter(schema: SupportedSchemas): JSONSchema7 {
+        const defName = context.defNameMap.get(schema);
+        const defURI = defName && toDefinitionURI(defName);
+        if (defURI && defURI in definitions) {
+            return { $ref: defURI };
+        }
+
+        const schemaConverter = SCHEMA_CONVERTERS[schema.type];
+        assert(schemaConverter, Boolean, `Unsupported valibot schema: ${schema?.type || schema}`);
+        const converted = schemaConverter(schema as any, converter, context);
+        const jsonSchemaFeatures = getJSONSchemaFeatures(schema as any);
+        if (jsonSchemaFeatures) {
+            Object.assign(converted, jsonSchemaFeatures);
+        }
+        if (defURI) {
+            definitions[defName] = converted;
+            return { $ref: defURI };
+        }
+        return converted;
+    }
+
+    return { definitions, converter };
 }
 
 /**
@@ -183,7 +182,7 @@ export function toJSONSchema(
         definitions: inputDefinitions,
         ...more
     }: Options,
-): JSONSchema7 | undefined {
+): JSONSchema7 {
     const defNameMap = getDefNameMap(inputDefinitions);
     const { definitions, converter } = createConverter({ defNameMap, ...more });
 
