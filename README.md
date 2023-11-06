@@ -2,22 +2,28 @@
 
 CLI and JS utility to convert valibot schemas to JSON schema (draft 07).
 
-## Command line tool
+Some of the features of Valibot can't be converted to JSON schema. JS-specific types like `blob` or `nan` obviously
+can't have an equivalent.  
+Also, even if Valibot validation pipeline (like `maxLength`, `regex`, etc.) have equivalent features in JSON schema,
+they can't easily be inspected at runtime yet (coming soon) so we can't convert them.  
+[See supported features](#supported-features) for more info.
+
+## Command Line Tool
+
+This lib exports a CLI that can be used to quickly convert JS modules defining valibot schemas into a JSON schema.
 
 ```shell
-# Convert valibot schemas defined in commonjs
-npx @gcornut/valibot-json-schema to-json-schema ./path/to/valibot-schemas.cjs
-# Convert valibot schemas defined in typescript (requires esbuild-runner)
-yarn dlx -p esbuild -p esbuild-runner -p @gcornut/valibot-json-schema valibot-json-schema to-json-schema ./path/to/valibot-schemas.ts
+# Convert valibot schemas to JSON schema
+npx @gcornut/valibot-json-schema to-json-schema ./schemas.js
 ```
 
 This outputs a conversion of the Valibot schemas into JSON schema. If the default export is a Valibot schemas, it is
 used as
 the root definition. Other exported Valibot schemas are converted in the JSON schema <code>definitions</code> section.
 
-<details><summary>Example</summary>
+<details><summary><b>See detailed input and output:</b></summary>
 
-_File `./path/to/valibot-schemas.ts`_:
+_Input file `./schemas.js`_:
 
 ```js
 import * as v from 'valibot';
@@ -27,7 +33,7 @@ const AnObject = v.object({ aString: AString });
 export default AnObject;
 ```
 
-_Previous command outputs_:
+_Output conversion_:
 
 ```json
 {
@@ -50,9 +56,31 @@ _Previous command outputs_:
 ```
 
 `AnObject` is the default export in the source module, so it is converted as the root definition. `AString` is exported
-separately , so it is exported to the `definitions` section.
+separately, so it is exported to the `definitions` section.
 
 </details>
+
+### ESM and TypeScript input module
+
+The `valibot-json-schema` CLI loads the input JS module using **standard NodeJS CommonJS require**. This means you will
+have issues with **ESM or TypeScript modules**.
+
+To remedy that, you will either have to preinstall `ebuild-runner` and `esbuild` (so that the program can use them) or
+use a Node-compatible runtime that support these modules (ex: bun, replacing `npx` with `bunx`).
+
+Example:
+
+```shell
+# Convert from TS/ESM module with esbuild-runner preinstalled
+npm install esbuild esbuild-runner
+npx @gcornut/valibot-json-schema to-json-schema ./schemas.ts
+# Convert from TS/ESM module using `yarn dlx` multi-package feature 
+yarn dlx -p esbuild -p esbuild-runner -p @gcornut/valibot-json-schema valibot-json-schema to-json-schema ./schemas.ts
+# Convert from TS/ESM module using bunx
+bunx @gcornut/valibot-json-schema to-json-schema ./schemas.ts
+```
+
+### CLI parameters
 
 Use `-o <file>` option to output the JSON schema to a file instead of `stdout`.
 
@@ -74,19 +102,11 @@ import { toJSONSchema } from '@gcornut/valibot-json-schema/toJSONSchema';
 import { string } from 'valibot';
 
 toJSONSchema({ schema: string() })
-/**
- * Returns:
- * {
- *    $schema: 'http://json-schema.org/draft-07/schema#',
- *    type: 'string',
- * }
- */
+// {
+//    $schema: 'http://json-schema.org/draft-07/schema#',
+//    type: 'string',
+// }
 ```
-
-Some of the features of Valibot can't be converted to JSON schema. JS-specific types like `blob` or `nan` obviously
-can't have an equivalent.
-Also, Valibot pipelines (like `maxLength`, `regex`, etc.) can't easily be introspected and thus can't be converted even
-if they have an equivalent in JSON schema.
 
 ### JSON Schema definitions
 
@@ -99,14 +119,11 @@ import { number } from 'valibot';
 
 const Number = number();
 toJSONSchema({ schema: Number, definitions: { Number } });
-/**
- * Returns:
- * {
- *    $schema: 'http://json-schema.org/draft-07/schema#',
- *    $ref: '#/definitions/Number',
- *    definitions: { Number: { type: 'number' } },
- * }
- */
+// {
+//    $schema: 'http://json-schema.org/draft-07/schema#',
+//    $ref: '#/definitions/Number',
+//    definitions: { Number: { type: 'number' } },
+// }
 ```
 
 ### Strict object types
@@ -122,29 +139,24 @@ All Valibot pipelines and methods are not yet supported because they do not offe
 have
 equivalent JSON schema feature (will probably come with https://github.com/fabian-hiller/valibot/pull/211).
 
-Here is the list of supported Valibot schemas (some have partial support):
+Here is the list of supported Valibot features (some have partial support):
 
-<details>
-<summary>Supported schemas</summary>
-
-|                | status                                                                                        |
-|----------------|-----------------------------------------------------------------------------------------------|
-| `any`          | supported                                                                                     |
-| `null`         | supported                                                                                     |
-| `literal`      | partial: only JSON literal are supported                                                      |
-| `number`       | supported                                                                                     |
-| `string`       | supported                                                                                     |
-| `boolean`      | supported                                                                                     |
-| `nullable`     | supported                                                                                     |
-| `optional`     | partial: only inside `object` schemas                                                         |
-| `never`        | partial: only inside `object` rest or `tuple` rest params                                     |
-| `picklist`     | partial: only JSON literal are supported                                                      |
-| `union`        | supported                                                                                     |
-| `intersection` | supported                                                                                     |
-| `array`        | supported                                                                                     |
-| `tuple`        | supported                                                                                     |
-| `object`       | supported                                                                                     |
-| `record`       | partial: only string key are allowed, applicable to plain object only, not arrays             |
-| `recursive`    | partial: only if the schema inside [is referenced in `definitions`](#json-schema-definitions) |
-
-</details>
+| feature            | status                                                                                           |
+|--------------------|--------------------------------------------------------------------------------------------------|
+| `any` schema       | ✅ supported                                                                                      |
+| `null` schema      | ✅ supported                                                                                      |
+| `number` schema    | ✅ supported                                                                                      |
+| `string` schema    | ✅ supported                                                                                      |
+| `boolean` schema   | ✅ supported                                                                                      |
+| `literal` schema   | ⚠️ partial: only JSON-compatible literal are supported                                           |
+| `nullable` schema  | ✅ supported                                                                                      |
+| `optional` schema  | ⚠️ partial: only inside `object` schemas                                                         |
+| `never` schema     | ⚠️ partial: only inside `object` rest or `tuple` rest params                                     |
+| `picklist` schema  | ⚠️ partial: only JSON-compatible literal are supported                                           |
+| `union` schema     | ✅ supported                                                                                      |
+| `intersect` schema | ✅ supported                                                                                      |
+| `array` schema     | ✅ supported                                                                                      |
+| `tuple` schema     | ✅ supported                                                                                      |
+| `object` schema    | ✅ supported                                                                                      |
+| `record` schema    | ⚠️ partial: only string key are allowed, applicable to plain object only, not arrays             |
+| `recursive` schema | ⚠️ partial: only if the schema inside [is referenced in `definitions`](#json-schema-definitions) |
