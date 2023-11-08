@@ -102,6 +102,7 @@ const SCHEMA_CONVERTERS: { [K in SupportedSchemas['type']]: Converter<Extract<Su
                 required.push(propKey);
             }
             properties[propKey] = convert(propSchema)!;
+            assignExtraJSONSchemaFeatures(propValue as any, properties[propKey]);
         }
         let additionalProperties: JSONSchema7['additionalProperties'];
         if (rest) {
@@ -146,6 +147,13 @@ interface Context {
 
 const toDefinitionURI = (name: string) => `#/definitions/${name}`;
 
+function assignExtraJSONSchemaFeatures(schema: SupportedSchemas, converted: JSONSchema7) {
+    const jsonSchemaFeatures = getJSONSchemaFeatures(schema as any);
+    if (jsonSchemaFeatures) {
+        Object.assign(converted, jsonSchemaFeatures);
+    }
+}
+
 function createConverter(context: Context) {
     const definitions: Record<string, JSONSchema7> = {};
 
@@ -159,10 +167,7 @@ function createConverter(context: Context) {
         const schemaConverter = SCHEMA_CONVERTERS[schema.type];
         assert(schemaConverter, Boolean, `Unsupported valibot schema: ${schema?.type || schema}`);
         const converted = schemaConverter(schema as any, converter, context);
-        const jsonSchemaFeatures = getJSONSchemaFeatures(schema as any);
-        if (jsonSchemaFeatures) {
-            Object.assign(converted, jsonSchemaFeatures);
-        }
+        assignExtraJSONSchemaFeatures(schema, converted);
         if (defURI) {
             definitions[defName] = converted;
             return { $ref: defURI };

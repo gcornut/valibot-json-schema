@@ -1,6 +1,6 @@
 {
   "name": "@gcornut/valibot-json-schema",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "packageManager": "yarn@3.6.4",
   "repository": {
     "type": "git",

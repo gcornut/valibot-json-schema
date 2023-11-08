@@ -462,4 +462,15 @@ describe(withJSONSchemaFeatures.name, () => {
         validValues: [['a', 'b'], ['a', 'b', 'c']],
         invalidValues: [['a'], []],
     }));
+
+    it('should attach to optional object property', testCase({
+        schema: v.object({ foo: withJSONSchemaFeatures(v.optional(v.number()), { description: 'Foo' }) }),
+        jsonSchema: {
+            $schema,
+            properties: {
+                foo: { type: 'number', description: 'Foo' },
+            },
+            type: 'object',
+        },
+    }));
 });
