@@ -69,13 +69,15 @@ use a Node-compatible runtime that support these modules (ex: bun, replacing `np
 Example:
 
 ```shell
+# Convert from TS/ESM module using bunx
+bunx @gcornut/valibot-json-schema to-json-schema ./schemas.ts
+
 # Convert from TS/ESM module with esbuild-runner preinstalled
 npm install esbuild esbuild-runner
 npx @gcornut/valibot-json-schema to-json-schema ./schemas.ts
+
 # Convert from TS/ESM module using `yarn dlx` multi-package feature 
 yarn dlx -p esbuild -p esbuild-runner -p @gcornut/valibot-json-schema valibot-json-schema to-json-schema ./schemas.ts
-# Convert from TS/ESM module using bunx
-bunx @gcornut/valibot-json-schema to-json-schema ./schemas.ts
 ```
 
 ### CLI parameters
@@ -96,7 +98,7 @@ properties (`additionnalProperties: false`).
 Use the `toJSONSchema` function to convert a Valibot schema into JSON schema (v7).
 
 ```js
-import { toJSONSchema } from '@gcornut/valibot-json-schema/toJSONSchema';
+import { toJSONSchema } from '@gcornut/valibot-json-schema';
 import { string } from 'valibot';
 
 toJSONSchema({ schema: string() })
@@ -112,7 +114,7 @@ To export your schemas in JSON schema definitions, you can provide the `definiti
 function in which each schema is attributed a name via it's key in the object.
 
 ```js
-import { toJSONSchema } from '@gcornut/valibot-json-schema/toJSONSchema';
+import { toJSONSchema } from '@gcornut/valibot-json-schema';
 import { number } from 'valibot';
 
 const Number = number();
@@ -133,8 +135,10 @@ Example: `toJSONSchema({ schema: object({}), strictObjectTypes: true });`
 
 ## Supported features
 
-Some Valibot schema, validation pipe and methods are not yet supported because they do not they do not have and
-equivalent JSON schema feature.
+Some Valibot schema, validation pipe and methods are supported because they do not they do not have equivalent JSON
+schema feature.
+Some converted schema might have slightly different behavior in a JSON schema validator, especially on string
+formats (`email`, `ipv4`, `date`, etc.) since their implementation is different from valibot implementation.
 
 Here is the list of supported Valibot features (some have partial support):
 
