@@ -1,6 +1,6 @@
 {
   "name": "@gcornut/valibot-json-schema",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "packageManager": "yarn@3.6.4",
   "repository": {
     "type": "git",
@@ -54,6 +54,7 @@
     "@types/lodash": "^4.14.199",
     "@vitest/coverage-v8": "^0.34.6",
     "ajv": "^8.12.0",
+    "ajv-formats": "^2.1.1",
     "commander": "^11.1.0",
     "dts-bundle-generator": "^8.1.1",
     "esbuild": "^0.18.20",

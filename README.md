@@ -4,8 +4,6 @@ CLI and JS utility to convert valibot schemas to JSON schema (draft 07).
 
 Some of the features of Valibot can't be converted to JSON schema. JS-specific types like `blob` or `nan` obviously
 can't have an equivalent.  
-Also, even if Valibot validation pipeline (like `maxLength`, `regex`, etc.) have equivalent features in JSON schema,
-they can't easily be inspected at runtime yet (coming soon) so we can't convert them.  
 [See supported features](#supported-features) for more info.
 
 ## Command Line Tool
@@ -135,28 +133,41 @@ Example: `toJSONSchema({ schema: object({}), strictObjectTypes: true });`
 
 ## Supported features
 
-All Valibot pipelines and methods are not yet supported because they do not offer introspection at runtime even if they
-have
-equivalent JSON schema feature (will probably come with https://github.com/fabian-hiller/valibot/pull/211).
+Some Valibot schema, validation pipe and methods are not yet supported because they do not they do not have and
+equivalent JSON schema feature.
 
 Here is the list of supported Valibot features (some have partial support):
 
-| feature            | status                                                                                           |
-|--------------------|--------------------------------------------------------------------------------------------------|
-| `any` schema       | ✅ supported                                                                                      |
-| `null` schema      | ✅ supported                                                                                      |
-| `number` schema    | ✅ supported                                                                                      |
-| `string` schema    | ✅ supported                                                                                      |
-| `boolean` schema   | ✅ supported                                                                                      |
-| `literal` schema   | ⚠️ partial: only JSON-compatible literal are supported                                           |
-| `nullable` schema  | ✅ supported                                                                                      |
-| `optional` schema  | ⚠️ partial: only inside `object` schemas                                                         |
-| `never` schema     | ⚠️ partial: only inside `object` rest or `tuple` rest params                                     |
-| `picklist` schema  | ⚠️ partial: only JSON-compatible literal are supported                                           |
-| `union` schema     | ✅ supported                                                                                      |
-| `intersect` schema | ✅ supported                                                                                      |
-| `array` schema     | ✅ supported                                                                                      |
-| `tuple` schema     | ✅ supported                                                                                      |
-| `object` schema    | ✅ supported                                                                                      |
-| `record` schema    | ⚠️ partial: only string key are allowed, applicable to plain object only, not arrays             |
-| `recursive` schema | ⚠️ partial: only if the schema inside [is referenced in `definitions`](#json-schema-definitions) |
+| feature                 | status                                                                                           |
+|-------------------------|--------------------------------------------------------------------------------------------------|
+| `any` schema            | ✅ supported                                                                                      |
+| `null` schema           | ✅ supported                                                                                      |
+| `number` schema         | ✅ supported                                                                                      |
+| `string` schema         | ✅ supported                                                                                      |
+| `boolean` schema        | ✅ supported                                                                                      |
+| `literal` schema        | ⚠️ partial: only JSON-compatible literal are supported                                           |
+| `nullable` schema       | ✅ supported                                                                                      |
+| `optional` schema       | ⚠️ partial: only inside `object` schemas                                                         |
+| `never` schema          | ⚠️ partial: only inside `object` rest or `tuple` rest params                                     |
+| `picklist` schema       | ⚠️ partial: only JSON-compatible literal are supported                                           |
+| `union` schema          | ✅ supported                                                                                      |
+| `intersect` schema      | ✅ supported                                                                                      |
+| `array` schema          | ✅ supported                                                                                      |
+| `tuple` schema          | ✅ supported                                                                                      |
+| `object` schema         | ✅ supported                                                                                      |
+| `record` schema         | ⚠️ partial: only string key are allowed, applicable to plain object only, not arrays             |
+| `recursive` schema      | ⚠️ partial: only if the schema inside [is referenced in `definitions`](#json-schema-definitions) |
+| `length` validation     | ✅ supported                                                                                      |
+| `maxLength` validation  | ✅ supported                                                                                      |
+| `minLength` validation  | ✅ supported                                                                                      |
+| `regex` validation      | ⚠️ partial: only on RegExp features supported by JSON schema                                     |
+| `value` validation      | ⚠️ partial: only on `string`, `number` and `boolean`                                             |
+| `minValue` validation   | ⚠️ partial: only on `number`                                                                     |
+| `maxValue` validation   | ⚠️ partial: only on `number`                                                                     |
+| `multipleOf` validation | ✅ supported                                                                                      |
+| `integer` validation    | ✅ supported                                                                                      |
+| `email` validation      | ✅ supported (JSON schema format)                                                                 |
+| `isoDate` validation    | ✅ supported (JSON schema format)                                                                 |
+| `ipv4` validation       | ✅ supported (JSON schema format)                                                                 |
+| `ipv6` validation       | ✅ supported (JSON schema format)                                                                 |
+| `uuid` validation       | ✅ supported (JSON schema format)                                                                 |

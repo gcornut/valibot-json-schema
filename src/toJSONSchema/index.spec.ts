@@ -6,11 +6,14 @@ import isNumber from 'lodash/isNumber';
 import * as v from 'valibot';
 import { JSONSchema7 } from 'json-schema';
 import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 
-import { toJSONSchema, Options, SupportedSchemas } from './toJSONSchema';
-import { $schema } from './utils/json-schema';
-import { and, negate } from './utils/predicate';
-import { withJSONSchemaFeatures } from './extension/withJSONSchemaFeatures';
+import { toJSONSchema } from '.';
+import { Options } from './types';
+import { SupportedSchemas } from './schemas';
+import { $schema } from '../utils/json-schema';
+import { and, negate } from '../utils/predicate';
+import { withJSONSchemaFeatures } from '../extension/withJSONSchemaFeatures';
 
 const emptyObject = {} as const;
 const emptyArray = [] as const;
@@ -44,6 +47,7 @@ function testCase(
         if (jsonSchema)
             expect(convertedSchema).toEqual(jsonSchema);
         const ajv = new Ajv();
+        addFormats(ajv);
         const jsonValidator = ajv.compile(convertedSchema!);
 
         for (let validValue of validValues) {
@@ -82,21 +86,24 @@ describe('exceptions', () => {
     }));
 });
 
-describe('base types', () => {
-
+describe('any', () => {
     it('should convert any schema', testCase({
         schema: v.any(),
         jsonSchema: { $schema },
         validValues: SAMPLE_VALUES,
     }));
+});
 
+describe('null', () => {
     it('should convert null schema', testCase({
         schema: v.nullType(),
         jsonSchema: { $schema, const: null },
         validValues: [null],
         invalidValues: without(SAMPLE_VALUES, null),
     }));
+});
 
+describe('literal', () => {
     it('should convert literal string schema', testCase({
         schema: v.literal('bar'),
         jsonSchema: { $schema, const: 'bar' },
@@ -113,21 +120,9 @@ describe('base types', () => {
         schema: v.literal(NaN),
         error: 'Unsupported literal value type: NaN',
     }));
+});
 
-    it('should convert number schema', testCase({
-        schema: v.number(),
-        jsonSchema: { $schema, type: 'number' },
-        validValues: [0, 9999],
-        invalidValues: without(SAMPLE_VALUES, 0, 9999, NaN),
-    }));
-
-    it('should convert string schema', testCase({
-        schema: v.string(),
-        jsonSchema: { $schema, type: 'string' },
-        validValues: ['', 'foo'],
-        invalidValues: without(SAMPLE_VALUES, '', 'foo'),
-    }));
-
+describe('boolean', () => {
     it('should convert boolean schema', testCase({
         schema: v.boolean(),
         jsonSchema: { $schema, type: 'boolean' },
@@ -135,11 +130,127 @@ describe('base types', () => {
         invalidValues: without(SAMPLE_VALUES, true, false),
     }));
 
-    it('should convert nullable schema', testCase({
-        schema: v.nullable(v.number()),
-        jsonSchema: { $schema, anyOf: [{ const: null }, { type: 'number' }] },
-        validValues: [null, 0, 9999],
-        invalidValues: without(SAMPLE_VALUES, null, 0, 9999),
+    it('should convert boolean schema with value', testCase({
+        schema: v.boolean([v.value(true)]),
+        jsonSchema: { $schema, type: 'boolean', const: true },
+        validValues: [true],
+        invalidValues: without(SAMPLE_VALUES, true),
+    }));
+});
+
+describe('number', () => {
+    it('should convert number schema', testCase({
+        schema: v.number(),
+        jsonSchema: { $schema, type: 'number' },
+        validValues: [0, 9999],
+        invalidValues: without(SAMPLE_VALUES, 0, 9999, NaN),
+    }));
+
+    it('should convert number schema with min value', testCase({
+        schema: v.number([v.minValue(1)]),
+        jsonSchema: { $schema, type: 'number', minimum: 1 },
+        validValues: [1, 9999],
+        invalidValues: without(SAMPLE_VALUES, 9999, 0, NaN),
+    }));
+
+    it('should convert number schema with max value', testCase({
+        schema: v.number([v.maxValue(1)]),
+        jsonSchema: { $schema, type: 'number', maximum: 1 },
+        validValues: [0, 1],
+        invalidValues: without(SAMPLE_VALUES, 0, NaN),
+    }));
+
+    it('should convert number schema with value', testCase({
+        schema: v.number([v.value(1)]),
+        jsonSchema: { $schema, type: 'number', const: 1 },
+        validValues: [1],
+        invalidValues: without(SAMPLE_VALUES, 0, NaN),
+    }));
+
+    it('should convert number schema with multipleOf', testCase({
+        schema: v.number([v.multipleOf(2)]),
+        jsonSchema: { $schema, type: 'number', multipleOf: 2 },
+        validValues: [2, 4],
+        invalidValues: [1, 3],
+    }));
+
+    it('should convert number schema with integer', testCase({
+        schema: v.number([v.integer()]),
+        jsonSchema: { $schema, type: 'integer' },
+        validValues: [0, 9999],
+        invalidValues: [0.1, 12.2],
+    }));
+});
+
+describe('string', () => {
+    it('should convert string schema', testCase({
+        schema: v.string(),
+        jsonSchema: { $schema, type: 'string' },
+        validValues: ['', 'foo'],
+        invalidValues: without(SAMPLE_VALUES, '', 'foo'),
+    }));
+
+    it('should convert string schema with length', testCase({
+        schema: v.string([v.length(2)]),
+        jsonSchema: { $schema, type: 'string', maxLength: 2, minLength: 2 },
+        validValues: ['ba', 'ab'],
+        invalidValues: SAMPLE_VALUES,
+    }));
+
+    it('should convert string schema with min and max length', testCase({
+        schema: v.string([v.minLength(1), v.maxLength(2)]),
+        jsonSchema: { $schema, type: 'string', maxLength: 2, minLength: 1 },
+        validValues: ['a', 'ab'],
+        invalidValues: SAMPLE_VALUES,
+    }));
+
+    it('should convert string schema with regex', testCase({
+        schema: v.string([v.regex(/foo/)]),
+        jsonSchema: { $schema, type: 'string', pattern: 'foo' },
+        validValues: ['foo', 'foobar', 'bazfoo'],
+        invalidValues: without(SAMPLE_VALUES, 'foo'),
+    }));
+
+    it('should convert string schema with value validation', testCase({
+        schema: v.string([v.value('foo')]),
+        jsonSchema: { $schema, type: 'string', const: 'foo' },
+        validValues: ['foo'],
+        invalidValues: without(SAMPLE_VALUES, 'foo'),
+    }));
+
+    it('should convert string schema with email validation', testCase({
+        schema: v.string([v.email()]),
+        jsonSchema: { $schema, type: 'string', format: 'email' },
+        validValues: ['foo@example.com', 'user123@mail.co'],
+        invalidValues: ['', 'spaces in@middle.com', 'double@at@host.com'],
+    }));
+
+    it('should convert string schema with isoDate validation', testCase({
+        schema: v.string([v.isoDate()]),
+        jsonSchema: { $schema, type: 'string', format: 'date' },
+        validValues: ['2023-07-11'],
+        invalidValues: ['2023', '07-11-2023', '2023/07/11'],
+    }));
+
+    it('should convert string schema with ipv4 validation', testCase({
+        schema: v.string([v.ipv4()]),
+        jsonSchema: { $schema, type: 'string', format: 'ipv4' },
+        validValues: ['192.168.1.1', '255.255.255.255'],
+        invalidValues: ['', '11.1', '0..0.0.0'],
+    }));
+
+    it('should convert string schema with ipv6 validation', testCase({
+        schema: v.string([v.ipv6()]),
+        jsonSchema: { $schema, type: 'string', format: 'ipv6' },
+        validValues: ['2001:0db8:85a3:0000:0000:8a2e:0370:7334', 'fe80::1ff:fe23:4567:890a'],
+        invalidValues: ['', '192.168.1.1', 'x:x:x:x:x:x:x:x'],
+    }));
+
+    it('should convert string schema with uuid validation', testCase({
+        schema: v.string([v.uuid()]),
+        jsonSchema: { $schema, type: 'string', format: 'uuid' },
+        validValues: ['f0563a22-202e-11ee-be56-0242ac120002'],
+        invalidValues: ['', 'ae102c2-202f-11ee-acec-2eb5a363657c'],
     }));
 });
 
@@ -232,6 +343,13 @@ describe('array', () => {
         validValues: [emptyArray, [2], [0, 9999]],
         invalidValues: without(SAMPLE_VALUES, emptyArray),
     }));
+
+    it('should convert array with length', testCase({
+        schema: v.array(v.number(), [v.length(1)]),
+        jsonSchema: { $schema, type: 'array', items: { type: 'number' }, minItems: 1, maxItems: 1 },
+        validValues: [[2], [9999]],
+        invalidValues: [[], [1, 2]],
+    }));
 });
 
 describe('tuple', () => {
@@ -299,6 +417,15 @@ describe('tuple', () => {
 });
 
 describe('composition types', () => {
+    describe('nullable', () => {
+        it('should convert nullable schema', testCase({
+            schema: v.nullable(v.number()),
+            jsonSchema: { $schema, anyOf: [{ const: null }, { type: 'number' }] },
+            validValues: [null, 0, 9999],
+            invalidValues: without(SAMPLE_VALUES, null, 0, 9999),
+        }));
+    });
+
     describe('picklist', () => {
         it('should convert enum schema with single members', testCase({
             schema: v.picklist(['foo']),
