@@ -232,6 +232,19 @@ describe('string', () => {
         invalidValues: ['2023', '07-11-2023', '2023/07/11'],
     }));
 
+    it('should convert string schema with isoTimestamp validation', testCase({
+        schema: v.string([v.isoTimestamp()]),
+        jsonSchema: { $schema, type: 'string', format: 'date-time' },
+        validValues: [
+            '2023-07-11T17:26:27.243Z',
+            '0000-01-01T00:00:00.000Z',
+            '9999-12-31T23:59:59.999Z',
+            '2024-01-04T17:40:21.157953900Z',
+            '2024-01-16T16:00:34Z'
+        ],
+        invalidValues: ['07-11-2023', '2023/07/11'],
+    }));
+
     it('should convert string schema with ipv4 validation', testCase({
         schema: v.string([v.ipv4()]),
         jsonSchema: { $schema, type: 'string', format: 'ipv4' },
