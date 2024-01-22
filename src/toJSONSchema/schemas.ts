@@ -119,8 +119,9 @@ export const SCHEMA_CONVERTERS: {
         } else if (context.strictObjectTypes) {
             additionalProperties = false;
         }
-        const output : JSONSchema7 = { type: 'object', properties, required: required.length ? required : undefined };
+        const output : JSONSchema7 = { type: 'object', properties };
         if(additionalProperties !== undefined) output.additionalProperties = additionalProperties;
+        if(required.length) output.required = required;
 
         return output;
     },
