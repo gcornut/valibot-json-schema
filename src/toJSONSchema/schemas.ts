@@ -2,6 +2,7 @@ import {
     AnySchema,
     ArraySchema,
     BooleanSchema,
+    DateSchema,
     IntersectSchema,
     LiteralSchema,
     NullableSchema,
@@ -39,7 +40,8 @@ export type SupportedSchemas =
     | IntersectSchema<any>
     | UnionSchema<any>
     | PicklistSchema<any>
-    | RecursiveSchema<any>;
+    | RecursiveSchema<any>
+    | DateSchema;
 
 type SchemaConverter<S extends SupportedSchemas> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
 
@@ -113,4 +115,14 @@ export const SCHEMA_CONVERTERS: {
         }
         return { $ref: toDefinitionURI(defName) };
     },
+    date(_, __, context) {
+        if(!context.dateStrategy) {
+            throw new Error('The "dateStrategy" option must be set to handle date validators');
+        }
+
+        switch(context.dateStrategy) {
+            case 'integer': return { type: 'integer', format: 'unix-time' }
+            case 'string': return { type: 'string', format: 'date-time' }
+        }
+    }
 };

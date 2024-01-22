@@ -13,7 +13,13 @@ export interface Options {
     /**
      * Make all object type strict (`additionalProperties: false`).
      */
-    strictObjectTypes?: boolean
+    strictObjectTypes?: boolean,
+    /**
+     * Date output:
+     * 'integer' sets the type to 'integer' and format to 'unix-time'.
+     * 'string' sets the type to 'string' and format to 'date-time'.
+     */
+    dateStrategy?: 'string' | 'integer'
 }
 
 export interface Context {
@@ -25,6 +31,10 @@ export interface Context {
      * Activate strict object types
      */
     strictObjectTypes?: Options['strictObjectTypes'];
+    /**
+     * Current date strategy
+     */
+    dateStrategy?: Options['dateStrategy']
 }
 
 export type DefinitionNameMap = Map<SupportedSchemas, string>;
