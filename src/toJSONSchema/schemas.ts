@@ -16,6 +16,7 @@ import {
     TupleSchema,
     UnionSchema,
     NullishSchema,
+    OptionalSchema,
 } from 'valibot';
 import { assertJSONLiteral } from '../utils/json-schema';
 import { JSONSchema7 } from 'json-schema';
@@ -42,7 +43,8 @@ export type SupportedSchemas =
     | UnionSchema<any>
     | PicklistSchema<any>
     | RecursiveSchema<any>
-    | NullishSchema<any>;
+    | NullishSchema<any>
+    | OptionalSchema<any>;
 
 type SchemaConverter<S extends SupportedSchemas> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
 
@@ -59,8 +61,24 @@ export const SCHEMA_CONVERTERS: {
     string: () => ({ type: 'string' }),
     boolean: () => ({ type: 'boolean' }),
     // Compositions
-    nullish: ({ wrapped }, convert) => ({ anyOf: [{ const: null }, convert(wrapped)] }),
-    nullable: ({ wrapped }, convert) => ({ anyOf: [{ const: null }, convert(wrapped)] }),
+    optional: (schema, convert) => {
+        const output = convert(schema.wrapped)
+        const defaultValue = getDefault(schema)
+        if(defaultValue !== undefined) output.default = defaultValue;
+        return output;
+    },        
+    nullish: (schema, convert) => {
+        const output : JSONSchema7 = ({ anyOf: [{ const: null }, convert(schema.wrapped)] })
+        const defaultValue = getDefault(schema)
+        if(defaultValue !== undefined) output.default = defaultValue;
+        return output;
+    },
+    nullable: (schema, convert) => {
+        const output : JSONSchema7 = ({ anyOf: [{ const: null }, convert(schema.wrapped)] })
+        const defaultValue = getDefault(schema)
+        if(defaultValue !== undefined) output.default = defaultValue;
+        return output;
+    },
     picklist: ({ options }) => ({ enum: options.map(assertJSONLiteral) }),
     union: ({ options }, convert) => ({ anyOf: options.map(convert) }),
     intersect: ({ options }, convert) => ({ allOf: options.map(convert) }),
@@ -89,16 +107,10 @@ export const SCHEMA_CONVERTERS: {
         const required: string[] = [];
         for (const [propKey, propValue] of Object.entries(entries)) {
             let propSchema = propValue as any;
-            let defaultValue : unknown = getDefault(propSchema);
-            if (isOptionalSchema(propSchema)) {
-                propSchema = propSchema.wrapped;
-                // One extra check for optional(nullable(...))
-                if(defaultValue === undefined) defaultValue = getDefault(propSchema);
-            } else if(!isNullishSchema(propSchema)) {
+            if(!isOptionalSchema(propSchema) && !isNullishSchema(propSchema)) {
                 required.push(propKey);
             }
             properties[propKey] = convert(propSchema)!;
-            if(defaultValue !== undefined) properties[propKey].default = defaultValue;
             assignExtraJSONSchemaFeatures(propValue as any, properties[propKey]);
         }
         let additionalProperties: JSONSchema7['additionalProperties'];
