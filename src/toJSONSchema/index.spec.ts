@@ -501,6 +501,10 @@ describe.only('date', () => {
         invalidValues: SAMPLE_VALUES.filter(v => typeof v !== 'string'),
         options: { dateStrategy: 'string' }
     }))
+
+    it('should throw an error if the dateStrategy option isn\'t defined and a date validator exists', () => {
+        expect(testCase({ schema: v.date() })).toThrow(Error)
+    })
 })
 
 describe('recursive type', () => {
