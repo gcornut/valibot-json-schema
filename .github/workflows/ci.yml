@@ -1,0 +1,23 @@
+name: "CI"
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
+
+concurrency:
+  group: ${{ github.head_ref }}-ci
+  cancel-in-progress: true
+
+jobs:
+  test:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Setup node & dependencies"
+        uses: ./.github/actions/setup
+
+      - name: "Run unit tests"
+        run: yarn test
