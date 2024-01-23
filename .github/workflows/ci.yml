@@ -21,3 +21,16 @@ jobs:
 
       - name: "Run unit tests"
         run: yarn test
+
+  type-check:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Setup node & dependencies"
+        uses: ./.github/actions/setup
+
+      - name: "Run type check"
+        run: yarn type-check
