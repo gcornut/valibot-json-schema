@@ -42,7 +42,8 @@
     "publish": "yarn build && npm publish",
     "run:cli": "esr cli",
     "test": "vitest",
-    "type-check": "yarn tsc -p tsconfig.json"
+    "type-check": "yarn tsc -p tsconfig.json",
+    "lint": "yarn biome check ."
   },
   "peerDependencies": {
     "@types/json-schema": ">= 7.0.14",
@@ -51,6 +52,7 @@
     "valibot": ">= 0.21.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
     "@types/json-schema": "^7.0.14",
     "@types/lodash": "^4.14.199",
     "@vitest/coverage-v8": "^0.34.6",
