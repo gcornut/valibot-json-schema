@@ -43,7 +43,8 @@
     "run:cli": "esr cli",
     "test": "vitest",
     "type-check": "yarn tsc -p tsconfig.json",
-    "lint": "yarn biome check ."
+    "lint": "yarn biome check .",
+    "lint:ci": "yarn biome ci ."
   },
   "peerDependencies": {
     "@types/json-schema": ">= 7.0.14",

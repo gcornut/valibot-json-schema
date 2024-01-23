@@ -34,3 +34,20 @@ jobs:
 
       - name: "Run type check"
         run: yarn type-check
+
+  lint:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Setup node & dependencies"
+        uses: ./.github/actions/setup
+
+      - name: "Install dependencies"
+        run: yarn install
+
+      - name: "Run lint"
+        run: yarn lint:ci
+
