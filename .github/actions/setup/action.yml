@@ -17,8 +17,6 @@ runs:
         node-version: ${{ inputs.node_version }}
 
     - name: "Install dependencies"
-      # Skip install here because the cache already has an entry, we won't be able to update it, so it's unnecessary to try and rebuild it
-      if: steps.node.outputs.cache-hit != 'true'
       run: yarn install --immutable
       shell: bash
 
