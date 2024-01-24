@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 import stableStringify from 'safe-stable-stringify';
 import path from 'path';
 import fs from 'fs';
@@ -6,6 +6,7 @@ import get from 'lodash/get';
 
 import { toJSONSchema } from '../toJSONSchema';
 import { isSchema } from '../utils/valibot';
+import { DateStrategy } from '../toJSONSchema/types';
 
 const program = new Command();
 
@@ -15,7 +16,8 @@ program.command('to-json-schema <path>')
     .option('-t, --type <type>', 'Path to the main type')
     .option('-d, --definitions <object_path>', 'Path to the definitions')
     .option('--strictObjectTypes', 'Make object strict object types (no unknown keys)')
-    .action((sourcePath, { type, definitions: definitionsPath, out, strictObjectTypes }) => {
+    .addOption(new Option('--dateStrategy <strategy>', 'Define how date validator should be converted').choices(Object.values(DateStrategy)))
+    .action((sourcePath, { type, definitions: definitionsPath, out, strictObjectTypes, dateStrategy }) => {
         try {
             // Enable auto transpile of ESM & TS modules required
             require('esbuild-runner/register');
@@ -50,7 +52,7 @@ program.command('to-json-schema <path>')
         }
 
         // Convert
-        const jsonSchema = toJSONSchema({ schema, definitions, strictObjectTypes });
+        const jsonSchema = toJSONSchema({ schema, definitions, strictObjectTypes, dateStrategy });
         const jsonSchemaString = stableStringify(jsonSchema, null, 2)!;
         if (out) {
             // Output to file

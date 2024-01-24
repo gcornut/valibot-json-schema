@@ -1,5 +1,12 @@
 import { SupportedSchemas } from './schemas';
 import { JSONSchema7 } from 'json-schema';
+import { ValueOf } from '../utils/ValueOf';
+
+export const DateStrategy = {
+    string: 'string',
+    integer: 'integer',
+} as const;
+export type DateStrategy = ValueOf<typeof DateStrategy>
 
 export interface Options {
     /**
@@ -19,22 +26,14 @@ export interface Options {
      * 'integer' sets the type to 'integer' and format to 'unix-time'.
      * 'string' sets the type to 'string' and format to 'date-time'.
      */
-    dateStrategy?: 'string' | 'integer'
+    dateStrategy?: DateStrategy
 }
 
-export interface Context {
+export interface Context extends Pick<Options, 'strictObjectTypes' | 'dateStrategy'>{
     /**
      * Mapping from schema to name
      */
     defNameMap: DefinitionNameMap;
-    /**
-     * Activate strict object types
-     */
-    strictObjectTypes?: Options['strictObjectTypes'];
-    /**
-     * Current date strategy
-     */
-    dateStrategy?: Options['dateStrategy']
 }
 
 export type DefinitionNameMap = Map<SupportedSchemas, string>;

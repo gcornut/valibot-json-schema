@@ -22,6 +22,10 @@ async function buildOnce() {
 export async function runCLI(args: string) {
     await buildOnce();
     const cli = path.join(root, packageJson.bin);
-    const { stdout } = await exec(`${cli} ${args}`, { cwd: __dirname });
-    return JSON.parse(stdout);
+    try {
+        const { stdout } = await exec(`${cli} ${args}`, { cwd: __dirname });
+        return JSON.parse(stdout);
+    } catch (error) {
+        return error;
+    }
 }
