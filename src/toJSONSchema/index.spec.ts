@@ -479,7 +479,7 @@ describe('composition types', () => {
     });
 });
 
-describe.only('date', () => {
+describe('date', () => {
     it('should be able to use the "integer" strategy', testCase({
         schema: v.date(),
         jsonSchema: {
