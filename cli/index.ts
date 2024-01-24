@@ -4,9 +4,9 @@ import path from 'path';
 import fs from 'fs';
 import get from 'lodash/get';
 
-import { toJSONSchema } from '../toJSONSchema';
-import { isSchema } from '../utils/valibot';
-import { DateStrategy } from '../toJSONSchema/types';
+import { toJSONSchema } from '../src';
+import { isSchema } from '../src/utils/valibot';
+import { DateStrategy } from '../src/toJSONSchema/types';
 
 const program = new Command();
 

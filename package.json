@@ -40,7 +40,7 @@
     "build": "tsup",
     "check:types": "tsc --noEmit",
     "publish": "yarn build && npm publish",
-    "run:cli": "esr src/cli",
+    "run:cli": "esr cli",
     "test": "vitest",
     "type-check": "yarn tsc -p tsconfig.json"
   },

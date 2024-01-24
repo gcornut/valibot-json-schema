@@ -3,11 +3,10 @@ import childProcess from 'child_process';
 import path from 'path';
 import fs from 'fs';
 
-const root = path.resolve(__dirname, '../');
+const root = path.resolve(__dirname, '../../');
 const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json')).toString());
 
 const exec = util.promisify(childProcess.exec);
-const execFile = util.promisify(childProcess.execFile);
 let cliBuiltPromise: Promise<void> | undefined;
 
 // Build it once
@@ -29,3 +28,6 @@ export async function runCLI(args: string) {
         return error;
     }
 }
+
+/** Read test resource */
+export const readFile = (file: string) => require(path.resolve(__dirname, file));
