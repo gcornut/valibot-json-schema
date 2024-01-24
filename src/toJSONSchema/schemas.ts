@@ -3,6 +3,7 @@ import {
     AnySchema,
     ArraySchema,
     BooleanSchema,
+    DateSchema,
     IntersectSchema,
     LiteralSchema,
     NullableSchema,
@@ -43,6 +44,7 @@ export type SupportedSchemas =
     | UnionSchema<any>
     | PicklistSchema<any>
     | RecursiveSchema<any>
+    | DateSchema
     | NullishSchema<any>
     | OptionalSchema<any>;
 
@@ -137,4 +139,14 @@ export const SCHEMA_CONVERTERS: {
         }
         return { $ref: toDefinitionURI(defName) };
     },
+    date(_, __, context) {
+        if(!context.dateStrategy) {
+            throw new Error('The "dateStrategy" option must be set to handle date validators');
+        }
+
+        switch(context.dateStrategy) {
+            case 'integer': return { type: 'integer', format: 'unix-time' }
+            case 'string': return { type: 'string', format: 'date-time' }
+        }
+    }
 };

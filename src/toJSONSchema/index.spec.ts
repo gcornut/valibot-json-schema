@@ -29,6 +29,7 @@ type TestCase = {
     jsonSchema?: JSONSchema7;
     validValues?: any[];
     invalidValues?: any[];
+    hasDates?: boolean;
 }
 
 function testCase(
@@ -39,6 +40,7 @@ function testCase(
         jsonSchema,
         validValues = [],
         invalidValues = [],
+        hasDates = false
     }: TestCase,
 ) {
     function test() {
@@ -48,19 +50,26 @@ function testCase(
             expect(jsonSchema).toEqual(convertedSchema);
         const ajv = new Ajv();
         addFormats(ajv);
+        ajv.addFormat('unix-time', {type: 'number', validate: () => true})
         const jsonValidator = ajv.compile(convertedSchema!);
 
         for (let validValue of validValues) {
             // Check valid values match the schema
             let safeParse = v.safeParse(schema, validValue);
             expect(safeParse.success, `\`${JSON.stringify(validValue)}\` should match the valibot schema\n${JSON.stringify((safeParse as any).issues)}\n`).toBe(true);
-            expect(jsonValidator(validValue), `\`${JSON.stringify(validValue)}\` should match the json schema`).toBe(true);
+
+            if(!hasDates) {
+                expect(jsonValidator(validValue), `\`${JSON.stringify(validValue)}\` should match the json schema`).toBe(true);
+            }
         }
 
         for (let invalidValue of invalidValues) {
             // Check invalid values do not match the schema
             expect(v.is(schema, invalidValue), `\`${JSON.stringify(invalidValue)}\` should not match the valibot schema`).toBe(false);
-            expect(jsonValidator(invalidValue), `\`${JSON.stringify(invalidValue)}\` should not match the json schema`).toBe(false);
+
+            if(!hasDates) {
+                expect(jsonValidator(invalidValue), `\`${JSON.stringify(invalidValue)}\` should not match the json schema`).toBe(false);
+            }
         }
     }
 
@@ -539,6 +548,57 @@ describe('composition types', () => {
         }));
     });
 });
+
+describe('date', () => {
+    it('should be able to use the "integer" strategy', testCase({
+        schema: v.date(),
+        jsonSchema: {
+            $schema,
+            type: 'integer',
+            format: 'unix-time'
+        },
+        validValues: [new Date()],
+        invalidValues: ['foo', 'baz', ...SAMPLE_VALUES.filter(v => typeof v !== 'number')],
+        options: { dateStrategy: 'integer' },
+        hasDates: true
+    }))
+
+    it('should be able to use the "string" strategy', testCase({
+        schema: v.date(),
+        jsonSchema: {
+            $schema,
+            type: 'string',
+            format: 'date-time'
+        },
+        validValues: [new Date()],
+        invalidValues: SAMPLE_VALUES.filter(v => typeof v !== 'string'),
+        options: { dateStrategy: 'string' },
+        hasDates: true
+    }))
+
+    it('should be able to use any strategy in an object', testCase({
+        schema: v.object({ date: v.date() }),
+        jsonSchema: {
+            $schema,
+            properties: {
+                date: {
+                    format: 'unix-time',
+                    type: 'integer'
+                }
+            },
+            required: ['date'],
+            type: 'object'
+        },
+        validValues: [{date: new Date()}],
+        invalidValues: [{date: 'no date'}],
+        options: { dateStrategy: 'integer' },
+        hasDates: true
+    }))
+
+    it('should throw an error if the dateStrategy option isn\'t defined and a date validator exists', () => {
+        expect(testCase({ schema: v.date() })).toThrow(Error)
+    })
+})
 
 describe('recursive type', () => {
     const listItem: any = v.object({
