@@ -1,4 +1,5 @@
 import {
+    getDefault,
     AnySchema,
     ArraySchema,
     BooleanSchema,
@@ -14,10 +15,12 @@ import {
     StringSchema,
     TupleSchema,
     UnionSchema,
+    NullishSchema,
+    OptionalSchema,
 } from 'valibot';
 import { assertJSONLiteral } from '../utils/json-schema';
 import { JSONSchema7 } from 'json-schema';
-import { isNeverSchema, isOptionalSchema, isStringSchema } from '../utils/valibot';
+import { isNeverSchema, isNullishSchema, isOptionalSchema, isStringSchema } from '../utils/valibot';
 import { isEqual } from '../utils/isEqual';
 import { assert } from '../utils/assert';
 import { BaseConverter, Context } from './types';
@@ -39,7 +42,9 @@ export type SupportedSchemas =
     | IntersectSchema<any>
     | UnionSchema<any>
     | PicklistSchema<any>
-    | RecursiveSchema<any>;
+    | RecursiveSchema<any>
+    | NullishSchema<any>
+    | OptionalSchema<any>;
 
 type SchemaConverter<S extends SupportedSchemas> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
 
@@ -56,7 +61,24 @@ export const SCHEMA_CONVERTERS: {
     string: () => ({ type: 'string' }),
     boolean: () => ({ type: 'boolean' }),
     // Compositions
-    nullable: ({ wrapped }, convert) => ({ anyOf: [{ const: null }, convert(wrapped)] }),
+    optional: (schema, convert) => {
+        const output = convert(schema.wrapped)
+        const defaultValue = getDefault(schema)
+        if(defaultValue !== undefined) output.default = defaultValue;
+        return output;
+    },        
+    nullish: (schema, convert) => {
+        const output : JSONSchema7 = ({ anyOf: [{ const: null }, convert(schema.wrapped)] })
+        const defaultValue = getDefault(schema)
+        if(defaultValue !== undefined) output.default = defaultValue;
+        return output;
+    },
+    nullable: (schema, convert) => {
+        const output : JSONSchema7 = ({ anyOf: [{ const: null }, convert(schema.wrapped)] })
+        const defaultValue = getDefault(schema)
+        if(defaultValue !== undefined) output.default = defaultValue;
+        return output;
+    },
     picklist: ({ options }) => ({ enum: options.map(assertJSONLiteral) }),
     union: ({ options }, convert) => ({ anyOf: options.map(convert) }),
     intersect: ({ options }, convert) => ({ allOf: options.map(convert) }),
@@ -85,9 +107,7 @@ export const SCHEMA_CONVERTERS: {
         const required: string[] = [];
         for (const [propKey, propValue] of Object.entries(entries)) {
             let propSchema = propValue as any;
-            if (isOptionalSchema(propSchema)) {
-                propSchema = propSchema.wrapped;
-            } else {
+            if(!isOptionalSchema(propSchema) && !isNullishSchema(propSchema)) {
                 required.push(propKey);
             }
             properties[propKey] = convert(propSchema)!;
@@ -99,7 +119,11 @@ export const SCHEMA_CONVERTERS: {
         } else if (context.strictObjectTypes) {
             additionalProperties = false;
         }
-        return { type: 'object', properties, required: required.length ? required : undefined, additionalProperties };
+        const output : JSONSchema7 = { type: 'object', properties };
+        if(additionalProperties !== undefined) output.additionalProperties = additionalProperties;
+        if(required.length) output.required = required;
+
+        return output;
     },
     record({ key, value }, convert) {
         assert(key, isStringSchema, 'Unsupported record key type: %');
