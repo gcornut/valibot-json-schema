@@ -11,6 +11,7 @@ import {
     IntegerValidation,
     EmailValidation,
     IsoDateValidation,
+    IsoTimestampValidation,
     Ipv4Validation,
     Ipv6Validation,
     UuidValidation,
@@ -30,6 +31,7 @@ export type SupportedValidation =
     | MultipleOfValidation<any, any>
     | IntegerValidation<any>
     | IsoDateValidation<any>
+    | IsoTimestampValidation<any>
     | Ipv4Validation<any>
     | Ipv6Validation<any>
     | UuidValidation<any>
@@ -56,6 +58,7 @@ const VALIDATION_BY_SCHEMA: {
         regex: ({ requirement }) => ({ pattern: requirement.source }),
         email: () => ({ format: 'email' }),
         iso_date: () => ({ format: 'date' }),
+        iso_timestamp: () => ({ format: 'date-time' }),
         ipv4: () => ({ format: 'ipv4' }),
         ipv6: () => ({ format: 'ipv6' }),
         uuid: () => ({ format: 'uuid' }),

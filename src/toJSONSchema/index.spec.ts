@@ -47,7 +47,7 @@ function testCase(
         // Schema converted properly
         const convertedSchema = toJSONSchema({ schema, ...options });
         if (jsonSchema)
-            expect(convertedSchema).toEqual(jsonSchema);
+            expect(jsonSchema).toEqual(convertedSchema);
         const ajv = new Ajv();
         addFormats(ajv);
         ajv.addFormat('unix-time', {type: 'number', validate: () => true})
@@ -241,6 +241,19 @@ describe('string', () => {
         invalidValues: ['2023', '07-11-2023', '2023/07/11'],
     }));
 
+    it('should convert string schema with isoTimestamp validation', testCase({
+        schema: v.string([v.isoTimestamp()]),
+        jsonSchema: { $schema, type: 'string', format: 'date-time' },
+        validValues: [
+            '2023-07-11T17:26:27.243Z',
+            '0000-01-01T00:00:00.000Z',
+            '9999-12-31T23:59:59.999Z',
+            '2024-01-04T17:40:21.157953900Z',
+            '2024-01-16T16:00:34Z'
+        ],
+        invalidValues: ['07-11-2023', '2023/07/11'],
+    }));
+
     it('should convert string schema with ipv4 validation', testCase({
         schema: v.string([v.ipv4()]),
         jsonSchema: { $schema, type: 'string', format: 'ipv4' },
@@ -320,6 +333,63 @@ describe('object', () => {
             { string: 'foo', unknown: 'property' },
             { optionalString: 'foo' },
             { string: 'foo', optionalString: 1 },
+            ...SAMPLE_VALUES,
+        ],
+    }));
+
+    it('should add default values from object with optional fields', testCase({
+        schema: v.object({ string: v.string(), optionalString: v.optional(v.string(), 'optional') }),
+        jsonSchema: {
+            $schema,
+            type: 'object',
+            properties: { string: { type: 'string' }, optionalString: { type: 'string', default: 'optional' } },
+            required: ['string'],
+        },
+        validValues: [
+            { string: 'foo', unknown: 'property' },
+            { string: 'foo', optionalString: 'foo' },
+        ],
+        invalidValues: [
+            { optionalString: 'foo' },
+            { string: 'foo', optionalString: 1 },
+            ...SAMPLE_VALUES,
+        ],
+    }));
+
+    it('should add default values from object with nullable fields', testCase({
+        schema: v.object({ string: v.string(), nullableString: v.nullable(v.string(), 'nullable') }),
+        jsonSchema: {
+            $schema,
+            type: 'object',
+            properties: { string: { type: 'string' }, nullableString: {anyOf: [{ const: null }, { type: 'string' }], default: 'nullable'} },
+            required: ['string', 'nullableString'],
+        },
+        validValues: [
+            { string: 'foo', nullableString: 'foo' },
+            { string: 'foo', nullableString: 'foo', unknown: 'property' },
+        ],
+        invalidValues: [
+            { nullableString: 'foo' },
+            { string: 'foo', nullableString: 1 },
+            ...SAMPLE_VALUES,
+        ],
+    }));
+
+    it('should add default values from object with a nullish field', testCase({
+        schema: v.object({ string: v.string(), nullishString: v.nullish(v.string(), 'nullish') }),
+        jsonSchema: {
+            $schema,
+            type: 'object',
+            properties: { string: { type: 'string' }, nullishString: {anyOf: [{ const: null }, { type: 'string' }], default: 'nullish'} },
+            required: ['string'],
+        },
+        validValues: [
+            { string: 'foo', nullishString: 'foo' },
+            { string: 'foo', unknown: 'property' },
+        ],
+        invalidValues: [
+            { nullishString: 'foo' },
+            { string: 'foo', nullishString: 1 },
             ...SAMPLE_VALUES,
         ],
     }));

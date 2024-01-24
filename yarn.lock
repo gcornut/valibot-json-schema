@@ -193,7 +193,7 @@ __metadata:
     safe-stable-stringify: ^2.4.3
     tsup: ^7.2.0
     typescript: 5.1.3
-    valibot: ^0.21.0
+    valibot: ^0.26.0
     vitest: 0.32.2
   peerDependencies:
     "@types/json-schema": ">= 7.0.14"
@@ -2728,10 +2728,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"valibot@npm:^0.21.0":
-  version: 0.21.0
-  resolution: "valibot@npm:0.21.0"
-  checksum: edd69bd37d2cf3d4925d5131d7a398417433bbbe0d1ffef7731df375e57b106a97ee1d47d60c92b4e4de45c4bfbbb2f0a648cff724de34de2620b24091355383
+"valibot@npm:^0.26.0":
+  version: 0.26.0
+  resolution: "valibot@npm:0.26.0"
+  checksum: 7d1f5be18893e05b242e7115545f10e30d1b4bc600a7c6b4119c8217164085d8bad09ceded8209061dfa6b3e894144520b396c2cb9774c918a498def31a28783
   languageName: node
   linkType: hard
 
