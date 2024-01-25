@@ -151,7 +151,8 @@ Here is the list of supported Valibot features (some have partial support):
 | `boolean` schema          | ✅ supported                                                                                      |
 | `literal` schema          | ⚠️ partial: only JSON-compatible literal are supported                                           |
 | `nullable` schema         | ✅ supported                                                                                      |
-| `optional` schema         | ⚠️ partial: only inside `object` schemas                                                         |
+| `nullish` schema          | ✅ supported                                                                                      |
+| `optional` schema         | ✅ supported                                                                                      |
 | `never` schema            | ⚠️ partial: only inside `object` rest or `tuple` rest params                                     |
 | `picklist` schema         | ⚠️ partial: only JSON-compatible literal are supported                                           |
 | `union` schema            | ✅ supported                                                                                      |
@@ -161,6 +162,7 @@ Here is the list of supported Valibot features (some have partial support):
 | `object` schema           | ✅ supported                                                                                      |
 | `record` schema           | ⚠️ partial: only string key are allowed, applicable to plain object only, not arrays             |
 | `recursive` schema        | ⚠️ partial: only if the schema inside [is referenced in `definitions`](#json-schema-definitions) |
+| `date` schema             | ⚠️ with `dateStrategy` option provided                                                           |
 | `length` validation       | ✅ supported                                                                                      |
 | `maxLength` validation    | ✅ supported                                                                                      |
 | `minLength` validation    | ✅ supported                                                                                      |
