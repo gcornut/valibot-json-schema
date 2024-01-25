@@ -1,7 +1,7 @@
-import util from 'util';
 import childProcess from 'child_process';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+import util from 'util';
 
 const root = path.resolve(__dirname, '../../');
 const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json')).toString());
@@ -12,7 +12,7 @@ let cliBuiltPromise: Promise<void> | undefined;
 // Build it once
 async function buildOnce() {
     if (cliBuiltPromise) return cliBuiltPromise;
-    const command = `yarn build`;
+    const command = 'yarn build';
     cliBuiltPromise = exec(command) as Promise<any>;
     await cliBuiltPromise;
 }

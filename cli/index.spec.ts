@@ -1,96 +1,96 @@
-import { expect, test, describe } from 'vitest';
-import { runCLI, readFile } from './test/utils';
+import { describe, expect, test } from 'vitest';
+import { readFile, runCLI } from './test/utils';
 
 function testCase({ run, expectedOutput }: { run: string; expectedOutput: string | RegExp }) {
     return async () => {
         const actual = await runCLI(run);
-        if (expectedOutput instanceof RegExp)
-            expect(actual).toMatch(expectedOutput);
+        if (expectedOutput instanceof RegExp) expect(actual).toMatch(expectedOutput);
         else expect(actual).toEqual(expectedOutput);
     };
 }
 
 describe('module formats', () => {
-	test('Convert named export', testCase({
-			run: 'to-json-schema ./single-type-export.valibot.ts',
-			expectedOutput: readFile('./single-type-export.schema.json'),
-		}));
+    test(
+        'Convert named export',
+        testCase({
+            run: 'to-json-schema ./single-type-export.valibot.ts',
+            expectedOutput: readFile('./single-type-export.schema.json'),
+        }),
+    );
 
-	test(
-		'Convert default export',
-		testCase({
-			run: 'to-json-schema ./single-type-export-default.valibot.ts',
-			expectedOutput: readFile('./single-type-export-default.schema.json'),
-		}),
-	);
+    test(
+        'Convert default export',
+        testCase({
+            run: 'to-json-schema ./single-type-export-default.valibot.ts',
+            expectedOutput: readFile('./single-type-export-default.schema.json'),
+        }),
+    );
 
-	test(
-		'Convert both default export and named export',
-		testCase({
-			run: 'to-json-schema ./single-type-multi-exports.valibot.ts',
-			expectedOutput: readFile('./single-type-multi-exports.schema.json'),
-		}),
-	);
+    test(
+        'Convert both default export and named export',
+        testCase({
+            run: 'to-json-schema ./single-type-multi-exports.valibot.ts',
+            expectedOutput: readFile('./single-type-multi-exports.schema.json'),
+        }),
+    );
 
-	test(
-		'Convert from CJS module',
-		testCase({
-			run: 'to-json-schema ./complex-type.valibot.cjs',
-			expectedOutput: readFile('./complex-type.schema.json'),
-		}),
-	);
+    test(
+        'Convert from CJS module',
+        testCase({
+            run: 'to-json-schema ./complex-type.valibot.cjs',
+            expectedOutput: readFile('./complex-type.schema.json'),
+        }),
+    );
 });
 
 describe('main schema and definitions', () => {
-	test(
-		'Choose main type',
-		testCase({
-			run: 'to-json-schema ./complex-type.valibot.ts -t ListElement',
-			expectedOutput: readFile('./complex-type-root-list-element.schema.json'),
-		}),
-	);
+    test(
+        'Choose main type',
+        testCase({
+            run: 'to-json-schema ./complex-type.valibot.ts -t ListElement',
+            expectedOutput: readFile('./complex-type-root-list-element.schema.json'),
+        }),
+    );
 
-	test(
-		'Convert nested main type',
-		testCase({
-			run: 'to-json-schema ./single-type-nested.valibot.ts -t schemas.NumberSchema',
-			expectedOutput: readFile('./single-type-nested-with-main.schema.json'),
-		}),
-	);
+    test(
+        'Convert nested main type',
+        testCase({
+            run: 'to-json-schema ./single-type-nested.valibot.ts -t schemas.NumberSchema',
+            expectedOutput: readFile('./single-type-nested-with-main.schema.json'),
+        }),
+    );
 
-	test(
-		'Convert nested definitions type',
-		testCase({
-			run: 'to-json-schema ./single-type-nested.valibot.ts --definitions schemas',
-			expectedOutput: readFile(
-				'./single-type-nested-with-definitions.schema.json',
-			),
-		}),
-	);
+    test(
+        'Convert nested definitions type',
+        testCase({
+            run: 'to-json-schema ./single-type-nested.valibot.ts --definitions schemas',
+            expectedOutput: readFile('./single-type-nested-with-definitions.schema.json'),
+        }),
+    );
 });
 
 describe('date strategy', () => {
-	test(
-		'Convert date type without date strategy',
-		testCase({
-			run: 'to-json-schema ./date-type.valibot.ts',
-			expectedOutput: /Error: The 'dateStrategy' option must be set/i,
-		}),
-	);
+    test(
+        'Convert date type without date strategy',
+        testCase({
+            run: 'to-json-schema ./date-type.valibot.ts',
+            expectedOutput: /Error: The "dateStrategy" option must be set to handle/i,
+        }),
+    );
 
-	test(
-		'Convert date type with integer date strategy',
-		testCase({
-			run: 'to-json-schema --dateStrategy integer ./date-type.valibot.ts',
-			expectedOutput: readFile('./date-type-integer.schema.json'),
-		}),
-	);
+    test(
+        'Convert date type with integer date strategy',
+        testCase({
+            run: 'to-json-schema --dateStrategy integer ./date-type.valibot.ts',
+            expectedOutput: readFile('./date-type-integer.schema.json'),
+        }),
+    );
 
-	test(
-		'Convert date type with string date strategy',
-		testCase({
-			run: 'to-json-schema --dateStrategy string ./date-type.valibot.ts',
-			expectedOutput: readFile('./date-type-string.schema.json'),
-		}),
-	);
+    test(
+        'Convert date type with string date strategy',
+        testCase({
+            run: 'to-json-schema --dateStrategy string ./date-type.valibot.ts',
+            expectedOutput: readFile('./date-type-string.schema.json'),
+        }),
+    );
 });
