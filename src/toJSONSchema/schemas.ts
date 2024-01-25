@@ -1,35 +1,35 @@
+import { JSONSchema7 } from 'json-schema';
 import {
-    getDefault,
     AnySchema,
     ArraySchema,
     BooleanSchema,
     DateSchema,
     IntersectSchema,
     LiteralSchema,
-    NullableSchema,
     NullSchema,
+    NullableSchema,
+    NullishSchema,
     NumberSchema,
     ObjectSchema,
+    OptionalSchema,
     PicklistSchema,
     RecordSchema,
     RecursiveSchema,
     StringSchema,
     TupleSchema,
     UnionSchema,
-    NullishSchema,
-    OptionalSchema,
+    getDefault,
 } from 'valibot';
-import { assertJSONLiteral } from '../utils/json-schema';
-import { JSONSchema7 } from 'json-schema';
-import { isNeverSchema, isNullishSchema, isOptionalSchema, isStringSchema } from '../utils/valibot';
-import { isEqual } from '../utils/isEqual';
-import { assert } from '../utils/assert';
-import { BaseConverter, Context } from './types';
 import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures';
+import { assert } from '../utils/assert';
+import { isEqual } from '../utils/isEqual';
+import { assertJSONLiteral } from '../utils/json-schema';
+import { isNeverSchema, isNullishSchema, isOptionalSchema, isStringSchema } from '../utils/valibot';
 import { toDefinitionURI } from './toDefinitionURI';
+import { BaseConverter, Context } from './types';
 
 export type SupportedSchemas =
-    AnySchema
+    | AnySchema
     | LiteralSchema<any>
     | NullSchema
     | NumberSchema
@@ -51,9 +51,14 @@ export type SupportedSchemas =
 type SchemaConverter<S extends SupportedSchemas> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
 
 export const SCHEMA_CONVERTERS: {
-    [K in SupportedSchemas['type']]: SchemaConverter<Extract<SupportedSchemas, {
-        type: K
-    }>>
+    [K in SupportedSchemas['type']]: SchemaConverter<
+        Extract<
+            SupportedSchemas,
+            {
+                type: K;
+            }
+        >
+    >;
 } = {
     any: () => ({}),
     // Core types
@@ -64,21 +69,21 @@ export const SCHEMA_CONVERTERS: {
     boolean: () => ({ type: 'boolean' }),
     // Compositions
     optional: (schema, convert) => {
-        const output = convert(schema.wrapped)
-        const defaultValue = getDefault(schema)
-        if(defaultValue !== undefined) output.default = defaultValue;
+        const output = convert(schema.wrapped);
+        const defaultValue = getDefault(schema);
+        if (defaultValue !== undefined) output.default = defaultValue;
         return output;
-    },        
+    },
     nullish: (schema, convert) => {
-        const output : JSONSchema7 = ({ anyOf: [{ const: null }, convert(schema.wrapped)] })
-        const defaultValue = getDefault(schema)
-        if(defaultValue !== undefined) output.default = defaultValue;
+        const output: JSONSchema7 = { anyOf: [{ const: null }, convert(schema.wrapped)] };
+        const defaultValue = getDefault(schema);
+        if (defaultValue !== undefined) output.default = defaultValue;
         return output;
     },
     nullable: (schema, convert) => {
-        const output : JSONSchema7 = ({ anyOf: [{ const: null }, convert(schema.wrapped)] })
-        const defaultValue = getDefault(schema)
-        if(defaultValue !== undefined) output.default = defaultValue;
+        const output: JSONSchema7 = { anyOf: [{ const: null }, convert(schema.wrapped)] };
+        const defaultValue = getDefault(schema);
+        if (defaultValue !== undefined) output.default = defaultValue;
         return output;
     },
     picklist: ({ options }) => ({ enum: options.map(assertJSONLiteral) }),
@@ -108,11 +113,11 @@ export const SCHEMA_CONVERTERS: {
         const properties: any = {};
         const required: string[] = [];
         for (const [propKey, propValue] of Object.entries(entries)) {
-            let propSchema = propValue as any;
-            if(!isOptionalSchema(propSchema) && !isNullishSchema(propSchema)) {
+            const propSchema = propValue as any;
+            if (!isOptionalSchema(propSchema) && !isNullishSchema(propSchema)) {
                 required.push(propKey);
             }
-            properties[propKey] = convert(propSchema)!;
+            properties[propKey] = convert(propSchema);
             assignExtraJSONSchemaFeatures(propValue as any, properties[propKey]);
         }
         let additionalProperties: JSONSchema7['additionalProperties'];
@@ -121,9 +126,9 @@ export const SCHEMA_CONVERTERS: {
         } else if (context.strictObjectTypes) {
             additionalProperties = false;
         }
-        const output : JSONSchema7 = { type: 'object', properties };
-        if(additionalProperties !== undefined) output.additionalProperties = additionalProperties;
-        if(required.length) output.required = required;
+        const output: JSONSchema7 = { type: 'object', properties };
+        if (additionalProperties !== undefined) output.additionalProperties = additionalProperties;
+        if (required.length) output.required = required;
 
         return output;
     },
@@ -140,13 +145,15 @@ export const SCHEMA_CONVERTERS: {
         return { $ref: toDefinitionURI(defName) };
     },
     date(_, __, context) {
-        if(!context.dateStrategy) {
+        if (!context.dateStrategy) {
             throw new Error('The "dateStrategy" option must be set to handle date validators');
         }
 
-        switch(context.dateStrategy) {
-            case 'integer': return { type: 'integer', format: 'unix-time' }
-            case 'string': return { type: 'string', format: 'date-time' }
+        switch (context.dateStrategy) {
+            case 'integer':
+                return { type: 'integer', format: 'unix-time' };
+            case 'string':
+                return { type: 'string', format: 'date-time' };
         }
-    }
+    },
 };

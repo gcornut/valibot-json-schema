@@ -14,10 +14,7 @@
           "const": "ul"
         }
       },
-      "required": [
-        "type",
-        "children"
-      ],
+      "required": ["type", "children"],
       "type": "object"
     },
     "ListItemElement": {
@@ -39,10 +36,7 @@
           "const": "li"
         }
       },
-      "required": [
-        "type",
-        "children"
-      ],
+      "required": ["type", "children"],
       "type": "object"
     }
   }

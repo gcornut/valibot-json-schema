@@ -1,5 +1,5 @@
-import type { BaseSchema } from 'valibot';
 import type { JSONSchema7 } from 'json-schema';
+import type { BaseSchema } from 'valibot';
 
 const JSON_SCHEMA_FEATURES_KEY = '__json_schema_features';
 
