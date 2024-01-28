@@ -15,7 +15,8 @@ import {
     Pipe,
     RegexValidation,
     UuidValidation,
-    ValueValidation,
+    CustomValidation,
+    ValueValidation
 } from 'valibot';
 import { assert } from '../utils/assert';
 import { SupportedSchemas } from './schemas';
@@ -35,7 +36,8 @@ export type SupportedValidation =
     | Ipv4Validation<any>
     | Ipv6Validation<any>
     | UuidValidation<any>
-    | EmailValidation<any>;
+    | EmailValidation<any>
+    | CustomValidation<any>;
 
 type ValidationConverter<V extends SupportedValidation> = (validation: V) => JSONSchema7;
 
@@ -73,6 +75,9 @@ const VALIDATION_BY_SCHEMA: {
     boolean: {
         value: ({ requirement }) => ({ const: requirement }),
     },
+    object: {
+        custom: () => ({})
+    }
 };
 
 /**

@@ -866,3 +866,41 @@ describe(withJSONSchemaFeatures.name, () => {
         }),
     );
 });
+
+describe('custom', () => {
+    const registerSchema = v.object(
+        {
+            password1: v.string([
+                v.minLength(1, 'Please enter your password.'),
+                v.minLength(8, 'Your password must have 8 characters or more.')
+            ]),
+            password2: v.string()
+        },
+        [
+            v.forward(
+                v.custom((input) => input.password1 === input.password2, 'The two passwords do not match.'),
+                ['password2']
+            )
+        ]
+    );
+
+    it('should accept the custom function', testCase({
+        schema: registerSchema,
+        jsonSchema: {
+            $schema,
+            properties: {
+                password1: {
+                    minLength: 8,
+                    type: 'string'
+                },
+                password2: {
+                    type: 'string'
+                }
+            },
+            required: ['password1', 'password2'],
+            type: 'object'
+        },
+        validValues: [{ password1: '12345678', password2: '12345678' }],
+        invalidValues: [{ password1: '123', password2: '123'}],
+    }));
+})
