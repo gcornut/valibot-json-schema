@@ -1,5 +1,6 @@
 import { JSONSchema7 } from 'json-schema';
 import {
+    CustomValidation,
     EmailValidation,
     IntegerValidation,
     Ipv4Validation,
@@ -15,8 +16,7 @@ import {
     Pipe,
     RegexValidation,
     UuidValidation,
-    CustomValidation,
-    ValueValidation
+    ValueValidation,
 } from 'valibot';
 import { assert } from '../utils/assert';
 import { SupportedSchemas } from './schemas';
@@ -76,8 +76,8 @@ const VALIDATION_BY_SCHEMA: {
         value: ({ requirement }) => ({ const: requirement }),
     },
     object: {
-        custom: () => ({})
-    }
+        custom: () => ({}),
+    },
 };
 
 /**
