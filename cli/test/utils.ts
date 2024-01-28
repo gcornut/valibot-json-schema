@@ -2,6 +2,7 @@ import childProcess from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import util from 'util';
+import os from 'os';
 
 const root = path.resolve(__dirname, '../../');
 const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json')).toString());
@@ -22,7 +23,8 @@ export async function runCLI(args: string) {
     await buildOnce();
     const cli = path.join(root, packageJson.bin);
     try {
-        const { stdout } = await exec(`${cli} ${args}`, { cwd: __dirname });
+        const nodeCmd = os.platform() == 'win32' ? 'node ' : '';
+        const { stdout } = await exec(`${nodeCmd}${cli} ${args}`, { cwd: __dirname });
         return JSON.parse(stdout);
     } catch (error) {
         return error;
