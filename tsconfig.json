@@ -9,6 +9,6 @@
       "dom"
     ]
   },
-  "include": ["src"],
+  "include": ["src", "cli"],
   "exclude": ["**/*.spec.*"]
 }

@@ -9,4 +9,3 @@ export const ListElement = v.object({
     type: v.literal('ul'),
     children: v.array(ListItemElement),
 });
-

@@ -5,7 +5,7 @@ export function isSchema(schema: any): boolean {
 }
 
 type KnownSchemas = v.OptionalSchema<any> | v.StringSchema | v.NeverSchema | v.NullishSchema<any>;
-type GetSchema<T extends string> = Extract<KnownSchemas, { type: T }>
+type GetSchema<T extends string> = Extract<KnownSchemas, { type: T }>;
 
 export const isSchemaType = <T extends KnownSchemas['type']>(type: T) => {
     return (schema: any): schema is GetSchema<T> => !!schema && schema.type === type;

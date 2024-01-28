@@ -13,7 +13,7 @@ export default [
         outDir: './dist',
     }),
     defineConfig({
-        entry: ['./src/cli/index.ts'],
+        entry: ['./cli/index.ts'],
         clean: true,
         format: ['cjs'],
         outDir: './bin',

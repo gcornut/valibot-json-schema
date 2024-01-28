@@ -1,5 +1,4 @@
 {
-  "$ref": "#/definitions/ListElement",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
     "ListElement": {
@@ -14,10 +13,7 @@
           "const": "ul"
         }
       },
-      "required": [
-        "type",
-        "children"
-      ],
+      "required": ["type", "children"],
       "type": "object"
     },
     "ListItemElement": {
@@ -39,10 +35,7 @@
           "const": "li"
         }
       },
-      "required": [
-        "type",
-        "children"
-      ],
+      "required": ["type", "children"],
       "type": "object"
     }
   }
