@@ -1,6 +1,6 @@
 {
   "name": "@gcornut/valibot-json-schema",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "packageManager": "yarn@3.6.4",
   "repository": {
     "type": "git",
@@ -40,8 +40,11 @@
     "build": "tsup",
     "check:types": "tsc --noEmit",
     "publish": "yarn build && npm publish",
-    "run:cli": "esr src/cli",
-    "test": "vitest"
+    "run:cli": "esr cli",
+    "test": "vitest",
+    "type-check": "yarn tsc -p tsconfig.json",
+    "lint": "yarn biome check .",
+    "lint:ci": "yarn biome ci ."
   },
   "peerDependencies": {
     "@types/json-schema": ">= 7.0.14",
@@ -50,6 +53,7 @@
     "valibot": ">= 0.21.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
     "@types/json-schema": "^7.0.14",
     "@types/lodash": "^4.14.199",
     "@vitest/coverage-v8": "^0.34.6",

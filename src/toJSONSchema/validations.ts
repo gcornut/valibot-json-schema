@@ -1,4 +1,11 @@
+import { JSONSchema7 } from 'json-schema';
 import {
+    EmailValidation,
+    IntegerValidation,
+    Ipv4Validation,
+    Ipv6Validation,
+    IsoDateValidation,
+    IsoTimestampValidation,
     LengthValidation,
     MaxLengthValidation,
     MaxValueValidation,
@@ -7,22 +14,15 @@ import {
     MultipleOfValidation,
     Pipe,
     RegexValidation,
-    ValueValidation,
-    IntegerValidation,
-    EmailValidation,
-    IsoDateValidation,
-    IsoTimestampValidation,
-    Ipv4Validation,
-    Ipv6Validation,
     UuidValidation,
     CustomValidation,
+    ValueValidation
 } from 'valibot';
 import { assert } from '../utils/assert';
-import { JSONSchema7 } from 'json-schema';
 import { SupportedSchemas } from './schemas';
 
 export type SupportedValidation =
-    LengthValidation<any, any>
+    | LengthValidation<any, any>
     | MaxLengthValidation<any, any>
     | MinLengthValidation<any, any>
     | RegexValidation<any>
@@ -43,8 +43,8 @@ type ValidationConverter<V extends SupportedValidation> = (validation: V) => JSO
 
 const VALIDATION_BY_SCHEMA: {
     [schema in SupportedSchemas['type']]?: {
-        [K in SupportedValidation['type']]?: ValidationConverter<Extract<SupportedValidation, { type: K }>>
-    }
+        [K in SupportedValidation['type']]?: ValidationConverter<Extract<SupportedValidation, { type: K }>>;
+    };
 } = {
     array: {
         length: ({ requirement }) => ({ minItems: requirement, maxItems: requirement }),
@@ -88,6 +88,6 @@ export function convertPipe(schemaType: keyof typeof VALIDATION_BY_SCHEMA, pipe:
         const validationType = (validation as SupportedValidation).type;
         const validationConverter = VALIDATION_BY_SCHEMA[schemaType]?.[validationType] as ValidationConverter<any>;
         assert(validationConverter, Boolean, `Unsupported valibot validation \`${validationType}\` for schema \`${schemaType}\``);
-        return { ...def, ...validationConverter(validation) };
+        return Object.assign(def, validationConverter(validation));
     }, {} as JSONSchema7);
 }
