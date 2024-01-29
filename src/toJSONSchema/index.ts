@@ -63,8 +63,8 @@ export function toJSONSchema(options: Options): JSONSchema7 {
         Object.values(inputDefinitions).forEach(converter);
     }
 
-    const mainConverted = schema && converter(schema);
-    const mainDefName = schema && defNameMap.get(schema);
+    const mainConverted = schema && converter(schema as SupportedSchemas);
+    const mainDefName = schema && defNameMap.get(schema as SupportedSchemas);
     const out: JSONSchema7 = { $schema };
     if (mainDefName) {
         out.$ref = toDefinitionURI(mainDefName);
