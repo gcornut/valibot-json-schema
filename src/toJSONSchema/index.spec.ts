@@ -13,7 +13,7 @@ import { withJSONSchemaFeatures } from '../extension/withJSONSchemaFeatures';
 import { $schema } from '../utils/json-schema';
 import { and, negate } from '../utils/predicate';
 import { SupportedSchemas } from './schemas';
-import { Options } from './types';
+import { ToJSONSchemaOptions } from './types';
 
 const emptyObject = {} as const;
 const emptyArray = [] as const;
@@ -23,7 +23,7 @@ const SAMPLE_VALUES = [undefined, null, 0, 9999, NaN, false, true, '', 'foo', em
  * Valibot schema conversion test case
  */
 type TestCase = {
-    options?: Options;
+    options?: ToJSONSchemaOptions;
     schema: SupportedSchemas;
     error?: string;
     jsonSchema?: JSONSchema7;

@@ -9,7 +9,7 @@ export const DateStrategy = {
 } as const;
 export type DateStrategy = ValueOf<typeof DateStrategy>;
 
-export interface Options {
+export interface ToJSONSchemaOptions {
     /**
      * Main schema (referenced at the root of the JSON schema).
      */
@@ -30,7 +30,7 @@ export interface Options {
     dateStrategy?: DateStrategy;
 }
 
-export interface Context extends Pick<Options, 'strictObjectTypes' | 'dateStrategy'> {
+export interface Context extends Pick<ToJSONSchemaOptions, 'strictObjectTypes' | 'dateStrategy'> {
     /**
      * Mapping from schema to name
      */
