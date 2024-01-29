@@ -1,4 +1,5 @@
 import { JSONSchema7 } from 'json-schema';
+import { BaseSchema, BaseSchemaAsync } from 'valibot';
 import { ValueOf } from '../utils/ValueOf';
 import { SupportedSchemas } from './schemas';
 
@@ -12,7 +13,7 @@ export interface Options {
     /**
      * Main schema (referenced at the root of the JSON schema).
      */
-    schema?: SupportedSchemas;
+    schema?: BaseSchema | BaseSchemaAsync;
     /**
      * Additional schemas (referenced in the JSON schema `definitions`).
      */
