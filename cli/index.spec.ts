@@ -94,3 +94,21 @@ describe('date strategy', () => {
         }),
     );
 });
+
+describe('ignore unknown validation', () => {
+    test(
+        'Throw error on unknown validation',
+        testCase({
+            run: 'to-json-schema ./unknown-validation.valibot.ts',
+            expectedOutput: /Error: Unsupported valibot validation `custom` for schema `object/i,
+        }),
+    );
+
+    test(
+        'Ignore unknown validation when asked',
+        testCase({
+            run: 'to-json-schema --ignoreUnknownValidation ./unknown-validation.valibot.ts',
+            expectedOutput: readFile('./unknown-validation-ignored.schema.json'),
+        }),
+    );
+});

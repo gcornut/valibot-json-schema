@@ -17,10 +17,11 @@ program
     .option('-t, --type <type>', 'Path to the main type')
     .option('-d, --definitions <object_path>', 'Path to the definitions')
     .option('--strictObjectTypes', 'Make object strict object types (no unknown keys)')
+    .option('--ignoreUnknownValidation', 'If true, do not throw an error on validations that cannot be converted to JSON schema.')
     .addOption(
         new Option('--dateStrategy <strategy>', 'Define how date validator should be converted').choices(Object.values(DateStrategy)),
     )
-    .action((sourcePath, { type, definitions: definitionsPath, out, strictObjectTypes, dateStrategy }) => {
+    .action((sourcePath, { type, definitions: definitionsPath, out, strictObjectTypes, dateStrategy, ignoreUnknownValidation }) => {
         try {
             // Enable auto transpile of ESM & TS modules required
             require('esbuild-runner/register');
@@ -55,7 +56,7 @@ program
         }
 
         // Convert
-        const jsonSchema = toJSONSchema({ schema, definitions, strictObjectTypes, dateStrategy });
+        const jsonSchema = toJSONSchema({ schema, definitions, strictObjectTypes, dateStrategy, ignoreUnknownValidation });
         const jsonSchemaString = stableStringify(jsonSchema, null, 2);
         if (out) {
             // Output to file
