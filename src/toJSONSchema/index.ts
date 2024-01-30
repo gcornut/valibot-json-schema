@@ -4,10 +4,10 @@ import { assert } from '../utils/assert';
 import { $schema } from '../utils/json-schema';
 import { SCHEMA_CONVERTERS, SupportedSchemas } from './schemas';
 import { toDefinitionURI } from './toDefinitionURI';
-import { Context, DefinitionNameMap, Options } from './types';
+import { Context, DefinitionNameMap, ToJSONSchemaOptions } from './types';
 import { convertPipe } from './validations';
 
-function getDefNameMap(definitions: Options['definitions'] = {}) {
+function getDefNameMap(definitions: ToJSONSchemaOptions['definitions'] = {}) {
     const map: DefinitionNameMap = new Map();
     for (const [name, definition] of Object.entries(definitions)) {
         map.set(definition, name);
@@ -50,7 +50,7 @@ function createConverter(context: Context) {
 /**
  * Convert Valibot schemas to JSON schema.
  */
-export function toJSONSchema(options: Options): JSONSchema7 {
+export function toJSONSchema(options: ToJSONSchemaOptions): JSONSchema7 {
     const { schema, definitions: inputDefinitions, ...more } = options;
     const defNameMap = getDefNameMap(inputDefinitions);
     const { definitions, converter } = createConverter({ defNameMap, ...more });
@@ -63,8 +63,8 @@ export function toJSONSchema(options: Options): JSONSchema7 {
         Object.values(inputDefinitions).forEach(converter);
     }
 
-    const mainConverted = schema && converter(schema);
-    const mainDefName = schema && defNameMap.get(schema);
+    const mainConverted = schema && converter(schema as SupportedSchemas);
+    const mainDefName = schema && defNameMap.get(schema as SupportedSchemas);
     const out: JSONSchema7 = { $schema };
     if (mainDefName) {
         out.$ref = toDefinitionURI(mainDefName);
