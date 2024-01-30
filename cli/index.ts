@@ -1,12 +1,12 @@
-import fs from 'fs';
-import path from 'path';
 import { Command, Option } from 'commander';
+import fs from 'fs';
 import get from 'lodash/get';
+import path from 'path';
 import stableStringify from 'safe-stable-stringify';
 
-import { toJSONSchema } from '../src';
-import { DateStrategy } from '../src/toJSONSchema/types';
-import { isSchema } from '../src/utils/valibot';
+import { toJSONSchema } from '../src/index.js';
+import { DateStrategy } from '../src/toJSONSchema/types.js';
+import { isSchema } from '../src/utils/valibot.js';
 
 const program = new Command();
 

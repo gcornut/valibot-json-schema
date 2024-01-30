@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { isEqual } from './isEqual';
+import { isEqual } from './isEqual.js';
 
 test(isEqual, () => {
     expect(isEqual('', '')).toBe(true);

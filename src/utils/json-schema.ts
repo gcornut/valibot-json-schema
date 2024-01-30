@@ -1,4 +1,4 @@
-import { assert } from './assert';
+import { assert } from './assert.js';
 
 /** JSON Schema URI */
 export const $schema = 'http://json-schema.org/draft-07/schema#';

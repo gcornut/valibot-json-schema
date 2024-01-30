@@ -17,8 +17,8 @@ import {
     UuidValidation,
     ValueValidation,
 } from 'valibot';
-import { assert } from '../utils/assert';
-import { SupportedSchemas } from './schemas';
+import { assert } from '../utils/assert.js';
+import { SupportedSchemas } from './schemas.js';
 
 export type SupportedValidation =
     | LengthValidation<any, any>

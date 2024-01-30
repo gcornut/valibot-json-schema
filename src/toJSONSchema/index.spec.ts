@@ -9,11 +9,11 @@ import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
 import { toJSONSchema } from '.';
-import { withJSONSchemaFeatures } from '../extension/withJSONSchemaFeatures';
-import { $schema } from '../utils/json-schema';
-import { and, negate } from '../utils/predicate';
-import { SupportedSchemas } from './schemas';
-import { ToJSONSchemaOptions } from './types';
+import { withJSONSchemaFeatures } from '../extension/withJSONSchemaFeatures.js';
+import { $schema } from '../utils/json-schema.js';
+import { and, negate } from '../utils/predicate.js';
+import { SupportedSchemas } from './schemas.js';
+import { ToJSONSchemaOptions } from './types.js';
 
 const emptyObject = {} as const;
 const emptyArray = [] as const;

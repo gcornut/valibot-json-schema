@@ -1,11 +1,11 @@
 import { type JSONSchema7 } from 'json-schema';
-import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures';
-import { assert } from '../utils/assert';
-import { $schema } from '../utils/json-schema';
-import { SCHEMA_CONVERTERS, SupportedSchemas } from './schemas';
+import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures.js';
+import { assert } from '../utils/assert.js';
+import { $schema } from '../utils/json-schema.js';
+import { SCHEMA_CONVERTERS, SupportedSchemas } from './schemas.js';
 import { toDefinitionURI } from './toDefinitionURI';
-import { Context, DefinitionNameMap, ToJSONSchemaOptions } from './types';
-import { convertPipe } from './validations';
+import { Context, DefinitionNameMap, ToJSONSchemaOptions } from './types.js';
+import { convertPipe } from './validations.js';
 
 function getDefNameMap(definitions: ToJSONSchemaOptions['definitions'] = {}) {
     const map: DefinitionNameMap = new Map();

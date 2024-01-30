@@ -20,13 +20,13 @@ import {
     UnionSchema,
     getDefault,
 } from 'valibot';
-import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures';
-import { assert } from '../utils/assert';
-import { isEqual } from '../utils/isEqual';
-import { assertJSONLiteral } from '../utils/json-schema';
-import { isNeverSchema, isNullishSchema, isOptionalSchema, isStringSchema } from '../utils/valibot';
-import { toDefinitionURI } from './toDefinitionURI';
-import { BaseConverter, Context } from './types';
+import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures.js';
+import { assert } from '../utils/assert.js';
+import { isEqual } from '../utils/isEqual.js';
+import { assertJSONLiteral } from '../utils/json-schema.js';
+import { isNeverSchema, isNullishSchema, isOptionalSchema, isStringSchema } from '../utils/valibot.js';
+import { toDefinitionURI } from './toDefinitionURI.js';
+import { BaseConverter, Context } from './types.js';
 
 export type SupportedSchemas =
     | AnySchema
