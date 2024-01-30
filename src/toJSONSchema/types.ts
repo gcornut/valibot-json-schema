@@ -28,9 +28,14 @@ export interface ToJSONSchemaOptions {
      * 'string' sets the type to 'string' and format to 'date-time'.
      */
     dateStrategy?: DateStrategy;
+    /**
+     * If true, do not throw an error on validations that cannot be
+     * converted to JSON schema, like `custom`.
+     */
+    ignoreUnknownValidation?: boolean;
 }
 
-export interface Context extends Pick<ToJSONSchemaOptions, 'strictObjectTypes' | 'dateStrategy'> {
+export interface Context extends Pick<ToJSONSchemaOptions, 'strictObjectTypes' | 'dateStrategy' | 'ignoreUnknownValidation'> {
     /**
      * Mapping from schema to name
      */

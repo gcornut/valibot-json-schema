@@ -78,11 +78,18 @@ const VALIDATION_BY_SCHEMA: {
 /**
  * Convert a validation pipe to JSON schema.
  */
-export function convertPipe(schemaType: keyof typeof VALIDATION_BY_SCHEMA, pipe: Pipe<any> = []): JSONSchema7 | undefined {
+export function convertPipe(
+    schemaType: keyof typeof VALIDATION_BY_SCHEMA,
+    ignoreUnknownValidation: boolean | undefined,
+    pipe: Pipe<any> = [],
+): JSONSchema7 | undefined {
     return pipe.reduce((def, validation) => {
         const validationType = (validation as SupportedValidation).type;
-        const validationConverter = VALIDATION_BY_SCHEMA[schemaType]?.[validationType] as ValidationConverter<any>;
+        const validationConverter = VALIDATION_BY_SCHEMA[schemaType]?.[validationType];
+
+        if (!validationConverter && ignoreUnknownValidation) return {};
+
         assert(validationConverter, Boolean, `Unsupported valibot validation \`${validationType}\` for schema \`${schemaType}\``);
-        return Object.assign(def, validationConverter(validation));
+        return Object.assign(def, (validationConverter as ValidationConverter<any>)(validation));
     }, {} as JSONSchema7);
 }
