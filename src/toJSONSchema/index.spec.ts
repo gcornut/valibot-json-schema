@@ -885,7 +885,7 @@ describe('custom', () => {
     );
 
     it(
-        'should accept the custom function',
+        'should accept a custom function with the "ignoreUnknownValidation" option',
         testCase({
             schema: registerSchema,
             jsonSchema: {
@@ -904,6 +904,9 @@ describe('custom', () => {
             },
             validValues: [{ password1: '12345678', password2: '12345678' }],
             invalidValues: [{ password1: '123', password2: '123' }],
+            options: {
+                ignoreUnknownValidation: true,
+            },
         }),
     );
 });

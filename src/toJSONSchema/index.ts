@@ -32,7 +32,7 @@ function createConverter(context: Context) {
         const converted = schemaConverter(schema as any, converter, context);
 
         // Attach converted validation pipe
-        Object.assign(converted, convertPipe(schema.type, (schema as any).pipe));
+        Object.assign(converted, convertPipe(schema.type, context.ignoreUnknownValidation, (schema as any).pipe));
 
         // Attach extra JSON schema features
         assignExtraJSONSchemaFeatures(schema, converted);
