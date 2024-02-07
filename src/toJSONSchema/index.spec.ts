@@ -726,6 +726,26 @@ describe('date', () => {
     });
 });
 
+describe('undefined_', () => {
+    it(
+        'should be able to use the "any" strategy',
+        testCase({
+            schema: v.undefined_(),
+            jsonSchema: {
+                $schema,
+            },
+            validValues: [undefined],
+            invalidValues: [new Date(), 'foo', 'baz'],
+            options: { undefinedStrategy: 'any' },
+            hasDates: true,
+        }),
+    );
+
+    it("should throw an error if the undefinedStrategy option isn't defined", () => {
+        expect(testCase({ schema: v.undefined_() })).toThrow(Error);
+    });
+});
+
 describe('recursive type', () => {
     const listItem: any = v.object({
         type: v.literal('li'),

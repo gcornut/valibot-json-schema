@@ -9,6 +9,11 @@ export const DateStrategy = {
 } as const;
 export type DateStrategy = ValueOf<typeof DateStrategy>;
 
+export const UndefinedStrategy = {
+    any: 'any',
+} as const;
+export type UndefinedStrategy = ValueOf<typeof UndefinedStrategy>;
+
 export interface ToJSONSchemaOptions {
     /**
      * Main schema (referenced at the root of the JSON schema).
@@ -29,13 +34,19 @@ export interface ToJSONSchemaOptions {
      */
     dateStrategy?: DateStrategy;
     /**
+     * Undefined output:
+     * 'any' sets the type to 'any'
+     */
+    undefinedStrategy?: UndefinedStrategy;
+    /**
      * If true, do not throw an error on validations that cannot be
      * converted to JSON schema, like `custom`.
      */
     ignoreUnknownValidation?: boolean;
 }
 
-export interface Context extends Pick<ToJSONSchemaOptions, 'strictObjectTypes' | 'dateStrategy' | 'ignoreUnknownValidation'> {
+export interface Context
+    extends Pick<ToJSONSchemaOptions, 'strictObjectTypes' | 'dateStrategy' | 'undefinedStrategy' | 'ignoreUnknownValidation'> {
     /**
      * Mapping from schema to name
      */

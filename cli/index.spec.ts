@@ -95,6 +95,24 @@ describe('date strategy', () => {
     );
 });
 
+describe('undefined strategy', () => {
+    test(
+        'Convert undefined type without undefined strategy',
+        testCase({
+            run: 'to-json-schema ./undefined-type.valibot.ts',
+            expectedOutput: /Error: The "undefinedStrategy" option must be set to handle/i,
+        }),
+    );
+
+    test(
+        'Convert undefined type with any undefined strategy',
+        testCase({
+            run: 'to-json-schema --undefinedStrategy any ./undefined-type.valibot.ts',
+            expectedOutput: readFile('./undefined-type-any.schema.json'),
+        }),
+    );
+});
+
 describe('ignore unknown validation', () => {
     test(
         'Throw error on unknown validation',
