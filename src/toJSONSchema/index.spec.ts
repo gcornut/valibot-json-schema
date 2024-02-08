@@ -638,6 +638,22 @@ describe('composition types', () => {
         );
     });
 
+    describe('enum', () => {
+        enum TestEnum {
+            foo = 'foo',
+            bar = 'bar',
+        }
+        it(
+            'should convert enum schema',
+            testCase({
+                schema: v.enum_(TestEnum),
+                jsonSchema: { $schema, enum: ['foo', 'bar'] },
+                validValues: ['foo', 'bar'],
+                invalidValues: without(SAMPLE_VALUES, 'foo', 'bar'),
+            }),
+        );
+    });
+
     describe('union', () => {
         it(
             'should convert union schema',

@@ -155,6 +155,7 @@ Here is the list of supported Valibot features (some have partial support):
 | `optional` schema         | ✅ supported                                                                                      |
 | `never` schema            | ⚠️ partial: only inside `object` rest or `tuple` rest params                                     |
 | `picklist` schema         | ⚠️ partial: only JSON-compatible literal are supported                                           |
+| `enum_` schema            | ✅ supported                                                                                      |
 | `union` schema            | ✅ supported                                                                                      |
 | `intersect` schema        | ✅ supported                                                                                      |
 | `array` schema            | ✅ supported                                                                                      |

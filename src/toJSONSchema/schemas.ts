@@ -4,6 +4,7 @@ import {
     ArraySchema,
     BooleanSchema,
     DateSchema,
+    EnumSchema,
     IntersectSchema,
     LiteralSchema,
     NullSchema,
@@ -44,6 +45,7 @@ export type SupportedSchemas =
     | IntersectSchema<any>
     | UnionSchema<any>
     | PicklistSchema<any>
+    | EnumSchema<any>
     | RecursiveSchema<any>
     | DateSchema
     | NullishSchema<any>
@@ -89,6 +91,7 @@ export const SCHEMA_CONVERTERS: {
         return output;
     },
     picklist: ({ options }) => ({ enum: options.map(assertJSONLiteral) }),
+    enum: (options) => ({ enum: Object.values(options.enum).map(assertJSONLiteral) }),
     union: ({ options }, convert) => ({ anyOf: options.map(convert) }),
     intersect: ({ options }, convert) => ({ allOf: options.map(convert) }),
     // Complex types
