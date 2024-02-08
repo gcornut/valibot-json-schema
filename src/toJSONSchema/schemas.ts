@@ -17,6 +17,7 @@ import {
     RecursiveSchema,
     StringSchema,
     TupleSchema,
+    UndefinedSchema,
     UnionSchema,
     getDefault,
 } from 'valibot';
@@ -46,7 +47,8 @@ export type SupportedSchemas =
     | RecursiveSchema<any>
     | DateSchema
     | NullishSchema<any>
-    | OptionalSchema<any>;
+    | OptionalSchema<any>
+    | UndefinedSchema;
 
 type SchemaConverter<S extends SupportedSchemas> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
 
@@ -154,6 +156,16 @@ export const SCHEMA_CONVERTERS: {
                 return { type: 'integer', format: 'unix-time' };
             case 'string':
                 return { type: 'string', format: 'date-time' };
+        }
+    },
+    undefined(_, __, context) {
+        if (!context.undefinedStrategy) {
+            throw new Error('The "undefinedStrategy" option must be set to handle the `undefined` schema');
+        }
+
+        switch (context.undefinedStrategy) {
+            case 'any':
+                return {};
         }
     },
 };
