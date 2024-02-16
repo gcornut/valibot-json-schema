@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import stableStringify from 'safe-stable-stringify';
 
 import { toJSONSchema } from '../src';
-import { DateStrategy, UndefinedStrategy } from '../src/toJSONSchema/types';
+import { BigIntStrategy, DateStrategy, UndefinedStrategy } from '../src/toJSONSchema/types';
 import { isSchema } from '../src/utils/valibot';
 
 const program = new Command();
@@ -26,10 +26,22 @@ program
             Object.values(UndefinedStrategy),
         ),
     )
+    .addOption(
+        new Option('--bigintStrategy <strategy>', 'Define how bigint validator should be converted').choices(Object.values(BigIntStrategy)),
+    )
     .action(
         (
             sourcePath,
-            { type, definitions: definitionsPath, out, strictObjectTypes, dateStrategy, undefinedStrategy, ignoreUnknownValidation },
+            {
+                type,
+                definitions: definitionsPath,
+                out,
+                strictObjectTypes,
+                dateStrategy,
+                undefinedStrategy,
+                bigintStrategy,
+                ignoreUnknownValidation,
+            },
         ) => {
             try {
                 // Enable auto transpile of ESM & TS modules required
@@ -71,6 +83,7 @@ program
                 strictObjectTypes,
                 dateStrategy,
                 undefinedStrategy,
+                bigintStrategy,
                 ignoreUnknownValidation,
             });
             const jsonSchemaString = stableStringify(jsonSchema, null, 2);

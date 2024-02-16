@@ -147,6 +147,7 @@ Here is the list of supported Valibot features (some have partial support):
 | `any` schema              | ✅ supported                                                                                      |
 | `null` schema             | ✅ supported                                                                                      |
 | `number` schema           | ✅ supported                                                                                      |
+| `bigint` schema           | ⚠️ with `bigintStrategy` option provided                                                         |
 | `string` schema           | ✅ supported                                                                                      |
 | `boolean` schema          | ✅ supported                                                                                      |
 | `literal` schema          | ⚠️ partial: only JSON-compatible literal are supported                                           |

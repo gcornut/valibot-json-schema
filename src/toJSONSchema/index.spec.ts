@@ -228,6 +228,34 @@ describe('number', () => {
     );
 });
 
+describe('bigint', () => {
+    it(
+        'should fail without the bigintStrategy option',
+        testCase({
+            schema: v.bigint(),
+            error: 'The "bigintStrategy" option must be set to handle `bigint` validators',
+        }),
+    );
+
+    it(
+        'should convert with integer strategy',
+        testCase({
+            schema: v.bigint(),
+            options: { bigintStrategy: 'integer' },
+            jsonSchema: { $schema, type: 'integer', format: 'int64' },
+        }),
+    );
+
+    it(
+        'should convert with string strategy',
+        testCase({
+            schema: v.bigint(),
+            options: { bigintStrategy: 'string' },
+            jsonSchema: { $schema, type: 'string' },
+        }),
+    );
+});
+
 describe('string', () => {
     it(
         'should convert string schema',
@@ -643,6 +671,7 @@ describe('composition types', () => {
             foo = 'foo',
             bar = 'bar',
         }
+
         it(
             'should convert enum schema',
             testCase({

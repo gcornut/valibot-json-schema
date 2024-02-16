@@ -113,6 +113,32 @@ describe('undefined strategy', () => {
     );
 });
 
+describe('bigint strategy', () => {
+    test(
+        'Convert bigint type without bigint strategy',
+        testCase({
+            run: 'to-json-schema ./bigint-type.valibot.ts',
+            expectedOutput: /Error: The "bigintStrategy" option must be set to handle/i,
+        }),
+    );
+
+    test(
+        'Convert bigint type with integer bigint strategy',
+        testCase({
+            run: 'to-json-schema --bigintStrategy integer ./bigint-type.valibot.ts',
+            expectedOutput: readFile('./bigint-type-integer.schema.json'),
+        }),
+    );
+
+    test(
+        'Convert bigint type with string bigint strategy',
+        testCase({
+            run: 'to-json-schema --bigintStrategy string ./bigint-type.valibot.ts',
+            expectedOutput: readFile('./bigint-type-string.schema.json'),
+        }),
+    );
+});
+
 describe('ignore unknown validation', () => {
     test(
         'Throw error on unknown validation',

@@ -14,6 +14,12 @@ export const UndefinedStrategy = {
 } as const;
 export type UndefinedStrategy = ValueOf<typeof UndefinedStrategy>;
 
+export const BigIntStrategy = {
+    string: 'string',
+    integer: 'integer',
+} as const;
+export type BigIntStrategy = ValueOf<typeof BigIntStrategy>;
+
 export interface ToJSONSchemaOptions {
     /**
      * Main schema (referenced at the root of the JSON schema).
@@ -39,6 +45,12 @@ export interface ToJSONSchemaOptions {
      */
     undefinedStrategy?: UndefinedStrategy;
     /**
+     * How bigint schema should be converted:
+     * - 'integer': uses integer type with format 'int64' (see https://ajv.js.org/packages/ajv-formats.html#formats)
+     * - 'string': uses string type
+     */
+    bigintStrategy?: DateStrategy;
+    /**
      * If true, do not throw an error on validations that cannot be
      * converted to JSON schema, like `custom`.
      */
@@ -46,7 +58,10 @@ export interface ToJSONSchemaOptions {
 }
 
 export interface Context
-    extends Pick<ToJSONSchemaOptions, 'strictObjectTypes' | 'dateStrategy' | 'undefinedStrategy' | 'ignoreUnknownValidation'> {
+    extends Pick<
+        ToJSONSchemaOptions,
+        'strictObjectTypes' | 'dateStrategy' | 'undefinedStrategy' | 'bigintStrategy' | 'ignoreUnknownValidation'
+    > {
     /**
      * Mapping from schema to name
      */

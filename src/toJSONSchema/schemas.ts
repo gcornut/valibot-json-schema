@@ -2,6 +2,7 @@ import { JSONSchema7 } from 'json-schema';
 import {
     AnySchema,
     ArraySchema,
+    BigintSchema,
     BooleanSchema,
     DateSchema,
     EnumSchema,
@@ -35,6 +36,7 @@ export type SupportedSchemas =
     | LiteralSchema<any>
     | NullSchema
     | NumberSchema
+    | BigintSchema
     | StringSchema
     | BooleanSchema
     | NullableSchema<any>
@@ -169,6 +171,18 @@ export const SCHEMA_CONVERTERS: {
         switch (context.undefinedStrategy) {
             case 'any':
                 return {};
+        }
+    },
+    bigint(_, __, context) {
+        if (!context.bigintStrategy) {
+            throw new Error('The "bigintStrategy" option must be set to handle `bigint` validators');
+        }
+
+        switch (context.bigintStrategy) {
+            case 'integer':
+                return { type: 'integer', format: 'int64' };
+            case 'string':
+                return { type: 'string' };
         }
     },
 };
