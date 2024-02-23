@@ -791,10 +791,10 @@ describe('undefined_', () => {
     });
 });
 
-describe('recursive type', () => {
+describe('lazy type', () => {
     const listItem: any = v.object({
         type: v.literal('li'),
-        children: v.array(v.union([v.string(), v.recursive(() => list)])),
+        children: v.array(v.union([v.string(), v.lazy(() => list)])),
     });
     const list = v.object({
         type: v.literal('ul'),
@@ -802,15 +802,15 @@ describe('recursive type', () => {
     });
 
     it(
-        'should fail on recursive schema not provided in definitions',
+        'should fail on lazy schema not provided in definitions',
         testCase({
             schema: list,
-            error: 'Type inside recursive schema must be provided in the definitions',
+            error: 'Type inside lazy schema must be provided in the definitions',
         }),
     );
 
     it(
-        'should convert complex recursive schema',
+        'should convert complex lazy schema',
         testCase({
             schema: list,
             options: { definitions: { list, listItem } },

@@ -142,41 +142,41 @@ formats (`email`, `ipv4`, `date`, etc.) since their implementation is different 
 
 Here is the list of supported Valibot features (some have partial support):
 
-| feature                   | status                                                                                           |
-|---------------------------|--------------------------------------------------------------------------------------------------|
-| `any` schema              | ✅ supported                                                                                      |
-| `null` schema             | ✅ supported                                                                                      |
-| `number` schema           | ✅ supported                                                                                      |
-| `bigint` schema           | ⚠️ with `bigintStrategy` option provided                                                         |
-| `string` schema           | ✅ supported                                                                                      |
-| `boolean` schema          | ✅ supported                                                                                      |
-| `literal` schema          | ⚠️ partial: only JSON-compatible literal are supported                                           |
-| `nullable` schema         | ✅ supported                                                                                      |
-| `nullish` schema          | ✅ supported                                                                                      |
-| `optional` schema         | ✅ supported                                                                                      |
-| `never` schema            | ⚠️ partial: only inside `object` rest or `tuple` rest params                                     |
-| `picklist` schema         | ⚠️ partial: only JSON-compatible literal are supported                                           |
-| `enum_` schema            | ✅ supported                                                                                      |
-| `union` schema            | ✅ supported                                                                                      |
-| `intersect` schema        | ✅ supported                                                                                      |
-| `array` schema            | ✅ supported                                                                                      |
-| `tuple` schema            | ✅ supported                                                                                      |
-| `object` schema           | ✅ supported                                                                                      |
-| `record` schema           | ⚠️ partial: only string key are allowed, applicable to plain object only, not arrays             |
-| `recursive` schema        | ⚠️ partial: only if the schema inside [is referenced in `definitions`](#json-schema-definitions) |
-| `date` schema             | ⚠️ with `dateStrategy` option provided                                                           |
-| `length` validation       | ✅ supported                                                                                      |
-| `maxLength` validation    | ✅ supported                                                                                      |
-| `minLength` validation    | ✅ supported                                                                                      |
-| `regex` validation        | ⚠️ partial: only on RegExp features supported by JSON schema                                     |
-| `value` validation        | ⚠️ partial: only on `string`, `number` and `boolean`                                             |
-| `minValue` validation     | ⚠️ partial: only on `number`                                                                     |
-| `maxValue` validation     | ⚠️ partial: only on `number`                                                                     |
-| `multipleOf` validation   | ✅ supported                                                                                      |
-| `integer` validation      | ✅ supported                                                                                      |
-| `email` validation        | ✅ supported (JSON schema format)                                                                 |
-| `isoDate` validation      | ✅ supported (JSON schema format)                                                                 |
-| `isoTimestamp` validation | ✅ supported (JSON schema format)                                                                 |
-| `ipv4` validation         | ✅ supported (JSON schema format)                                                                 |
-| `ipv6` validation         | ✅ supported (JSON schema format)                                                                 |
-| `uuid` validation         | ✅ supported (JSON schema format)                                                                 |
+| feature                                      | status                                                                                           |
+|----------------------------------------------|--------------------------------------------------------------------------------------------------|
+| `any` schema                                 | ✅ supported                                                                                      |
+| `null` schema                                | ✅ supported                                                                                      |
+| `number` schema                              | ✅ supported                                                                                      |
+| `bigint` schema                              | ⚠️ with `bigintStrategy` option provided                                                         |
+| `string` schema                              | ✅ supported                                                                                      |
+| `boolean` schema                             | ✅ supported                                                                                      |
+| `literal` schema                             | ⚠️ partial: only JSON-compatible literal are supported                                           |
+| `nullable` schema                            | ✅ supported                                                                                      |
+| `nullish` schema                             | ✅ supported                                                                                      |
+| `optional` schema                            | ✅ supported                                                                                      |
+| `never` schema                               | ⚠️ partial: only inside `object` rest or `tuple` rest params                                     |
+| `picklist` schema                            | ⚠️ partial: only JSON-compatible literal are supported                                           |
+| `enum_` schema                               | ✅ supported                                                                                      |
+| `union` schema                               | ✅ supported                                                                                      |
+| `intersect` schema                           | ✅ supported                                                                                      |
+| `array` schema                               | ✅ supported                                                                                      |
+| `tuple` schema                               | ✅ supported                                                                                      |
+| `object` schema                              | ✅ supported                                                                                      |
+| `record` schema                              | ⚠️ partial: only string key are allowed, applicable to plain object only, not arrays             |
+| `lazy` schema (previously named `recursive`) | ⚠️ partial: only if the schema inside [is referenced in `definitions`](#json-schema-definitions) |
+| `date` schema                                | ⚠️ with `dateStrategy` option provided                                                           |
+| `length` validation                          | ✅ supported                                                                                      |
+| `maxLength` validation                       | ✅ supported                                                                                      |
+| `minLength` validation                       | ✅ supported                                                                                      |
+| `regex` validation                           | ⚠️ partial: only on RegExp features supported by JSON schema                                     |
+| `value` validation                           | ⚠️ partial: only on `string`, `number` and `boolean`                                             |
+| `minValue` validation                        | ⚠️ partial: only on `number`                                                                     |
+| `maxValue` validation                        | ⚠️ partial: only on `number`                                                                     |
+| `multipleOf` validation                      | ✅ supported                                                                                      |
+| `integer` validation                         | ✅ supported                                                                                      |
+| `email` validation                           | ✅ supported (JSON schema format)                                                                 |
+| `isoDate` validation                         | ✅ supported (JSON schema format)                                                                 |
+| `isoTimestamp` validation                    | ✅ supported (JSON schema format)                                                                 |
+| `ipv4` validation                            | ✅ supported (JSON schema format)                                                                 |
+| `ipv6` validation                            | ✅ supported (JSON schema format)                                                                 |
+| `uuid` validation                            | ✅ supported (JSON schema format)                                                                 |

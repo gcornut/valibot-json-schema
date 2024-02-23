@@ -16,7 +16,7 @@ import {
     OptionalSchema,
     PicklistSchema,
     RecordSchema,
-    RecursiveSchema,
+    LazySchema,
     StringSchema,
     TupleSchema,
     UndefinedSchema,
@@ -48,7 +48,7 @@ export type SupportedSchemas =
     | UnionSchema<any>
     | PicklistSchema<any>
     | EnumSchema<any>
-    | RecursiveSchema<any>
+    | LazySchema<any>
     | DateSchema
     | NullishSchema<any>
     | OptionalSchema<any>
@@ -143,11 +143,11 @@ export const SCHEMA_CONVERTERS: {
         assert(key, isStringSchema, 'Unsupported record key type: %');
         return { type: 'object', additionalProperties: convert(value) };
     },
-    recursive(schema, _, context) {
+    lazy(schema, _, context) {
         const nested = schema.getter();
         const defName = context.defNameMap.get(nested);
         if (!defName) {
-            throw new Error('Type inside recursive schema must be provided in the definitions');
+            throw new Error('Type inside lazy schema must be provided in the definitions');
         }
         return { $ref: toDefinitionURI(defName) };
     },
@@ -186,3 +186,7 @@ export const SCHEMA_CONVERTERS: {
         }
     },
 };
+
+// Keep recursive => lazy aliasing for backward compatibility
+// @ts-ignore
+SCHEMA_CONVERTERS['recursive'] = SCHEMA_CONVERTERS['lazy'];

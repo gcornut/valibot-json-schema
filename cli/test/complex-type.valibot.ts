@@ -2,7 +2,7 @@ import * as v from 'valibot';
 
 export const ListItemElement: any = v.object({
     type: v.literal('li'),
-    children: v.array(v.union([v.string(), v.recursive(() => ListElement)])),
+    children: v.array(v.union([v.string(), v.lazy(() => ListElement)])),
 });
 
 export const ListElement = v.object({
