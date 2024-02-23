@@ -695,6 +695,40 @@ describe('composition types', () => {
         );
     });
 
+    describe('variant', () => {
+        it(
+            'should convert variant schema',
+            testCase({
+                schema: v.variant('type', [v.object({ type: v.literal('a') }), v.object({ type: v.literal('b') })]),
+                jsonSchema: {
+                    $schema: 'http://json-schema.org/draft-07/schema#',
+                    anyOf: [
+                        {
+                            properties: {
+                                type: {
+                                    const: 'a',
+                                },
+                            },
+                            required: ['type'],
+                            type: 'object',
+                        },
+                        {
+                            properties: {
+                                type: {
+                                    const: 'b',
+                                },
+                            },
+                            required: ['type'],
+                            type: 'object',
+                        },
+                    ],
+                },
+                validValues: [{ type: 'a' }, { type: 'b' }],
+                invalidValues: [SAMPLE_VALUES, { type: 'c' }],
+            }),
+        );
+    });
+
     describe('intersection', () => {
         it(
             'should convert intersection of enums',

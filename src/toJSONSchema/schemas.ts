@@ -7,6 +7,7 @@ import {
     DateSchema,
     EnumSchema,
     IntersectSchema,
+    LazySchema,
     LiteralSchema,
     NullSchema,
     NullableSchema,
@@ -16,11 +17,11 @@ import {
     OptionalSchema,
     PicklistSchema,
     RecordSchema,
-    LazySchema,
     StringSchema,
     TupleSchema,
     UndefinedSchema,
     UnionSchema,
+    VariantSchema,
     getDefault,
 } from 'valibot';
 import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures';
@@ -46,6 +47,7 @@ export type SupportedSchemas =
     | TupleSchema<any, any>
     | IntersectSchema<any>
     | UnionSchema<any>
+    | VariantSchema<any, any>
     | PicklistSchema<any>
     | EnumSchema<any>
     | LazySchema<any>
@@ -184,6 +186,10 @@ export const SCHEMA_CONVERTERS: {
             case 'string':
                 return { type: 'string' };
         }
+    },
+    variant({ options }, ...args) {
+        // Convert `variant` like a union
+        return SCHEMA_CONVERTERS.union({ options } as any, ...args);
     },
 };
 

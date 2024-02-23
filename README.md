@@ -158,6 +158,7 @@ Here is the list of supported Valibot features (some have partial support):
 | `picklist` schema                            | ⚠️ partial: only JSON-compatible literal are supported                                           |
 | `enum_` schema                               | ✅ supported                                                                                      |
 | `union` schema                               | ✅ supported                                                                                      |
+| `variant` schema                             | ⚠️ partial: converted just like an `union`                                                         |
 | `intersect` schema                           | ✅ supported                                                                                      |
 | `array` schema                               | ✅ supported                                                                                      |
 | `tuple` schema                               | ✅ supported                                                                                      |
