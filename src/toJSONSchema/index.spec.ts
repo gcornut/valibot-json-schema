@@ -1015,4 +1015,59 @@ describe('custom', () => {
             },
         }),
     );
+
+    it(
+        'should convert unsupported schema via a custom converter',
+        testCase({
+            schema: v.instance(String) as any,
+            options: {
+                customSchemaConversion: {
+                    // Ignore the instance schema (as any)
+                    instance: () => ({}),
+                },
+            },
+            jsonSchema: { $schema },
+        }),
+    );
+
+    it(
+        'should customize conversion of supported schema',
+        testCase({
+            schema: v.number(),
+            options: {
+                customSchemaConversion: {
+                    // Override conversion of number to use "string" instead
+                    number: () => ({ type: 'string' }),
+                },
+            },
+            jsonSchema: { $schema, type: 'string' },
+        }),
+    );
+
+    it(
+        'should customize conversion of unsupported nested schemas',
+        testCase({
+            schema: v.set(v.string()) as any,
+            options: {
+                customSchemaConversion: {
+                    // Treat set type like an array
+                    set: (schema, converter) => converter(v.array((schema as v.SetSchema<any>).value)),
+                },
+            },
+            jsonSchema: { $schema, type: 'array', items: { type: 'string' } },
+        }),
+    );
+
+    it(
+        'should throw error on falsy value returned by a custom schema converter',
+        testCase({
+            schema: v.instance(String) as any,
+            options: {
+                customSchemaConversion: {
+                    instance: () => null as any,
+                },
+            },
+            error: 'Custom schema converter `instance` returned an invalid JSON schema',
+        }),
+    );
 });

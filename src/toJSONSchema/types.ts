@@ -57,13 +57,17 @@ export interface ToJSONSchemaOptions {
      * converted to JSON schema, like `custom`.
      */
     ignoreUnknownValidation?: boolean;
+    /**
+     * Customize how valibot schemas of the given type are converted to JSON schema.
+     *
+     * @example
+     *   // Make valibot `instance()` schema convert to the "any" JSON schema (no validation)
+     *   { customSchemaConversion: { instance: (schema) => ({}) }  }
+     */
+    customSchemaConversion?: Record<string, SchemaConverter<BaseSchema>>;
 }
 
-export interface Context
-    extends Pick<
-        ToJSONSchemaOptions,
-        'strictObjectTypes' | 'dateStrategy' | 'undefinedStrategy' | 'bigintStrategy' | 'ignoreUnknownValidation'
-    > {
+export interface Context extends Omit<ToJSONSchemaOptions, 'schema' | 'definitions'> {
     /**
      * Mapping from schema to name
      */
@@ -73,3 +77,5 @@ export interface Context
 export type DefinitionNameMap = Map<SupportedSchemas, string>;
 
 export type BaseConverter = (schema: SupportedSchemas) => JSONSchema7;
+
+export type SchemaConverter<S extends BaseSchema> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;

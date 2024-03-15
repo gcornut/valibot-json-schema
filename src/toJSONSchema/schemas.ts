@@ -30,7 +30,7 @@ import { isEqual } from '../utils/isEqual';
 import { assertJSONLiteral } from '../utils/json-schema';
 import { isNeverSchema, isNullishSchema, isOptionalSchema, isStringSchema } from '../utils/valibot';
 import { toDefinitionURI } from './toDefinitionURI';
-import { BaseConverter, Context } from './types';
+import { SchemaConverter } from './types';
 
 export type SupportedSchemas =
     | AnySchema
@@ -55,8 +55,6 @@ export type SupportedSchemas =
     | NullishSchema<any>
     | OptionalSchema<any>
     | UndefinedSchema;
-
-type SchemaConverter<S extends SupportedSchemas> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
 
 export const SCHEMA_CONVERTERS: {
     [K in SupportedSchemas['type']]: SchemaConverter<
