@@ -278,7 +278,7 @@ __metadata:
     ajv: ^8.12.0
     ajv-formats: ^2.1.1
     commander: ^11.1.0
-    dts-bundle-generator: ^8.1.1
+    dts-bundle-generator: ^9.3.1
     esbuild: ^0.18.20
     esbuild-runner: ^2.2.2
     lodash: ^4.17.21
@@ -995,15 +995,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dts-bundle-generator@npm:^8.1.1":
-  version: 8.1.1
-  resolution: "dts-bundle-generator@npm:8.1.1"
+"dts-bundle-generator@npm:^9.3.1":
+  version: 9.3.1
+  resolution: "dts-bundle-generator@npm:9.3.1"
   dependencies:
     typescript: ">=5.0.2"
     yargs: ^17.6.0
   bin:
     dts-bundle-generator: dist/bin/dts-bundle-generator.js
-  checksum: c032105ed627ca9defe9d013688aa38b22d0fdc596d788d060124e6512d99cac1a079f1b98b4fdc9763254e605e43f2505dac9ea14f5ae9fa624678a65d00e19
+  checksum: 86559ec98e97d440036b31b9d58be37f0b1f391ddf7e1a6ae565a7a65d3fb8b09826b6b1f19b80e0204dbba1e74408ee13a219cff4b89c8ecf77e17cca6bd016
   languageName: node
   linkType: hard
 
