@@ -8,7 +8,9 @@ import {
     IsoTimestampValidation,
     LengthValidation,
     MaxLengthValidation,
+    MaxSizeValidation,
     MaxValueValidation,
+    MimeTypeValidation,
     MinLengthValidation,
     MinValueValidation,
     MultipleOfValidation,
@@ -35,7 +37,9 @@ export type SupportedValidation =
     | Ipv4Validation<any>
     | Ipv6Validation<any>
     | UuidValidation<any>
-    | EmailValidation<any>;
+    | EmailValidation<any>
+    | MimeTypeValidation<any, any>
+    | MaxSizeValidation<any, any>;
 
 type ValidationConverter<V extends SupportedValidation> = (validation: V) => JSONSchema7;
 
@@ -72,6 +76,11 @@ const VALIDATION_BY_SCHEMA: {
     },
     boolean: {
         value: ({ requirement }) => ({ const: requirement }),
+    },
+    instance: {
+        // FIXME: This is merging the properties in an unexpected way
+        mime_type: ({ requirement }) => ({ properties: { type: { const: requirement } } }),
+        max_size: ({ requirement }) => ({ properties: { size: { type: 'integer', maximum: requirement } } }),
     },
 };
 

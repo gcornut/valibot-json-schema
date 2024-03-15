@@ -6,6 +6,7 @@ import {
     BooleanSchema,
     DateSchema,
     EnumSchema,
+    InstanceSchema,
     IntersectSchema,
     LazySchema,
     LiteralSchema,
@@ -54,7 +55,8 @@ export type SupportedSchemas =
     | DateSchema
     | NullishSchema<any>
     | OptionalSchema<any>
-    | UndefinedSchema;
+    | UndefinedSchema
+    | InstanceSchema<any, any>;
 
 type SchemaConverter<S extends SupportedSchemas> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
 
@@ -190,6 +192,16 @@ export const SCHEMA_CONVERTERS: {
     variant({ options }, ...args) {
         // Convert `variant` like a union
         return SCHEMA_CONVERTERS.union({ options } as any, ...args);
+    },
+    instance(_, __, context) {
+        if (!context.instanceStrategy) {
+            throw new Error('The "instanceStrategy" option must be set to handle the `undefined` schema');
+        }
+
+        switch (context.instanceStrategy) {
+            case 'any':
+                return {};
+        }
     },
 };
 

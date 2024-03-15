@@ -825,6 +825,28 @@ describe('undefined_', () => {
     });
 });
 
+describe('instance', () => {
+    const file = new File(['test'], 'test.txt', { type: 'text/plain' });
+    const tooLargeFile = new File(['12345678901234567890'], 'large.txt', { type: 'text/plain' });
+    const incorrectMime = new File(['image'], 'image.png', { type: 'image/png' });
+    it(
+        'should be able to use the "any" strategy',
+        testCase({
+            schema: v.instance(File, [v.mimeType(['text/plain']), v.maxSize(10)]),
+            jsonSchema: {
+                $schema,
+            },
+            validValues: [file],
+            invalidValues: [new Date(), 'foo', tooLargeFile, incorrectMime],
+            options: { instanceStrategy: 'any' },
+        }),
+    );
+
+    it("should throw an error if the instanceStrategy option isn't defined", () => {
+        expect(testCase({ schema: v.instance(File, [v.mimeType(['text/plain']), v.maxSize(10)]) })).toThrow(Error);
+    });
+});
+
 describe('lazy type', () => {
     const listItem: any = v.object({
         type: v.literal('li'),
