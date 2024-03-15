@@ -195,7 +195,7 @@ export const SCHEMA_CONVERTERS: {
     },
     instance(_, __, context) {
         if (!context.instanceStrategy) {
-            throw new Error('The "instanceStrategy" option must be set to handle the `undefined` schema');
+            throw new Error('The "instanceStrategy" option must be set to handle the `instance` schema');
         }
 
         switch (context.instanceStrategy) {
