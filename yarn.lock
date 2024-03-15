@@ -273,7 +273,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": ^1.5.3
     "@types/json-schema": ^7.0.14
-    "@types/lodash": ^4.14.199
+    "@types/lodash": ^4.17.0
     "@vitest/coverage-v8": ^0.34.6
     ajv: ^8.12.0
     ajv-formats: ^2.1.1
@@ -440,10 +440,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.199":
-  version: 4.14.199
-  resolution: "@types/lodash@npm:4.14.199"
-  checksum: e68d1fcbbfce953ed87b296a628573f62939227bcda0c934954e862b421e8a34c5e71cad6fea27b9980567909e6a4698f09025692958e36d64ea9ed99ec6fb2e
+"@types/lodash@npm:^4.17.0":
+  version: 4.17.0
+  resolution: "@types/lodash@npm:4.17.0"
+  checksum: 3f98c0b67a93994cbc3403d4fa9dbaf52b0b6bb7f07a764d73875c2dcd5ef91222621bd5bcf8eee7b417a74d175c2f7191b9f595f8603956fd06f0674c0cba93
   languageName: node
   linkType: hard
 
