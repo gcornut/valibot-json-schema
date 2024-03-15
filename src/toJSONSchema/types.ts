@@ -49,7 +49,7 @@ export interface ToJSONSchemaOptions {
      * - 'integer': uses integer type with format 'int64' (see https://ajv.js.org/packages/ajv-formats.html#formats)
      * - 'string': uses string type
      */
-    bigintStrategy?: DateStrategy;
+    bigintStrategy?: BigIntStrategy;
     /**
      * If true, do not throw an error on validations that cannot be
      * converted to JSON schema, like `custom`.
