@@ -11,6 +11,7 @@ export type DateStrategy = ValueOf<typeof DateStrategy>;
 
 export const UndefinedStrategy = {
     any: 'any',
+    null: 'null',
 } as const;
 export type UndefinedStrategy = ValueOf<typeof UndefinedStrategy>;
 
@@ -35,13 +36,14 @@ export interface ToJSONSchemaOptions {
     strictObjectTypes?: boolean;
     /**
      * Date output:
-     * 'integer' sets the type to 'integer' and format to 'unix-time'.
-     * 'string' sets the type to 'string' and format to 'date-time'.
+     * - 'integer' sets the type to 'integer' and format to 'unix-time'.
+     * - 'string' sets the type to 'string' and format to 'date-time'.
      */
     dateStrategy?: DateStrategy;
     /**
      * Undefined output:
-     * 'any' sets the type to 'any'
+     * - 'any' output an empty schema (the "any" schema)
+     * - 'null' sets the type to 'null'
      */
     undefinedStrategy?: UndefinedStrategy;
     /**

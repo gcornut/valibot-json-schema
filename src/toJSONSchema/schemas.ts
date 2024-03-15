@@ -173,6 +173,8 @@ export const SCHEMA_CONVERTERS: {
         switch (context.undefinedStrategy) {
             case 'any':
                 return {};
+            case 'null':
+                return { type: 'null' };
         }
     },
     bigint(_, __, context) {
@@ -195,4 +197,4 @@ export const SCHEMA_CONVERTERS: {
 
 // Keep recursive => lazy aliasing for backward compatibility
 // @ts-ignore
-SCHEMA_CONVERTERS['recursive'] = SCHEMA_CONVERTERS['lazy'];
+SCHEMA_CONVERTERS.recursive = SCHEMA_CONVERTERS.lazy;

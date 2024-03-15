@@ -806,13 +806,15 @@ describe('date', () => {
 });
 
 describe('undefined_', () => {
+    it("should throw an error if the undefinedStrategy option isn't defined", () => {
+        expect(testCase({ schema: v.undefined_() })).toThrow(Error);
+    });
+
     it(
         'should be able to use the "any" strategy',
         testCase({
             schema: v.undefined_(),
-            jsonSchema: {
-                $schema,
-            },
+            jsonSchema: { $schema },
             validValues: [undefined],
             invalidValues: [new Date(), 'foo', 'baz'],
             options: { undefinedStrategy: 'any' },
@@ -820,9 +822,14 @@ describe('undefined_', () => {
         }),
     );
 
-    it("should throw an error if the undefinedStrategy option isn't defined", () => {
-        expect(testCase({ schema: v.undefined_() })).toThrow(Error);
-    });
+    it(
+        'should be able to use the "null" strategy',
+        testCase({
+            schema: v.undefined_(),
+            jsonSchema: { $schema, type: 'null' },
+            options: { undefinedStrategy: 'null' },
+        }),
+    );
 });
 
 describe('lazy type', () => {
