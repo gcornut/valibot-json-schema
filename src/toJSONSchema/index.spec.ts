@@ -825,6 +825,28 @@ describe('undefined_', () => {
     });
 });
 
+describe('special', () => {
+    it(
+        'should be able to use the "any" strategy',
+        testCase({
+            schema: v.special<`${number}px`>((val) => (typeof val === 'string' ? /^\d+px$/.test(val) : false)),
+            jsonSchema: {
+                $schema,
+            },
+            // All values will be valid in the JSON Schema, but here it validates with Valibot as well.
+            validValues: ['12px'],
+            invalidValues: [],
+            options: { specialStrategy: 'any' },
+        }),
+    );
+
+    it("should throw an error if the specialStrategy option isn't defined", () => {
+        expect(testCase({ schema: v.special<`${number}px`>((val) => (typeof val === 'string' ? /^\d+px$/.test(val) : false)) })).toThrow(
+            Error,
+        );
+    });
+});
+
 describe('lazy type', () => {
     const listItem: any = v.object({
         type: v.literal('li'),

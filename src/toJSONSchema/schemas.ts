@@ -17,6 +17,8 @@ import {
     OptionalSchema,
     PicklistSchema,
     RecordSchema,
+    SpecialSchema,
+    SpecialSchemaAsync,
     StringSchema,
     TupleSchema,
     UndefinedSchema,
@@ -54,7 +56,9 @@ export type SupportedSchemas =
     | DateSchema
     | NullishSchema<any>
     | OptionalSchema<any>
-    | UndefinedSchema;
+    | UndefinedSchema
+    | SpecialSchema<any, any>
+    | SpecialSchemaAsync<any, any>;
 
 type SchemaConverter<S extends SupportedSchemas> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
 
@@ -190,6 +194,16 @@ export const SCHEMA_CONVERTERS: {
     variant({ options }, ...args) {
         // Convert `variant` like a union
         return SCHEMA_CONVERTERS.union({ options } as any, ...args);
+    },
+    special(_, __, context) {
+        if (!context.specialStrategy) {
+            throw new Error('The "specialStrategy" option must be set to handle the `special` schema');
+        }
+
+        switch (context.specialStrategy) {
+            case 'any':
+                return {};
+        }
     },
 };
 
