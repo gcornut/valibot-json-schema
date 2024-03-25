@@ -1,5 +1,5 @@
-import { JSONSchema7 } from 'json-schema';
-import {
+import type { JSONSchema7 } from 'json-schema';
+import type {
     EmailValidation,
     IntegerValidation,
     Ipv4Validation,
@@ -18,7 +18,7 @@ import {
     ValueValidation,
 } from 'valibot';
 import { assert } from '../utils/assert';
-import { SupportedSchemas } from './schemas';
+import type { SupportedSchemas } from './schemas';
 
 export type SupportedValidation =
     | LengthValidation<any, any>
@@ -72,6 +72,20 @@ const VALIDATION_BY_SCHEMA: {
     },
     boolean: {
         value: ({ requirement }) => ({ const: requirement }),
+    },
+    date: {
+        min_value: ({ requirement }) => {
+            assert(requirement, (r) => r instanceof Date, 'Non-date value used for minValue validation');
+            return { minimum: requirement.getTime() };
+        },
+        max_value: ({ requirement }) => {
+            assert(requirement, (r) => r instanceof Date, 'Non-date value used for maxValue validation');
+            return { maximum: requirement.getTime() };
+        },
+        value: ({ requirement }) => {
+            assert(requirement, (r) => r instanceof Date, 'Non-date value used for value validation');
+            return { minimum: requirement.getTime(), maximum: requirement.getTime() };
+        },
     },
 };
 

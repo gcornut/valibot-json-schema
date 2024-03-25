@@ -803,6 +803,46 @@ describe('date', () => {
     it("should throw an error if the dateStrategy option isn't defined and a date validator exists", () => {
         expect(testCase({ schema: v.date() })).toThrow(Error);
     });
+
+    it(
+        'should add date constraints to date fields',
+        testCase({
+            schema: v.object({
+                date: v.date([v.minValue(new Date('2024-03-25')), v.maxValue(new Date('2024-03-26'))]),
+                exact: v.date([v.value(new Date('2024-03-27'))]),
+            }),
+            jsonSchema: {
+                $schema,
+                properties: {
+                    date: {
+                        format: 'unix-time',
+                        type: 'integer',
+                        maximum: 1711411200000,
+                        minimum: 1711324800000,
+                    },
+                    exact: {
+                        format: 'unix-time',
+                        type: 'integer',
+                        maximum: 1711497600000,
+                        minimum: 1711497600000,
+                    },
+                },
+                required: ['date', 'exact'],
+                type: 'object',
+            },
+            validValues: [
+                { date: new Date('2024-03-25'), exact: new Date('2024-03-27') },
+                { date: new Date('2024-03-26'), exact: new Date('2024-03-27') },
+            ],
+            invalidValues: [
+                { date: 'no date', exact: new Date('2024-03-27') },
+                { date: new Date('2024-03-22'), exact: new Date('2024-03-27') },
+                { date: new Date('2024-03-25'), exact: new Date('2024-03-29') },
+            ],
+            options: { dateStrategy: 'integer' },
+            hasDates: true,
+        }),
+    );
 });
 
 describe('undefined_', () => {
