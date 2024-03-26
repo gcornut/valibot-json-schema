@@ -3,6 +3,7 @@ import addFormats from 'ajv-formats';
 import { JSONSchema7 } from 'json-schema';
 import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isObject';
+import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import without from 'lodash/without';
 import * as v from 'valibot';
@@ -32,36 +33,56 @@ type TestCase = {
     hasDates?: boolean;
 };
 
-function testCase({ schema, options, error, jsonSchema, validValues = [], invalidValues = [], hasDates = false }: TestCase) {
+function testCase({ schema, options, error, jsonSchema, validValues = [], invalidValues = [] }: TestCase) {
     function test() {
         // Schema converted properly
         const convertedSchema = toJSONSchema({ schema, ...options });
         if (jsonSchema) expect(jsonSchema).toEqual(convertedSchema);
         const ajv = new Ajv();
         addFormats(ajv);
-        ajv.addFormat('unix-time', { type: 'number', validate: () => true });
+
+        const format = (a: any) => {
+            if (options?.dateStrategy === 'integer' && a instanceof Date) {
+                return a.getTime();
+            }
+            if (options?.dateStrategy === 'string' && a instanceof Date) {
+                return a.toISOString();
+            }
+            if (isPlainObject(a) || Array.isArray(a)) {
+                const out: any = Array.isArray(a) ? [] : {};
+                for (const [key, value] of Object.entries(a)) {
+                    out[key] = format(value);
+                }
+                return out;
+            }
+            return a;
+        };
+        if (options?.dateStrategy === 'integer') {
+            ajv.addFormat('unix-time', { type: 'number', validate: Number.isInteger });
+        }
+
         const jsonValidator = ajv.compile(convertedSchema);
 
         for (const validValue of validValues) {
             // Check valid values match the schema
             const safeParse = v.safeParse(schema, validValue);
+            const jsonFormattedValue = format(validValue);
+
             expect(
                 safeParse.success,
                 `\`${JSON.stringify(validValue)}\` should match the valibot schema\n${JSON.stringify((safeParse as any).issues)}\n`,
             ).toBe(true);
 
-            if (!hasDates) {
-                expect(jsonValidator(validValue), `\`${JSON.stringify(validValue)}\` should match the json schema`).toBe(true);
-            }
+            const isValid = jsonValidator(jsonFormattedValue);
+            if (!isValid) throw new Error(JSON.stringify(jsonValidator.errors));
+            expect(isValid, `\`${JSON.stringify(validValue)}\` should match the json schema`).toBe(true);
         }
 
         for (const invalidValue of invalidValues) {
             // Check invalid values do not match the schema
             expect(v.is(schema, invalidValue), `\`${JSON.stringify(invalidValue)}\` should not match the valibot schema`).toBe(false);
 
-            if (!hasDates) {
-                expect(jsonValidator(invalidValue), `\`${JSON.stringify(invalidValue)}\` should not match the json schema`).toBe(false);
-            }
+            expect(jsonValidator(invalidValue), `\`${JSON.stringify(invalidValue)}\` should not match the json schema`).toBe(false);
         }
     }
 
@@ -511,7 +532,7 @@ describe('record', () => {
             schema: v.record(v.number()),
             validValues: [[]],
             // ajv JSON Schema error:
-            error: '`[]` should match the json schema: expected false to be true // Object.is equality',
+            error: '[{"instancePath":"","schemaPath":"#/type","keyword":"type","params":{"type":"object"},"message":"must be object"}]',
         }),
     );
 
@@ -758,7 +779,6 @@ describe('date', () => {
             validValues: [new Date()],
             invalidValues: ['foo', 'baz', ...SAMPLE_VALUES.filter((v) => typeof v !== 'number')],
             options: { dateStrategy: 'integer' },
-            hasDates: true,
         }),
     );
 
@@ -774,7 +794,6 @@ describe('date', () => {
             validValues: [new Date()],
             invalidValues: SAMPLE_VALUES.filter((v) => typeof v !== 'string'),
             options: { dateStrategy: 'string' },
-            hasDates: true,
         }),
     );
 
@@ -796,7 +815,6 @@ describe('date', () => {
             validValues: [{ date: new Date() }],
             invalidValues: [{ date: 'no date' }],
             options: { dateStrategy: 'integer' },
-            hasDates: true,
         }),
     );
 
@@ -823,8 +841,7 @@ describe('date', () => {
                     exact: {
                         format: 'unix-time',
                         type: 'integer',
-                        maximum: 1711497600000,
-                        minimum: 1711497600000,
+                        const: 1711497600000,
                     },
                 },
                 required: ['date', 'exact'],
@@ -840,7 +857,24 @@ describe('date', () => {
                 { date: new Date('2024-03-25'), exact: new Date('2024-03-29') },
             ],
             options: { dateStrategy: 'integer' },
-            hasDates: true,
+        }),
+    );
+
+    it(
+        'should fail converting minValue requirement with string date strategy',
+        testCase({
+            schema: v.date([v.minValue(new Date('2024-03-25')), v.maxValue(new Date('2024-03-26'))]),
+            options: { dateStrategy: 'string' },
+            error: "minValue validation is only available with 'integer' date strategy",
+        }),
+    );
+
+    it(
+        'should fail converting incorrect minValue date',
+        testCase({
+            schema: v.date([v.maxValue('foo' as any)]),
+            options: { dateStrategy: 'integer' },
+            error: 'Non-date value used for maxValue validation',
         }),
     );
 });
@@ -856,9 +890,7 @@ describe('undefined_', () => {
             schema: v.undefined_(),
             jsonSchema: { $schema },
             validValues: [undefined],
-            invalidValues: [new Date(), 'foo', 'baz'],
             options: { undefinedStrategy: 'any' },
-            hasDates: true,
         }),
     );
 

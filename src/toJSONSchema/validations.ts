@@ -19,6 +19,7 @@ import type {
 } from 'valibot';
 import { assert } from '../utils/assert';
 import type { SupportedSchemas } from './schemas';
+import { Context } from './types';
 
 export type SupportedValidation =
     | LengthValidation<any, any>
@@ -37,7 +38,7 @@ export type SupportedValidation =
     | UuidValidation<any>
     | EmailValidation<any>;
 
-type ValidationConverter<V extends SupportedValidation> = (validation: V) => JSONSchema7;
+type ValidationConverter<V extends SupportedValidation> = (validation: V, context: Context) => JSONSchema7;
 
 const VALIDATION_BY_SCHEMA: {
     [schema in SupportedSchemas['type']]?: {
@@ -74,36 +75,29 @@ const VALIDATION_BY_SCHEMA: {
         value: ({ requirement }) => ({ const: requirement }),
     },
     date: {
-        min_value: ({ requirement }) => {
-            assert(requirement, (r) => r instanceof Date, 'Non-date value used for minValue validation');
-            return { minimum: requirement.getTime() };
-        },
-        max_value: ({ requirement }) => {
-            assert(requirement, (r) => r instanceof Date, 'Non-date value used for maxValue validation');
-            return { maximum: requirement.getTime() };
-        },
-        value: ({ requirement }) => {
-            assert(requirement, (r) => r instanceof Date, 'Non-date value used for value validation');
-            return { minimum: requirement.getTime(), maximum: requirement.getTime() };
-        },
+        value: ({ requirement }, context) => ({ const: asDateRequirement('value', requirement, context) }),
+        min_value: ({ requirement }, context) => ({ minimum: asDateRequirement('minValue', requirement, context) }),
+        max_value: ({ requirement }, context) => ({ maximum: asDateRequirement('maxValue', requirement, context) }),
     },
+};
+
+const asDateRequirement = (type: 'value' | 'minValue' | 'maxValue', requirement: any, context: Context) => {
+    assert(requirement, () => context.dateStrategy === 'integer', `${type} validation is only available with 'integer' date strategy`);
+    assert(requirement, (r) => r instanceof Date, `Non-date value used for ${type} validation`);
+    return requirement.getTime();
 };
 
 /**
  * Convert a validation pipe to JSON schema.
  */
-export function convertPipe(
-    schemaType: keyof typeof VALIDATION_BY_SCHEMA,
-    ignoreUnknownValidation: boolean | undefined,
-    pipe: Pipe<any> = [],
-): JSONSchema7 | undefined {
+export function convertPipe(schemaType: keyof typeof VALIDATION_BY_SCHEMA, pipe: Pipe<any>, context: Context): JSONSchema7 | undefined {
     return pipe.reduce((def, validation) => {
         const validationType = (validation as SupportedValidation).type;
         const validationConverter = VALIDATION_BY_SCHEMA[schemaType]?.[validationType];
 
-        if (!validationConverter && ignoreUnknownValidation) return {};
+        if (!validationConverter && context.ignoreUnknownValidation) return {};
 
         assert(validationConverter, Boolean, `Unsupported valibot validation \`${validationType}\` for schema \`${schemaType}\``);
-        return Object.assign(def, (validationConverter as ValidationConverter<any>)(validation));
+        return Object.assign(def, (validationConverter as ValidationConverter<any>)(validation, context));
     }, {} as JSONSchema7);
 }
