@@ -60,7 +60,7 @@
     "ajv": "^8.12.0",
     "ajv-formats": "^2.1.1",
     "commander": "^11.1.0",
-    "esbuild": "^0.18.20",
+    "esbuild": "^0.20.2",
     "esbuild-runner": "^2.2.2",
     "lodash": "^4.17.21",
     "safe-stable-stringify": "^2.4.3",
