@@ -129,7 +129,7 @@ describe('null', () => {
     it(
         'should convert null schema',
         testCase({
-            schema: v.nullType(),
+            schema: v.null_(),
             jsonSchema: { $schema, const: null },
             validValues: [null],
             invalidValues: without(SAMPLE_VALUES, null),
