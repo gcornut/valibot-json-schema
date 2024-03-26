@@ -38,8 +38,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
-    "check:types": "tsc --noEmit",
-    "publish": "yarn build && npm publish",
+    "prepublishOnly": "yarn build",
     "run:cli": "esr cli",
     "test": "vitest",
     "type-check": "yarn tsc -p tsconfig.json",
