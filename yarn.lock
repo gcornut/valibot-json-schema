@@ -56,18 +56,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@biomejs/biome@npm:^1.5.3":
-  version: 1.5.3
-  resolution: "@biomejs/biome@npm:1.5.3"
+"@biomejs/biome@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "@biomejs/biome@npm:1.7.0"
   dependencies:
-    "@biomejs/cli-darwin-arm64": 1.5.3
-    "@biomejs/cli-darwin-x64": 1.5.3
-    "@biomejs/cli-linux-arm64": 1.5.3
-    "@biomejs/cli-linux-arm64-musl": 1.5.3
-    "@biomejs/cli-linux-x64": 1.5.3
-    "@biomejs/cli-linux-x64-musl": 1.5.3
-    "@biomejs/cli-win32-arm64": 1.5.3
-    "@biomejs/cli-win32-x64": 1.5.3
+    "@biomejs/cli-darwin-arm64": 1.7.0
+    "@biomejs/cli-darwin-x64": 1.7.0
+    "@biomejs/cli-linux-arm64": 1.7.0
+    "@biomejs/cli-linux-arm64-musl": 1.7.0
+    "@biomejs/cli-linux-x64": 1.7.0
+    "@biomejs/cli-linux-x64-musl": 1.7.0
+    "@biomejs/cli-win32-arm64": 1.7.0
+    "@biomejs/cli-win32-x64": 1.7.0
   dependenciesMeta:
     "@biomejs/cli-darwin-arm64":
       optional: true
@@ -87,62 +87,62 @@ __metadata:
       optional: true
   bin:
     biome: bin/biome
-  checksum: 5155dc05ca3a9fd0228eb74df4f21d0ab311e4b02452c6b3dc5615825eab402df6824992014ff19f82bed49fd286e0001ebe608efdba71a41f3f6c06305b1d7c
+  checksum: 10db050e5b96a9bdc9720f2d53dff41761858b5ba4a542988fc8bd1824e1c1ba68e4f30ceedd30c2b2f3639b96f9d15cef9b6472fad31f429f308e9b9ec610e4
   languageName: node
   linkType: hard
 
-"@biomejs/cli-darwin-arm64@npm:1.5.3":
-  version: 1.5.3
-  resolution: "@biomejs/cli-darwin-arm64@npm:1.5.3"
+"@biomejs/cli-darwin-arm64@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@biomejs/cli-darwin-arm64@npm:1.7.0"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@biomejs/cli-darwin-x64@npm:1.5.3":
-  version: 1.5.3
-  resolution: "@biomejs/cli-darwin-x64@npm:1.5.3"
+"@biomejs/cli-darwin-x64@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@biomejs/cli-darwin-x64@npm:1.7.0"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-arm64-musl@npm:1.5.3":
-  version: 1.5.3
-  resolution: "@biomejs/cli-linux-arm64-musl@npm:1.5.3"
+"@biomejs/cli-linux-arm64-musl@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@biomejs/cli-linux-arm64-musl@npm:1.7.0"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-arm64@npm:1.5.3":
-  version: 1.5.3
-  resolution: "@biomejs/cli-linux-arm64@npm:1.5.3"
+"@biomejs/cli-linux-arm64@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@biomejs/cli-linux-arm64@npm:1.7.0"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-x64-musl@npm:1.5.3":
-  version: 1.5.3
-  resolution: "@biomejs/cli-linux-x64-musl@npm:1.5.3"
+"@biomejs/cli-linux-x64-musl@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@biomejs/cli-linux-x64-musl@npm:1.7.0"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-x64@npm:1.5.3":
-  version: 1.5.3
-  resolution: "@biomejs/cli-linux-x64@npm:1.5.3"
+"@biomejs/cli-linux-x64@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@biomejs/cli-linux-x64@npm:1.7.0"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@biomejs/cli-win32-arm64@npm:1.5.3":
-  version: 1.5.3
-  resolution: "@biomejs/cli-win32-arm64@npm:1.5.3"
+"@biomejs/cli-win32-arm64@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@biomejs/cli-win32-arm64@npm:1.7.0"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@biomejs/cli-win32-x64@npm:1.5.3":
-  version: 1.5.3
-  resolution: "@biomejs/cli-win32-x64@npm:1.5.3"
+"@biomejs/cli-win32-x64@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@biomejs/cli-win32-x64@npm:1.7.0"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -466,7 +466,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@gcornut/valibot-json-schema@workspace:."
   dependencies:
-    "@biomejs/biome": ^1.5.3
+    "@biomejs/biome": ^1.7.0
     "@types/json-schema": ^7.0.15
     "@types/lodash": ^4.17.0
     "@vitest/coverage-v8": ^1.4.0
