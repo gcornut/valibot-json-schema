@@ -1,7 +1,7 @@
-import { JSONSchema7 } from 'json-schema';
-import { BaseSchema, BaseSchemaAsync } from 'valibot';
-import { ValueOf } from '../utils/ValueOf';
-import { SupportedSchemas } from './schemas';
+import type { JSONSchema7 } from 'json-schema';
+import type { BaseSchema, BaseSchemaAsync } from 'valibot';
+import type { ValueOf } from '../utils/ValueOf';
+import type { SupportedSchemas } from './schemas';
 
 export const DateStrategy = {
     string: 'string',

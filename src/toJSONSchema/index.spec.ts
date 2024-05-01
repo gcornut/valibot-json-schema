@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import { JSONSchema7 } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isObject';
 import isPlainObject from 'lodash/isPlainObject';
@@ -13,12 +13,12 @@ import { toJSONSchema } from '.';
 import { withJSONSchemaFeatures } from '../extension/withJSONSchemaFeatures';
 import { $schema } from '../utils/json-schema';
 import { and, negate } from '../utils/predicate';
-import { SupportedSchemas } from './schemas';
-import { ToJSONSchemaOptions } from './types';
+import type { SupportedSchemas } from './schemas';
+import type { ToJSONSchemaOptions } from './types';
 
 const emptyObject = {} as const;
 const emptyArray = [] as const;
-const SAMPLE_VALUES = [undefined, null, 0, 9999, NaN, false, true, '', 'foo', emptyObject, { a: '1' }, emptyArray, ['foo']];
+const SAMPLE_VALUES = [undefined, null, 0, 9999, Number.NaN, false, true, '', 'foo', emptyObject, { a: '1' }, emptyArray, ['foo']];
 
 /**
  * Valibot schema conversion test case
@@ -159,7 +159,7 @@ describe('literal', () => {
     it(
         'should fail on NaN literal schema',
         testCase({
-            schema: v.literal(NaN),
+            schema: v.literal(Number.NaN),
             error: 'Unsupported literal value type: NaN',
         }),
     );
@@ -194,7 +194,7 @@ describe('number', () => {
             schema: v.number(),
             jsonSchema: { $schema, type: 'number' },
             validValues: [0, 9999],
-            invalidValues: without(SAMPLE_VALUES, 0, 9999, NaN),
+            invalidValues: without(SAMPLE_VALUES, 0, 9999, Number.NaN),
         }),
     );
 
@@ -204,7 +204,7 @@ describe('number', () => {
             schema: v.number([v.minValue(1)]),
             jsonSchema: { $schema, type: 'number', minimum: 1 },
             validValues: [1, 9999],
-            invalidValues: without(SAMPLE_VALUES, 9999, 0, NaN),
+            invalidValues: without(SAMPLE_VALUES, 9999, 0, Number.NaN),
         }),
     );
 
@@ -214,7 +214,7 @@ describe('number', () => {
             schema: v.number([v.maxValue(1)]),
             jsonSchema: { $schema, type: 'number', maximum: 1 },
             validValues: [0, 1],
-            invalidValues: without(SAMPLE_VALUES, 0, NaN),
+            invalidValues: without(SAMPLE_VALUES, 0, Number.NaN),
         }),
     );
 
@@ -224,7 +224,7 @@ describe('number', () => {
             schema: v.number([v.value(1)]),
             jsonSchema: { $schema, type: 'number', const: 1 },
             validValues: [1],
-            invalidValues: without(SAMPLE_VALUES, 0, NaN),
+            invalidValues: without(SAMPLE_VALUES, 0, Number.NaN),
         }),
     );
 

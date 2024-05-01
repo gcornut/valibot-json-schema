@@ -1,10 +1,10 @@
-import { type JSONSchema7 } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures';
 import { assert } from '../utils/assert';
 import { $schema } from '../utils/json-schema';
-import { SCHEMA_CONVERTERS, SupportedSchemas } from './schemas';
+import { SCHEMA_CONVERTERS, type SupportedSchemas } from './schemas';
 import { toDefinitionURI } from './toDefinitionURI';
-import { Context, DefinitionNameMap, ToJSONSchemaOptions } from './types';
+import type { Context, DefinitionNameMap, ToJSONSchemaOptions } from './types';
 import { convertPipe } from './validations';
 
 function getDefNameMap(definitions: ToJSONSchemaOptions['definitions'] = {}) {
