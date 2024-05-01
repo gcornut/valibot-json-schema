@@ -5,7 +5,8 @@ import path from 'path';
 import util from 'util';
 
 const root = path.resolve(__dirname, '../../');
-const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json')).toString());
+const readJSON = (file: string) => JSON.parse(fs.readFileSync(file).toString());
+const packageJson = readJSON(path.join(root, 'package.json'));
 
 const exec = util.promisify(childProcess.exec);
 let cliBuiltPromise: Promise<void> | undefined;
@@ -32,4 +33,4 @@ export async function runCLI(args: string) {
 }
 
 /** Read test resource */
-export const readFile = (file: string) => require(path.resolve(__dirname, file));
+export const readFile = (file: string) => readJSON(path.resolve(__dirname, file));

@@ -4,7 +4,7 @@ import { readFile, runCLI } from './test/utils';
 function testCase({ run, expectedOutput }: { run: string; expectedOutput: string | RegExp }) {
     return async () => {
         const actual = await runCLI(run);
-        if (expectedOutput instanceof RegExp) expect(actual).toMatch(expectedOutput);
+        if (expectedOutput instanceof RegExp) expect(actual.toString()).toMatch(expectedOutput);
         else expect(actual).toEqual(expectedOutput);
     };
 }
