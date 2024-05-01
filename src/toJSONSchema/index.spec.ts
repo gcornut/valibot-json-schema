@@ -1129,17 +1129,4 @@ describe('custom', () => {
             jsonSchema: { $schema, type: 'array', items: { type: 'string' } },
         }),
     );
-
-    it(
-        'should throw error on falsy value returned by a custom schema converter',
-        testCase({
-            schema: v.instance(String) as any,
-            options: {
-                customSchemaConversion: {
-                    instance: () => null as any,
-                },
-            },
-            error: 'Custom schema converter `instance` returned an invalid JSON schema',
-        }),
-    );
 });

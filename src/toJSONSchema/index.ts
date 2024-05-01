@@ -25,17 +25,9 @@ function createConverter(context: Context) {
             return { $ref: defURI };
         }
 
-        let converted: JSONSchema7;
-
-        const customConverter = context.customSchemaConversion?.[schema.type];
-        if (customConverter) {
-            converted = customConverter(schema as any, converter, context);
-            assert(converted, Boolean, `Custom schema converter \`${schema.type}\` returned an invalid JSON schema`);
-        } else {
-            const schemaConverter = context.customSchemaConversion?.[schema.type] || SCHEMA_CONVERTERS[schema.type];
-            assert(schemaConverter, Boolean, `Unsupported valibot schema: ${schema?.type || schema}`);
-            converted = schemaConverter(schema as any, converter, context);
-        }
+        const schemaConverter = context.customSchemaConversion?.[schema.type] || SCHEMA_CONVERTERS[schema.type];
+        assert(schemaConverter, Boolean, `Unsupported valibot schema: ${schema?.type || schema}`);
+        const converted: JSONSchema7 = schemaConverter(schema as any, converter, context) || {};
 
         // Attach converted validation pipe
         Object.assign(converted, convertPipe(schema.type, (schema as any).pipe || [], context));
