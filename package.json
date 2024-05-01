@@ -20,9 +20,7 @@
     "dist",
     "bin"
   ],
-  "bin": {
-    "valibot-json-schema": "bin/index.js"
-  },
+  "bin": "bin/index.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
