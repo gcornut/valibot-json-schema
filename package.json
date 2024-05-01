@@ -20,7 +20,9 @@
     "dist",
     "bin"
   ],
-  "bin": "bin/index.js",
+  "bin": {
+    "valibot-json-schema": "bin/index.js"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -64,6 +66,7 @@
     "esbuild-runner": "^2.2.2",
     "lodash": "^4.17.21",
     "safe-stable-stringify": "^2.4.3",
+    "semver": "^7.6.0",
     "tsup": "^8.0.2",
     "typescript": "5.4.5",
     "valibot": "^0.30.0",

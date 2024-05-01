@@ -1,0 +1,70 @@
+# Continuous Delivery: Publish on NPM
+name: "CD"
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref_name }}"
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  publish-snapshot:
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Setup node & dependencies"
+        uses: ./.github/actions/setup
+
+      - name: "Create version"
+        id: version
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const run = require('node:util').promisify(require('node:child_process').exec);
+            const semver = require('semver');
+            
+            const { name, version } = require('./package.json');
+            if (!name) throw new Error('Could not get package name');
+            
+            const getVersion = (tag) => run(`npm view ${name}@${tag} version`).then(({ stdout }) => stdout.trim()).catch(() => '');
+            const distTag = 'snapshot';
+            const previousVersion = await getVersion(distTag);
+            
+            // Get base version (version from which to increment)
+            let baseVersion = previousVersion;
+            // Prerelease should start with latest NPM version + patch (ex: 'v1.0.0' => 'v1.0.1-alpha.0')
+            if (!baseVersion || !baseVersion.startsWith(semver.inc(version, 'patch'))) {
+                baseVersion = version;
+            }
+            console.log(`Base version: ${baseVersion}`);
+            
+            // Increment version
+            const nextVersion = semver.inc(baseVersion, 'prerelease', distTag);
+            console.log(`New version: ${nextVersion}`);
+            
+            // Update version in package
+            await run(`npm pkg set version=${nextVersion}`);
+            
+            return { name, previousVersion, nextVersion };
+
+      - name: "Publish"
+        run: npm publish --provenance --access public --tag snapshot
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: "Deprecate previous snapshot"
+        if: ${{ fromJSON(steps.version.outputs.result).previousVersion != '' }}
+        run: npm deprecate ${{ fromJSON(steps.version.outputs.result).name }}@${{ fromJSON(steps.version.outputs.result).previousVersion }} "snapshot"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
