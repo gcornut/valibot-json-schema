@@ -140,6 +140,9 @@ these can't be converted to JSON schema.
 Using the `ignoreUnknownValidation` option (`--ignoreUnknownValidation` in the CLI), you can ignore unsupported valibot
 validations.
 
+If you preferred to only ignore a specific type of validation, you can
+use [the `customValidationConversion` option](#custom-validation-conversion).
+
 ### Common type strategies
 
 Many JS types don't have a direct equivalent in JSON and `toJSONSchema()` will throw an error when encountering any of
@@ -156,15 +159,15 @@ integer (with the `int64` format) or into a string.
 
 ### Custom schema conversion
 
-In some cases, you might want to provide custom schema conversion to override standard schema conversion or to add 
+In some cases, you might want to provide custom schema conversion to override standard schema conversion or to add
 conversion of unsupported schemas.
 
-Using the `customSchemaConversion` option, you can provide a custom schema converted for any valibot schema type.
+Using the `customSchemaConversion` option, you can provide a custom schema converter for any valibot schema type.
 
 **Example**: converting JS Set schema into an array schema
 
 ```ts
-import { SetSchema } from 'valibot';
+import { SetSchema, set, string } from 'valibot';
 
 toJSONSchema({
     schema: set(string()),
@@ -174,6 +177,25 @@ toJSONSchema({
     },
 })
 // => { type: 'array', items: { type: 'string' } }
+```
+
+### Custom validation conversion
+
+Using the `customValidationConversion` option, you can provide a custom validation converter for any valibot
+validation type.
+
+**Example**: ignoring the valibot `custom()` validation on all string schema
+
+```ts
+import { SetSchema, string, custom } from 'valibot';
+
+toJSONSchema({
+    schema: string([custom(myCustomStringValidation)]),
+    customValidationConversion: {
+        string: { custom: () => ({}) }
+    },
+})
+// => { type: 'string' }
 ```
 
 ## Supported features

@@ -1,7 +1,8 @@
 import type { JSONSchema7 } from 'json-schema';
-import type { BaseSchema, BaseSchemaAsync } from 'valibot';
+import type { BaseSchema, BaseSchemaAsync, BaseValidation } from 'valibot';
 import type { ValueOf } from '../utils/ValueOf';
 import type { SupportedSchemas } from './schemas';
+import { SupportedValidation } from './validations';
 
 export const DateStrategy = {
     string: 'string',
@@ -62,9 +63,17 @@ export interface ToJSONSchemaOptions {
      *
      * @example
      *   // Make valibot `instance()` schema convert to the "any" JSON schema (no validation)
-     *   { customSchemaConversion: { instance: (schema) => ({}) }  }
+     *   { customSchemaConversion: { instance: () => ({}) }  }
      */
-    customSchemaConversion?: Record<string, SchemaConverter<BaseSchema>>;
+    customSchemaConversion?: { [schemaType: string]: SchemaConverter<BaseSchema> };
+    /**
+     * Customize how valibot validations of the given type are converted to JSON schema.
+     *
+     * @example
+     *   // Make valibot `custom()` validation in object schema convert to the "any" JSON schema (no validation)
+     *   { customValidationConversion: { object: { custom: () => ({}) }  } }
+     */
+    customValidationConversion?: { [schemaType: string]: { [validationType: string]: ValidationConverter<BaseValidation> } };
 }
 
 export interface Context extends Omit<ToJSONSchemaOptions, 'schema' | 'definitions'> {
@@ -79,3 +88,5 @@ export type DefinitionNameMap = Map<SupportedSchemas, string>;
 export type BaseConverter = (schema: SupportedSchemas) => JSONSchema7;
 
 export type SchemaConverter<S extends BaseSchema> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
+
+export type ValidationConverter<V extends BaseValidation> = (validation: V, context: Context) => JSONSchema7;

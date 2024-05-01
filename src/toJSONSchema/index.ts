@@ -27,10 +27,11 @@ function createConverter(context: Context) {
 
         const schemaConverter = context.customSchemaConversion?.[schema.type] || SCHEMA_CONVERTERS[schema.type];
         assert(schemaConverter, Boolean, `Unsupported valibot schema: ${schema?.type || schema}`);
-        const converted: JSONSchema7 = schemaConverter(schema as any, converter, context) || {};
+        let converted: JSONSchema7 = schemaConverter(schema as any, converter, context) || {};
 
         // Attach converted validation pipe
-        Object.assign(converted, convertPipe(schema.type, (schema as any).pipe || [], context));
+        const convertedValidation = convertPipe(schema.type, (schema as any).pipe || [], context);
+        converted = { ...converted, ...convertedValidation };
 
         // Attach extra JSON schema features
         assignExtraJSONSchemaFeatures(schema, converted);

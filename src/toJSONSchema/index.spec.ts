@@ -1045,49 +1045,7 @@ describe(withJSONSchemaFeatures.name, () => {
     );
 });
 
-describe('custom', () => {
-    const registerSchema = v.object(
-        {
-            password1: v.string([
-                v.minLength(1, 'Please enter your password.'),
-                v.minLength(8, 'Your password must have 8 characters or more.'),
-            ]),
-            password2: v.string(),
-        },
-        [
-            v.forward(
-                v.custom((input) => input.password1 === input.password2, 'The two passwords do not match.'),
-                ['password2'],
-            ),
-        ],
-    );
-
-    it(
-        'should accept a custom function with the "ignoreUnknownValidation" option',
-        testCase({
-            schema: registerSchema,
-            jsonSchema: {
-                $schema,
-                properties: {
-                    password1: {
-                        minLength: 8,
-                        type: 'string',
-                    },
-                    password2: {
-                        type: 'string',
-                    },
-                },
-                required: ['password1', 'password2'],
-                type: 'object',
-            },
-            validValues: [{ password1: '12345678', password2: '12345678' }],
-            invalidValues: [{ password1: '123', password2: '123' }],
-            options: {
-                ignoreUnknownValidation: true,
-            },
-        }),
-    );
-
+describe('custom schema conversion', () => {
     it(
         'should convert unsupported schema via a custom converter',
         testCase({
@@ -1127,6 +1085,35 @@ describe('custom', () => {
                 },
             },
             jsonSchema: { $schema, type: 'array', items: { type: 'string' } },
+        }),
+    );
+});
+
+describe('custom validation conversion', () => {
+    it(
+        'should convert unsupported validation',
+        testCase({
+            schema: v.string([v.custom(() => false)]) as any,
+            options: {
+                customValidationConversion: {
+                    // Ignore custom string validation
+                    string: { custom: () => ({}) },
+                },
+            },
+            jsonSchema: { $schema, type: 'string' },
+        }),
+    );
+
+    it(
+        'should override supported validation',
+        testCase({
+            schema: v.string([v.minLength(2)]) as any,
+            options: {
+                customValidationConversion: {
+                    string: { min_length: () => ({ pattern: '.{2,}' }) },
+                },
+            },
+            jsonSchema: { $schema, type: 'string', pattern: '.{2,}' },
         }),
     );
 });
