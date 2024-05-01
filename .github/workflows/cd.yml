@@ -5,6 +5,18 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: 'Release type'
+        required: true
+        default: 'prerelease'
+        type: choice
+        options:
+          - prerelease
+          - patch
+          - minor
+          - major
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref_name }}"
@@ -15,6 +27,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
 
   publish-snapshot:
+    if: ${{ inputs.releaseType == '' }}
     needs: ci
     runs-on: ubuntu-latest
     permissions:
@@ -66,5 +79,41 @@ jobs:
       - name: "Deprecate previous snapshot"
         if: ${{ fromJSON(steps.version.outputs.result).previousVersion != '' }}
         run: npm deprecate ${{ fromJSON(steps.version.outputs.result).name }}@${{ fromJSON(steps.version.outputs.result).previousVersion }} "snapshot"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-release:
+    # Only if we have a release type input. If it's not a prerelease, it must be on main
+    if: ${{ inputs.releaseType != '' && (inputs.releaseType == 'prerelease' || github.ref_name == 'main')  }}
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Setup node & dependencies"
+        uses: ./.github/actions/setup
+
+      - name: "Bump version"
+        run: |
+          set -x
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@users.noreply.github.com"
+          
+          npm version ${{ inputs.releaseType }} ${{ inputs.releaseType == 'prerelease' && '--preid rc --tag prerelease' || '' }}
+          
+          git push
+          git push --tags
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: "Publish"
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
