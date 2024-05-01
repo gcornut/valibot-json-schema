@@ -1,27 +1,27 @@
-import { JSONSchema7 } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 import {
-    AnySchema,
-    ArraySchema,
-    BigintSchema,
-    BooleanSchema,
-    DateSchema,
-    EnumSchema,
-    IntersectSchema,
-    LazySchema,
-    LiteralSchema,
-    NullSchema,
-    NullableSchema,
-    NullishSchema,
-    NumberSchema,
-    ObjectSchema,
-    OptionalSchema,
-    PicklistSchema,
-    RecordSchema,
-    StringSchema,
-    TupleSchema,
-    UndefinedSchema,
-    UnionSchema,
-    VariantSchema,
+    type AnySchema,
+    type ArraySchema,
+    type BigintSchema,
+    type BooleanSchema,
+    type DateSchema,
+    type EnumSchema,
+    type IntersectSchema,
+    type LazySchema,
+    type LiteralSchema,
+    type NullSchema,
+    type NullableSchema,
+    type NullishSchema,
+    type NumberSchema,
+    type ObjectSchema,
+    type OptionalSchema,
+    type PicklistSchema,
+    type RecordSchema,
+    type StringSchema,
+    type TupleSchema,
+    type UndefinedSchema,
+    type UnionSchema,
+    type VariantSchema,
     getDefault,
 } from 'valibot';
 import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures';
@@ -30,7 +30,7 @@ import { isEqual } from '../utils/isEqual';
 import { assertJSONLiteral } from '../utils/json-schema';
 import { isNeverSchema, isNullishSchema, isOptionalSchema, isStringSchema } from '../utils/valibot';
 import { toDefinitionURI } from './toDefinitionURI';
-import { SchemaConverter } from './types';
+import type { SchemaConverter } from './types';
 
 export type SupportedSchemas =
     | AnySchema

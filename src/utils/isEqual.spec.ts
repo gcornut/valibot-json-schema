@@ -4,7 +4,7 @@ import { isEqual } from './isEqual';
 test(isEqual, () => {
     expect(isEqual('', '')).toBe(true);
     expect(isEqual(0, 0)).toBe(true);
-    expect(isEqual(Infinity, Infinity)).toBe(true);
+    expect(isEqual(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY)).toBe(true);
 
     expect(isEqual('', 0)).toBe(false);
 

@@ -19,7 +19,7 @@ import type {
 } from 'valibot';
 import { assert } from '../utils/assert';
 import type { SupportedSchemas } from './schemas';
-import { Context } from './types';
+import type { Context } from './types';
 
 export type SupportedValidation =
     | LengthValidation<any, any>

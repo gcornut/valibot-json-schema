@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { Command, Option } from 'commander';
 import get from 'lodash/get';
 import stableStringify from 'safe-stable-stringify';
