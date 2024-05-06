@@ -477,7 +477,7 @@ __metadata:
     "@types/json-schema": ^7.0.15
     "@types/lodash": ^4.17.0
     "@types/node": ^20.12.7
-    "@vitest/coverage-v8": ^1.5.2
+    "@vitest/coverage-v8": ^1.6.0
     ajv: ^8.12.0
     ajv-formats: ^3.0.1
     commander: ^12.0.0
@@ -781,9 +781,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/coverage-v8@npm:^1.5.2":
-  version: 1.5.2
-  resolution: "@vitest/coverage-v8@npm:1.5.2"
+"@vitest/coverage-v8@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "@vitest/coverage-v8@npm:1.6.0"
   dependencies:
     "@ampproject/remapping": ^2.2.1
     "@bcoe/v8-coverage": ^0.2.3
@@ -799,8 +799,8 @@ __metadata:
     strip-literal: ^2.0.0
     test-exclude: ^6.0.0
   peerDependencies:
-    vitest: 1.5.2
-  checksum: e4a7f843488fa78c401b937e8c39230ae2210f5bef3eace90c19dae222b391e35a583e4f33da45776ae999258d9d36e0c9492e7ac58415ee1c11478ed7a43a60
+    vitest: 1.6.0
+  checksum: f5f29ec8768bc221f01f0183f7b326fc88113c6f1cdf215713f4ee00a47d01fd3ce446d1cd38935a005caab17f560490b351927e7e939669d39dbdf5ddf29360
   languageName: node
   linkType: hard
 
