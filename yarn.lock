@@ -490,11 +490,13 @@ __metadata:
     typescript: 5.4.5
     valibot: ^0.30.0
     vitest: 1.5.3
-  peerDependencies:
-    "@types/json-schema": ">= 7.0.14"
-    esbuild: ">= 0.18.20"
-    esbuild-runner: ">= 2.2.2"
-    valibot: ">= 0.21.0"
+  dependenciesMeta:
+    "@types/json-schema":
+      optional: true
+    esbuild:
+      optional: true
+    esbuild-runner:
+      optional: true
   bin:
     valibot-json-schema: bin/index.js
   languageName: unknown

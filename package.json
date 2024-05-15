@@ -43,13 +43,16 @@
     "test": "vitest",
     "type-check": "yarn tsc -p tsconfig.json",
     "lint": "yarn biome check .",
-    "lint:ci": "yarn biome ci ."
+    "lint:ci": "yarn biome ci .",
+    "check": "yarn type-check && yarn lint && yarn test --run"
   },
-  "peerDependencies": {
+  "dependencies": {
+    "valibot": ">= 0.21.0"
+  },
+  "optionalDependencies": {
     "@types/json-schema": ">= 7.0.14",
     "esbuild": ">= 0.18.20",
-    "esbuild-runner": ">= 2.2.2",
-    "valibot": ">= 0.21.0"
+    "esbuild-runner": ">= 2.2.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.7.2",
