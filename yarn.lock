@@ -56,18 +56,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@biomejs/biome@npm:^1.7.2":
-  version: 1.7.2
-  resolution: "@biomejs/biome@npm:1.7.2"
+"@biomejs/biome@npm:^1.7.3":
+  version: 1.7.3
+  resolution: "@biomejs/biome@npm:1.7.3"
   dependencies:
-    "@biomejs/cli-darwin-arm64": 1.7.2
-    "@biomejs/cli-darwin-x64": 1.7.2
-    "@biomejs/cli-linux-arm64": 1.7.2
-    "@biomejs/cli-linux-arm64-musl": 1.7.2
-    "@biomejs/cli-linux-x64": 1.7.2
-    "@biomejs/cli-linux-x64-musl": 1.7.2
-    "@biomejs/cli-win32-arm64": 1.7.2
-    "@biomejs/cli-win32-x64": 1.7.2
+    "@biomejs/cli-darwin-arm64": 1.7.3
+    "@biomejs/cli-darwin-x64": 1.7.3
+    "@biomejs/cli-linux-arm64": 1.7.3
+    "@biomejs/cli-linux-arm64-musl": 1.7.3
+    "@biomejs/cli-linux-x64": 1.7.3
+    "@biomejs/cli-linux-x64-musl": 1.7.3
+    "@biomejs/cli-win32-arm64": 1.7.3
+    "@biomejs/cli-win32-x64": 1.7.3
   dependenciesMeta:
     "@biomejs/cli-darwin-arm64":
       optional: true
@@ -87,62 +87,62 @@ __metadata:
       optional: true
   bin:
     biome: bin/biome
-  checksum: 274328838c04a3e1ef0bbcbf9ba3f7fb459088a2fe6cb422b860e28e9a55462f00ae6493e50a93547d3568fd3cc65834b3a29007d171e9a167e57e5eca35791e
+  checksum: ad6a6585f1d6fcb9c060319c614b4437d715637ecedbe5f4d45f170f0532894654e7cf5c80420da38c8c626d76fef4b6334c7ee85e6c790bd5ad4f7aa49c5182
   languageName: node
   linkType: hard
 
-"@biomejs/cli-darwin-arm64@npm:1.7.2":
-  version: 1.7.2
-  resolution: "@biomejs/cli-darwin-arm64@npm:1.7.2"
+"@biomejs/cli-darwin-arm64@npm:1.7.3":
+  version: 1.7.3
+  resolution: "@biomejs/cli-darwin-arm64@npm:1.7.3"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@biomejs/cli-darwin-x64@npm:1.7.2":
-  version: 1.7.2
-  resolution: "@biomejs/cli-darwin-x64@npm:1.7.2"
+"@biomejs/cli-darwin-x64@npm:1.7.3":
+  version: 1.7.3
+  resolution: "@biomejs/cli-darwin-x64@npm:1.7.3"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-arm64-musl@npm:1.7.2":
-  version: 1.7.2
-  resolution: "@biomejs/cli-linux-arm64-musl@npm:1.7.2"
+"@biomejs/cli-linux-arm64-musl@npm:1.7.3":
+  version: 1.7.3
+  resolution: "@biomejs/cli-linux-arm64-musl@npm:1.7.3"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-arm64@npm:1.7.2":
-  version: 1.7.2
-  resolution: "@biomejs/cli-linux-arm64@npm:1.7.2"
+"@biomejs/cli-linux-arm64@npm:1.7.3":
+  version: 1.7.3
+  resolution: "@biomejs/cli-linux-arm64@npm:1.7.3"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-x64-musl@npm:1.7.2":
-  version: 1.7.2
-  resolution: "@biomejs/cli-linux-x64-musl@npm:1.7.2"
+"@biomejs/cli-linux-x64-musl@npm:1.7.3":
+  version: 1.7.3
+  resolution: "@biomejs/cli-linux-x64-musl@npm:1.7.3"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-x64@npm:1.7.2":
-  version: 1.7.2
-  resolution: "@biomejs/cli-linux-x64@npm:1.7.2"
+"@biomejs/cli-linux-x64@npm:1.7.3":
+  version: 1.7.3
+  resolution: "@biomejs/cli-linux-x64@npm:1.7.3"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@biomejs/cli-win32-arm64@npm:1.7.2":
-  version: 1.7.2
-  resolution: "@biomejs/cli-win32-arm64@npm:1.7.2"
+"@biomejs/cli-win32-arm64@npm:1.7.3":
+  version: 1.7.3
+  resolution: "@biomejs/cli-win32-arm64@npm:1.7.3"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@biomejs/cli-win32-x64@npm:1.7.2":
-  version: 1.7.2
-  resolution: "@biomejs/cli-win32-x64@npm:1.7.2"
+"@biomejs/cli-win32-x64@npm:1.7.3":
+  version: 1.7.3
+  resolution: "@biomejs/cli-win32-x64@npm:1.7.3"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -473,7 +473,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@gcornut/valibot-json-schema@workspace:."
   dependencies:
-    "@biomejs/biome": ^1.7.2
+    "@biomejs/biome": ^1.7.3
     "@types/json-schema": ^7.0.15
     "@types/lodash": ^4.17.0
     "@types/node": ^20.12.7

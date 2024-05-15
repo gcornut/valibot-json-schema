@@ -55,7 +55,7 @@
     "esbuild-runner": ">= 2.2.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.7.2",
+    "@biomejs/biome": "^1.7.3",
     "@types/json-schema": "^7.0.15",
     "@types/lodash": "^4.17.0",
     "@types/node": "^20.12.7",
