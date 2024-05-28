@@ -6,6 +6,7 @@ import {
     type BooleanSchema,
     type DateSchema,
     type EnumSchema,
+    type GenericIssue,
     type IntersectSchema,
     type LazySchema,
     type LiteralSchema,
@@ -14,15 +15,22 @@ import {
     type NullishSchema,
     type NumberSchema,
     type ObjectSchema,
+    type ObjectWithRestSchema,
     type OptionalSchema,
     type PicklistSchema,
+    type PipeItem,
     type RecordSchema,
+    type SchemaWithPipe,
+    type StrictObjectSchema,
+    type StrictTupleSchema,
     type StringSchema,
     type TupleSchema,
+    type TupleWithRestSchema,
     type UndefinedSchema,
     type UnionSchema,
     type VariantSchema,
     getDefault,
+    never,
 } from 'valibot';
 import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures';
 import { assert } from '../utils/assert';
@@ -31,30 +39,36 @@ import { assertJSONLiteral } from '../utils/json-schema';
 import { isNeverSchema, isNullishSchema, isOptionalSchema, isStringSchema } from '../utils/valibot';
 import { toDefinitionURI } from './toDefinitionURI';
 import type { SchemaConverter } from './types';
-
-export type SupportedSchemas =
+type NonPipeSchemas =
     | AnySchema
-    | LiteralSchema<any>
-    | NullSchema
-    | NumberSchema
-    | BigintSchema
-    | StringSchema
-    | BooleanSchema
-    | NullableSchema<any>
+    | LiteralSchema<any, any>
+    | NullSchema<any>
+    | NumberSchema<any>
+    | BigintSchema<any>
+    | StringSchema<any>
+    | BooleanSchema<any>
+    | NullableSchema<any, any>
+    | StrictObjectSchema<any, any>
     | ObjectSchema<any, any>
-    | RecordSchema<any, any>
-    | ArraySchema<any>
+    | ObjectWithRestSchema<any, any, any>
+    | RecordSchema<any, any, any>
+    | ArraySchema<any, any>
     | TupleSchema<any, any>
-    | IntersectSchema<any>
-    | UnionSchema<any>
-    | VariantSchema<any, any>
-    | PicklistSchema<any>
-    | EnumSchema<any>
+    | StrictTupleSchema<any, any>
+    | TupleWithRestSchema<readonly any[], any, any>
+    | IntersectSchema<any, any>
+    | UnionSchema<any, any>
+    | VariantSchema<any, any, any>
+    | PicklistSchema<any, any>
+    | EnumSchema<any, any>
     | LazySchema<any>
-    | DateSchema
-    | NullishSchema<any>
-    | OptionalSchema<any>
-    | UndefinedSchema;
+    | DateSchema<any>
+    | NullishSchema<any, any>
+    | OptionalSchema<any, any>
+    | UndefinedSchema<any>;
+
+export type PipeSchema = SchemaWithPipe<[NonPipeSchemas, ...PipeItem<any, any, GenericIssue<any>>[]]>;
+export type SupportedSchemas = NonPipeSchemas | PipeSchema;
 
 export const SCHEMA_CONVERTERS: {
     [K in SupportedSchemas['type']]: SchemaConverter<
@@ -98,10 +112,10 @@ export const SCHEMA_CONVERTERS: {
     intersect: ({ options }, convert) => ({ allOf: options.map(convert) }),
     // Complex types
     array: ({ item }, convert) => ({ type: 'array', items: convert(item) }),
-    tuple({ items: originalItems, rest, pipe }, convert) {
+    tuple_with_rest({ items: originalItems, rest }, convert) {
         const minItems = originalItems.length;
         let maxItems: JSONSchema7['maxItems'];
-        let items = originalItems.map(convert);
+        let items: JSONSchema7 | JSONSchema7[] = originalItems.map(convert);
         let additionalItems: JSONSchema7['additionalItems'];
         if (isNeverSchema(rest)) {
             maxItems = minItems;
@@ -114,9 +128,23 @@ export const SCHEMA_CONVERTERS: {
                 additionalItems = restItems;
             }
         }
-        return { type: 'array', items, additionalItems, minItems, maxItems };
+        return {
+            type: 'array',
+            items,
+            ...(additionalItems && { additionalItems }),
+            ...(minItems && { minItems }),
+            ...(maxItems && { maxItems }),
+        };
     },
-    object({ entries, rest }, convert, context) {
+    strict_tuple({ items: originalItems }, convert) {
+        const items = originalItems.map(convert);
+        return { type: 'array', items, minItems: items.length, maxItems: items.length };
+    },
+    tuple({ items: originalItems }, convert, context) {
+        const items = originalItems.map(convert);
+        return { type: 'array', items, minItems: items.length };
+    },
+    object_with_rest({ entries, rest }, convert, context) {
         const properties: any = {};
         const required: string[] = [];
         for (const [propKey, propValue] of Object.entries(entries)) {
@@ -139,12 +167,18 @@ export const SCHEMA_CONVERTERS: {
 
         return output;
     },
+    object(schema, convert, context) {
+        return SCHEMA_CONVERTERS.object_with_rest(schema as any, convert, context);
+    },
+    strict_object(schema, convert, context) {
+        return SCHEMA_CONVERTERS.object_with_rest({ ...schema, rest: never() } as any, convert, context);
+    },
     record({ key, value }, convert) {
         assert(key, isStringSchema, 'Unsupported record key type: %');
         return { type: 'object', additionalProperties: convert(value) };
     },
     lazy(schema, _, context) {
-        const nested = schema.getter();
+        const nested = schema.getter({});
         const defName = context.defNameMap.get(nested);
         if (!defName) {
             throw new Error('Type inside lazy schema must be provided in the definitions');

@@ -37,7 +37,7 @@ function testCase({ schema, options, error, jsonSchema, validValues = [], invali
     function test() {
         // Schema converted properly
         const convertedSchema = toJSONSchema({ schema, ...options });
-        if (jsonSchema) expect(jsonSchema).toEqual(convertedSchema);
+        if (jsonSchema) expect(convertedSchema).toEqual(jsonSchema);
         const ajv = new Ajv();
         addFormats(ajv);
 
@@ -179,7 +179,7 @@ describe('boolean', () => {
     it(
         'should convert boolean schema with value',
         testCase({
-            schema: v.boolean([v.value(true)]),
+            schema: v.pipe(v.boolean(), v.value(true)),
             jsonSchema: { $schema, type: 'boolean', const: true },
             validValues: [true],
             invalidValues: without(SAMPLE_VALUES, true),
@@ -201,7 +201,7 @@ describe('number', () => {
     it(
         'should convert number schema with min value',
         testCase({
-            schema: v.number([v.minValue(1)]),
+            schema: v.pipe(v.number(), v.minValue(1)),
             jsonSchema: { $schema, type: 'number', minimum: 1 },
             validValues: [1, 9999],
             invalidValues: without(SAMPLE_VALUES, 9999, 0, Number.NaN),
@@ -211,7 +211,7 @@ describe('number', () => {
     it(
         'should convert number schema with max value',
         testCase({
-            schema: v.number([v.maxValue(1)]),
+            schema: v.pipe(v.number(), v.maxValue(1)),
             jsonSchema: { $schema, type: 'number', maximum: 1 },
             validValues: [0, 1],
             invalidValues: without(SAMPLE_VALUES, 0, Number.NaN),
@@ -221,7 +221,7 @@ describe('number', () => {
     it(
         'should convert number schema with value',
         testCase({
-            schema: v.number([v.value(1)]),
+            schema: v.pipe(v.number(), v.value(1)),
             jsonSchema: { $schema, type: 'number', const: 1 },
             validValues: [1],
             invalidValues: without(SAMPLE_VALUES, 0, Number.NaN),
@@ -231,7 +231,7 @@ describe('number', () => {
     it(
         'should convert number schema with multipleOf',
         testCase({
-            schema: v.number([v.multipleOf(2)]),
+            schema: v.pipe(v.number(), v.multipleOf(2)),
             jsonSchema: { $schema, type: 'number', multipleOf: 2 },
             validValues: [2, 4],
             invalidValues: [1, 3],
@@ -241,7 +241,7 @@ describe('number', () => {
     it(
         'should convert number schema with integer',
         testCase({
-            schema: v.number([v.integer()]),
+            schema: v.pipe(v.number(), v.integer()),
             jsonSchema: { $schema, type: 'integer' },
             validValues: [0, 9999],
             invalidValues: [0.1, 12.2],
@@ -291,7 +291,7 @@ describe('string', () => {
     it(
         'should convert string schema with length',
         testCase({
-            schema: v.string([v.length(2)]),
+            schema: v.pipe(v.string(), v.length(2)),
             jsonSchema: { $schema, type: 'string', maxLength: 2, minLength: 2 },
             validValues: ['ba', 'ab'],
             invalidValues: SAMPLE_VALUES,
@@ -301,7 +301,7 @@ describe('string', () => {
     it(
         'should convert string schema with min and max length',
         testCase({
-            schema: v.string([v.minLength(1), v.maxLength(2)]),
+            schema: v.pipe(v.string(), v.minLength(1), v.maxLength(2)),
             jsonSchema: { $schema, type: 'string', maxLength: 2, minLength: 1 },
             validValues: ['a', 'ab'],
             invalidValues: SAMPLE_VALUES,
@@ -311,7 +311,7 @@ describe('string', () => {
     it(
         'should convert string schema with regex',
         testCase({
-            schema: v.string([v.regex(/foo/)]),
+            schema: v.pipe(v.string(), v.regex(/foo/)),
             jsonSchema: { $schema, type: 'string', pattern: 'foo' },
             validValues: ['foo', 'foobar', 'bazfoo'],
             invalidValues: without(SAMPLE_VALUES, 'foo'),
@@ -321,7 +321,7 @@ describe('string', () => {
     it(
         'should convert string schema with value validation',
         testCase({
-            schema: v.string([v.value('foo')]),
+            schema: v.pipe(v.string(), v.value('foo')),
             jsonSchema: { $schema, type: 'string', const: 'foo' },
             validValues: ['foo'],
             invalidValues: without(SAMPLE_VALUES, 'foo'),
@@ -331,7 +331,7 @@ describe('string', () => {
     it(
         'should convert string schema with email validation',
         testCase({
-            schema: v.string([v.email()]),
+            schema: v.pipe(v.string(), v.email()),
             jsonSchema: { $schema, type: 'string', format: 'email' },
             validValues: ['foo@example.com', 'user123@mail.co'],
             invalidValues: ['', 'spaces in@middle.com', 'double@at@host.com'],
@@ -341,7 +341,7 @@ describe('string', () => {
     it(
         'should convert string schema with isoDate validation',
         testCase({
-            schema: v.string([v.isoDate()]),
+            schema: v.pipe(v.string(), v.isoDate()),
             jsonSchema: { $schema, type: 'string', format: 'date' },
             validValues: ['2023-07-11'],
             invalidValues: ['2023', '07-11-2023', '2023/07/11'],
@@ -351,7 +351,7 @@ describe('string', () => {
     it(
         'should convert string schema with isoTimestamp validation',
         testCase({
-            schema: v.string([v.isoTimestamp()]),
+            schema: v.pipe(v.string(), v.isoTimestamp()),
             jsonSchema: { $schema, type: 'string', format: 'date-time' },
             validValues: [
                 '2023-07-11T17:26:27.243Z',
@@ -367,7 +367,7 @@ describe('string', () => {
     it(
         'should convert string schema with ipv4 validation',
         testCase({
-            schema: v.string([v.ipv4()]),
+            schema: v.pipe(v.string(), v.ipv4()),
             jsonSchema: { $schema, type: 'string', format: 'ipv4' },
             validValues: ['192.168.1.1', '255.255.255.255'],
             invalidValues: ['', '11.1', '0..0.0.0'],
@@ -377,7 +377,7 @@ describe('string', () => {
     it(
         'should convert string schema with ipv6 validation',
         testCase({
-            schema: v.string([v.ipv6()]),
+            schema: v.pipe(v.string(), v.ipv6()),
             jsonSchema: { $schema, type: 'string', format: 'ipv6' },
             validValues: ['2001:0db8:85a3:0000:0000:8a2e:0370:7334', 'fe80::1ff:fe23:4567:890a'],
             invalidValues: ['', '192.168.1.1', 'x:x:x:x:x:x:x:x'],
@@ -387,7 +387,7 @@ describe('string', () => {
     it(
         'should convert string schema with uuid validation',
         testCase({
-            schema: v.string([v.uuid()]),
+            schema: v.pipe(v.string(), v.uuid()),
             jsonSchema: { $schema, type: 'string', format: 'uuid' },
             validValues: ['f0563a22-202e-11ee-be56-0242ac120002'],
             invalidValues: ['', 'ae102c2-202f-11ee-acec-2eb5a363657c'],
@@ -409,7 +409,7 @@ describe('object', () => {
     it(
         'should convert a closed empty object schema',
         testCase({
-            schema: v.object({}, v.never()),
+            schema: v.strictObject({}),
             jsonSchema: { $schema, type: 'object', properties: {}, additionalProperties: false },
             validValues: [{}],
             invalidValues: without(SAMPLE_VALUES, emptyObject, emptyArray),
@@ -422,6 +422,26 @@ describe('object', () => {
             options: { strictObjectTypes: true },
             schema: v.object({}),
             jsonSchema: { $schema, type: 'object', properties: {}, additionalProperties: false },
+        }),
+    );
+
+    it(
+        'should convert object with rest props',
+        testCase({
+            schema: v.objectWithRest({}, v.number()),
+            jsonSchema: { $schema, type: 'object', properties: {}, additionalProperties: { type: 'number' } },
+            validValues: [{}, { a: 4 }, { b: 100 }],
+            invalidValues: [{ a: '' }],
+        }),
+    );
+
+    it(
+        'should convert object with never() rest',
+        testCase({
+            schema: v.objectWithRest({}, v.never()),
+            jsonSchema: { $schema, type: 'object', properties: {}, additionalProperties: false },
+            validValues: [{}],
+            invalidValues: [{ a: '' }],
         }),
     );
 
@@ -446,7 +466,7 @@ describe('object', () => {
     it(
         'should convert object closed schema with props',
         testCase({
-            schema: v.object({ string: v.string(), optionalString: v.optional(v.string()) }, v.never()),
+            schema: v.strictObject({ string: v.string(), optionalString: v.optional(v.string()) }),
             jsonSchema: {
                 $schema,
                 type: 'object',
@@ -529,17 +549,17 @@ describe('record', () => {
     it(
         'should fail on array used as a record',
         testCase({
-            schema: v.record(v.number()),
+            schema: v.record(v.string(), v.number()),
             validValues: [[]],
             // ajv JSON Schema error:
-            error: '[{"instancePath":"","schemaPath":"#/type","keyword":"type","params":{"type":"object"},"message":"must be object"}]',
+            error: '[{"kind":"schema","type":"record","input":[],"expected":"Object","received":"Array","message":"Invalid type: Expected Object but received Array"}]',
         }),
     );
 
     it(
         'should convert record of numbers schema',
         testCase({
-            schema: v.record(v.number()),
+            schema: v.record(v.string(), v.number()),
             jsonSchema: {
                 $schema,
                 type: 'object',
@@ -565,7 +585,7 @@ describe('array', () => {
     it(
         'should convert array with length',
         testCase({
-            schema: v.array(v.number(), [v.length(1)]),
+            schema: v.pipe(v.array(v.number()), v.length(1)),
             jsonSchema: { $schema, type: 'array', items: { type: 'number' }, minItems: 1, maxItems: 1 },
             validValues: [[2], [9999]],
             invalidValues: [[], [1, 2]],
@@ -592,7 +612,7 @@ describe('tuple', () => {
     it(
         'should convert closed 1-tuple schema',
         testCase({
-            schema: v.tuple([v.number()], v.never()),
+            schema: v.strictTuple([v.number()]),
             jsonSchema: {
                 $schema,
                 type: 'array',
@@ -623,7 +643,7 @@ describe('tuple', () => {
     it(
         'should convert tuple of a number and then strings schema',
         testCase({
-            schema: v.tuple([v.number()], v.string()),
+            schema: v.tupleWithRest([v.number()], v.string()),
             jsonSchema: {
                 $schema,
                 type: 'array',
@@ -639,7 +659,7 @@ describe('tuple', () => {
     it(
         'should convert tuple of a string and then more strings schema',
         testCase({
-            schema: v.tuple([v.string()], v.string()),
+            schema: v.tupleWithRest([v.string()], v.string()),
             jsonSchema: {
                 $schema,
                 type: 'array',
@@ -648,6 +668,22 @@ describe('tuple', () => {
             },
             validValues: [['a'], ['a', 'b'], ['a', 'b', 'c']],
             invalidValues: [[], ['foo', 1]],
+        }),
+    );
+
+    it(
+        'should convert tuple of a number strictly with never() rest',
+        testCase({
+            schema: v.tupleWithRest([v.number()], v.never()),
+            jsonSchema: {
+                $schema,
+                type: 'array',
+                items: [{ type: 'number' }],
+                minItems: 1,
+                maxItems: 1,
+            },
+            validValues: [[1], [2]],
+            invalidValues: [[], [1, 2]],
         }),
     );
 });
@@ -826,8 +862,8 @@ describe('date', () => {
         'should add date constraints to date fields',
         testCase({
             schema: v.object({
-                date: v.date([v.minValue(new Date('2024-03-25')), v.maxValue(new Date('2024-03-26'))]),
-                exact: v.date([v.value(new Date('2024-03-27'))]),
+                date: v.pipe(v.date(), v.minValue(new Date('2024-03-25')), v.maxValue(new Date('2024-03-26'))),
+                exact: v.pipe(v.date(), v.value(new Date('2024-03-27'))),
             }),
             jsonSchema: {
                 $schema,
@@ -863,7 +899,7 @@ describe('date', () => {
     it(
         'should fail converting minValue requirement with string date strategy',
         testCase({
-            schema: v.date([v.minValue(new Date('2024-03-25')), v.maxValue(new Date('2024-03-26'))]),
+            schema: v.pipe(v.date(), v.minValue(new Date('2024-03-25')), v.maxValue(new Date('2024-03-26'))),
             options: { dateStrategy: 'string' },
             error: "minValue validation is only available with 'integer' date strategy",
         }),
@@ -872,7 +908,7 @@ describe('date', () => {
     it(
         'should fail converting incorrect minValue date',
         testCase({
-            schema: v.date([v.maxValue('foo' as any)]),
+            schema: v.pipe(v.date(), v.maxValue('foo' as any)),
             options: { dateStrategy: 'integer' },
             error: 'Non-date value used for maxValue validation',
         }),
@@ -1013,7 +1049,7 @@ describe(withJSONSchemaFeatures.name, () => {
     it(
         'should convert array min length with json schema min items',
         testCase({
-            schema: withJSONSchemaFeatures(v.array(v.string(), [v.minLength(2)]), { minItems: 2 }),
+            schema: withJSONSchemaFeatures(v.pipe(v.array(v.string()), v.minLength(2)), { minItems: 2 }),
             jsonSchema: {
                 $schema,
                 items: {
@@ -1081,7 +1117,7 @@ describe('custom schema conversion', () => {
             options: {
                 customSchemaConversion: {
                     // Treat set type like an array
-                    set: (schema, converter) => converter(v.array((schema as v.SetSchema<any>).value)),
+                    set: (schema, converter) => converter(v.array((schema as v.SetSchema<any, any>).value)),
                 },
             },
             jsonSchema: { $schema, type: 'array', items: { type: 'string' } },
@@ -1093,11 +1129,14 @@ describe('custom validation conversion', () => {
     it(
         'should convert unsupported validation',
         testCase({
-            schema: v.string([v.custom(() => false)]) as any,
+            schema: v.pipe(
+                v.string(),
+                v.check(() => false),
+            ),
             options: {
                 customValidationConversion: {
                     // Ignore custom string validation
-                    string: { custom: () => ({}) },
+                    string: { check: () => ({}) },
                 },
             },
             jsonSchema: { $schema, type: 'string' },
@@ -1107,13 +1146,44 @@ describe('custom validation conversion', () => {
     it(
         'should override supported validation',
         testCase({
-            schema: v.string([v.minLength(2)]) as any,
+            schema: v.pipe(v.string(), v.minLength(2)) as any,
             options: {
                 customValidationConversion: {
                     string: { min_length: () => ({ pattern: '.{2,}' }) },
                 },
             },
             jsonSchema: { $schema, type: 'string', pattern: '.{2,}' },
+        }),
+    );
+});
+
+describe('pipe nesting', () => {
+    it(
+        'should convert number schema with maxValue, then integer (nested)',
+        testCase({
+            schema: v.pipe(v.pipe(v.number(), v.maxValue(10000)), v.integer()),
+            jsonSchema: { $schema, type: 'integer', maximum: 10000 },
+            validValues: [0, 9999],
+            invalidValues: [0.1, 12.2, 12000],
+        }),
+    );
+    it(
+        'should convert number schema with integer, then maxValue (nested)',
+        testCase({
+            schema: v.pipe(v.pipe(v.number(), v.integer()), v.maxValue(10000)),
+            jsonSchema: { $schema, type: 'integer', maximum: 10000 },
+            validValues: [0, 9999],
+            invalidValues: [0.1, 12.2, 12000],
+        }),
+    );
+
+    it(
+        'should convert number schema with integer, then MaxValue (unnested)',
+        testCase({
+            schema: v.pipe(v.number(), v.integer(), v.maxValue(10000)),
+            jsonSchema: { $schema, type: 'integer', maximum: 10000 },
+            validValues: [0, 9999],
+            invalidValues: [0.1, 12.2],
         }),
     );
 });
