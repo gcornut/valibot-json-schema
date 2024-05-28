@@ -1,17 +1,16 @@
-import type * as v from 'valibot';
+import type { GenericSchema, NeverSchema, NullishSchema, OptionalSchema, StringSchema } from 'valibot';
 
 export function isSchema(schema: any): boolean {
     return schema?.type;
 }
 
-type KnownSchemas = v.OptionalSchema<any> | v.StringSchema | v.NeverSchema | v.NullishSchema<any>;
-type GetSchema<T extends string> = Extract<KnownSchemas, { type: T }>;
+export function isSchemaType<T extends GenericSchema>(type: T['type']) {
+    return (schema: GenericSchema): schema is T => {
+        return !!schema && schema.type === type;
+    };
+}
 
-export const isSchemaType = <T extends KnownSchemas['type']>(type: T) => {
-    return (schema: any): schema is GetSchema<T> => !!schema && schema.type === type;
-};
-
-export const isNullishSchema = isSchemaType('nullish');
-export const isOptionalSchema = isSchemaType('optional');
-export const isStringSchema = isSchemaType('string');
-export const isNeverSchema = isSchemaType('never');
+export const isNullishSchema = isSchemaType<NullishSchema<any, any>>('nullish');
+export const isOptionalSchema = isSchemaType<OptionalSchema<any, any>>('optional');
+export const isStringSchema = isSchemaType<StringSchema<any>>('string');
+export const isNeverSchema = isSchemaType<NeverSchema<any>>('never');

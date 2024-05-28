@@ -1,5 +1,5 @@
 import type { JSONSchema7 } from 'json-schema';
-import type { BaseSchema, BaseSchemaAsync, BaseValidation } from 'valibot';
+import type { GenericSchema, GenericSchemaAsync, GenericValidation } from 'valibot';
 import type { ValueOf } from '../utils/ValueOf';
 import type { SupportedSchemas } from './schemas';
 import { SupportedValidation } from './validations';
@@ -26,7 +26,7 @@ export interface ToJSONSchemaOptions {
     /**
      * Main schema (referenced at the root of the JSON schema).
      */
-    schema?: BaseSchema | BaseSchemaAsync;
+    schema?: GenericSchema | GenericSchemaAsync;
     /**
      * Additional schemas (referenced in the JSON schema `definitions`).
      */
@@ -65,7 +65,7 @@ export interface ToJSONSchemaOptions {
      *   // Make valibot `instance()` schema convert to the "any" JSON schema (no validation)
      *   { customSchemaConversion: { instance: () => ({}) }  }
      */
-    customSchemaConversion?: { [schemaType: string]: SchemaConverter<BaseSchema> };
+    customSchemaConversion?: { [schemaType: string]: SchemaConverter<GenericSchema> };
     /**
      * Customize how valibot validations of the given type are converted to JSON schema.
      *
@@ -73,7 +73,7 @@ export interface ToJSONSchemaOptions {
      *   // Make valibot `custom()` validation in object schema convert to the "any" JSON schema (no validation)
      *   { customValidationConversion: { object: { custom: () => ({}) }  } }
      */
-    customValidationConversion?: { [schemaType: string]: { [validationType: string]: ValidationConverter<BaseValidation> } };
+    customValidationConversion?: { [schemaType: string]: { [validationType: string]: ValidationConverter<GenericValidation> } };
 }
 
 export interface Context extends Omit<ToJSONSchemaOptions, 'schema' | 'definitions'> {
@@ -87,6 +87,6 @@ export type DefinitionNameMap = Map<SupportedSchemas, string>;
 
 export type BaseConverter = (schema: SupportedSchemas) => JSONSchema7;
 
-export type SchemaConverter<S extends BaseSchema> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
+export type SchemaConverter<S extends GenericSchema> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
 
-export type ValidationConverter<V extends BaseValidation> = (validation: V, context: Context) => JSONSchema7;
+export type ValidationConverter<V extends GenericValidation> = (validation: V, context: Context) => JSONSchema7;

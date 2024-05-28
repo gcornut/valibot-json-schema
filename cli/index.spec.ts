@@ -144,7 +144,7 @@ describe('ignore unknown validation', () => {
         'Throw error on unknown validation',
         testCase({
             run: 'to-json-schema ./unknown-validation.valibot.ts',
-            expectedOutput: /Error: Unsupported valibot validation `custom` for schema `object/i,
+            expectedOutput: /Error: Unsupported valibot validation `check` for schema `object/i,
         }),
     );
 

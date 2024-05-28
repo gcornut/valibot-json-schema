@@ -1,42 +1,42 @@
 import type { JSONSchema7 } from 'json-schema';
 import type {
-    EmailValidation,
-    IntegerValidation,
-    Ipv4Validation,
-    Ipv6Validation,
-    IsoDateValidation,
-    IsoTimestampValidation,
-    LengthValidation,
-    MaxLengthValidation,
-    MaxValueValidation,
-    MinLengthValidation,
-    MinValueValidation,
-    MultipleOfValidation,
-    Pipe,
-    RegexValidation,
-    UuidValidation,
-    ValueValidation,
+    EmailAction,
+    IntegerAction,
+    Ipv4Action,
+    Ipv6Action,
+    IsoDateAction,
+    IsoTimestampAction,
+    LengthAction,
+    MaxLengthAction,
+    MaxValueAction,
+    MinLengthAction,
+    MinValueAction,
+    MultipleOfAction,
+    PipeItem,
+    RegexAction,
+    UuidAction,
+    ValueAction,
 } from 'valibot';
 import { assert } from '../utils/assert';
-import type { SupportedSchemas } from './schemas';
+import type { PipeSchema, SupportedSchemas } from './schemas';
 import type { Context, ValidationConverter } from './types';
 
 export type SupportedValidation =
-    | LengthValidation<any, any>
-    | MaxLengthValidation<any, any>
-    | MinLengthValidation<any, any>
-    | RegexValidation<any>
-    | ValueValidation<any, any>
-    | MinValueValidation<any, any>
-    | MaxValueValidation<any, any>
-    | MultipleOfValidation<any, any>
-    | IntegerValidation<any>
-    | IsoDateValidation<any>
-    | IsoTimestampValidation<any>
-    | Ipv4Validation<any>
-    | Ipv6Validation<any>
-    | UuidValidation<any>
-    | EmailValidation<any>;
+    | LengthAction<any, any, any>
+    | MaxLengthAction<any, any, any>
+    | MinLengthAction<any, any, any>
+    | RegexAction<any, any>
+    | ValueAction<any, any, any>
+    | MinValueAction<any, any, any>
+    | MaxValueAction<any, any, any>
+    | MultipleOfAction<any, any, any>
+    | IntegerAction<any, any>
+    | IsoDateAction<any, any>
+    | IsoTimestampAction<any, any>
+    | Ipv4Action<any, any>
+    | Ipv6Action<any, any>
+    | UuidAction<any, any>
+    | EmailAction<any, any>;
 
 const VALIDATION_BY_SCHEMA: {
     [schema in SupportedSchemas['type']]?: {
@@ -88,16 +88,29 @@ function asDateRequirement(type: 'value' | 'minValue' | 'maxValue', requirement:
 /**
  * Convert a validation pipe to JSON schema.
  */
-export function convertPipe(schemaType: keyof typeof VALIDATION_BY_SCHEMA, pipe: Pipe<any>, context: Context): JSONSchema7 | undefined {
-    return pipe.reduce((def, validation) => {
+export function convertPipe(
+    schemaType: keyof typeof VALIDATION_BY_SCHEMA,
+    pipe: PipeSchema['pipe'] | undefined,
+    context: Context,
+): JSONSchema7 {
+    const [schema, ...pipeItems] = pipe || [];
+    if (!schema) return {};
+
+    // Convert child schema pipe
+    const childPipe = convertPipe(schemaType, (schema as PipeSchema)?.pipe, context);
+
+    function convertPipeItem(def: JSONSchema7, validation: PipeItem<any, any, any>) {
         const validationType = (validation as SupportedValidation).type;
         const validationConverter =
             context.customValidationConversion?.[schemaType]?.[validationType] || VALIDATION_BY_SCHEMA[schemaType]?.[validationType];
 
         if (!validationConverter && context.ignoreUnknownValidation) return {};
-
         assert(validationConverter, Boolean, `Unsupported valibot validation \`${validationType}\` for schema \`${schemaType}\``);
+
         const converted = (validationConverter as ValidationConverter<any>)(validation, context);
         return Object.assign(def, converted);
-    }, {} as JSONSchema7);
+    }
+
+    // Convert pipe items
+    return pipeItems.reduce(convertPipeItem, childPipe);
 }
