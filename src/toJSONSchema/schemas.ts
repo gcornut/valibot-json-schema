@@ -226,7 +226,3 @@ export const SCHEMA_CONVERTERS: {
         return SCHEMA_CONVERTERS.union({ options } as any, ...args);
     },
 };
-
-// Keep recursive => lazy aliasing for backward compatibility
-// @ts-ignore
-SCHEMA_CONVERTERS.recursive = SCHEMA_CONVERTERS.lazy;
