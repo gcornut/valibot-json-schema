@@ -552,7 +552,7 @@ describe('record', () => {
             schema: v.record(v.string(), v.number()),
             validValues: [[]],
             // ajv JSON Schema error:
-            error: '[{"kind":"schema","type":"record","input":[],"expected":"Object","received":"Array","message":"Invalid type: Expected Object but received Array"}]',
+            error: '[{"instancePath":"","schemaPath":"#/type","keyword":"type","params":{"type":"object"},"message":"must be object"}]',
         }),
     );
 
