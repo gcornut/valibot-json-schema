@@ -166,14 +166,14 @@ Using the `customSchemaConversion` option, you can provide a custom schema conve
 
 **Example**: converting JS Set schema into an array schema
 
-```ts
-import { SetSchema, set, string } from 'valibot';
+```js
+import { set, string } from 'valibot';
 
 toJSONSchema({
     schema: set(string()),
     customSchemaConversion: {
         // Treat set type like an array
-        set: (schema, converter) => converter(array((schema as SetSchema<any>).value))
+        set: (schema, converter) => converter(array(schema.value))
     },
 })
 // => { type: 'array', items: { type: 'string' } }
@@ -187,10 +187,10 @@ validation type.
 **Example**: ignoring the valibot `custom()` validation on all string schema
 
 ```ts
-import { SetSchema, string, custom } from 'valibot';
+import { string, custom, pipe } from 'valibot';
 
 toJSONSchema({
-    schema: string([custom(myCustomStringValidation)]),
+    schema: pipe(string(), custom(myCustomStringValidation)),
     customValidationConversion: {
         string: { custom: () => ({}) }
     },
