@@ -47,7 +47,7 @@
     "check": "yarn type-check && yarn lint && yarn test --run"
   },
   "dependencies": {
-    "valibot": ">= 0.31.0 || >= 0.31.0-rc.0"
+    "valibot": ">= 0.31.0"
   },
   "optionalDependencies": {
     "@types/json-schema": ">= 7.0.14",
@@ -70,7 +70,7 @@
     "semver": "^7.6.2",
     "tsup": "^8.1.0",
     "typescript": "5.4.5",
-    "valibot": "^0.31.0-rc.5",
+    "valibot": "^0.31.0",
     "vitest": "1.6.0"
   }
 }
