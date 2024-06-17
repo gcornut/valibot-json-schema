@@ -649,7 +649,7 @@ __metadata:
     semver: ^7.6.2
     tsup: ^8.1.0
     typescript: 5.4.5
-    valibot: ~0.31.0
+    valibot: ~0.32.0
     vitest: 1.6.0
   dependenciesMeta:
     "@types/json-schema":
@@ -3583,10 +3583,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"valibot@npm:~0.31.0":
-  version: 0.31.0
-  resolution: "valibot@npm:0.31.0"
-  checksum: 6ca0d0493e7b33cb388eee062b1e89c4deae57a49225f92a60efe15fee61263766f61b9c68ac6d9c9a8d37dbf83e20e8d0d6114590f764fd5d1a4cfd81570e6b
+"valibot@npm:~0.32.0":
+  version: 0.32.0
+  resolution: "valibot@npm:0.32.0"
+  checksum: 14bb3c7769420a6dbcfa929595f3b07702027ad7e9d8c5df7ace0784d9c83de3860d7880fb0706db1b778b096257e74882d119866cb03a598feb3ff2c201d5c1
   languageName: node
   linkType: hard
 
