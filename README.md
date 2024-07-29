@@ -1,6 +1,6 @@
 # @gcornut/valibot-json-schema
 
-CLI and JS utility to convert valibot schemas to JSON schema (draft 07).
+CLI and JS utility to convert [Valibot](https://valibot.dev) schemas to JSON schema (draft 07).
 
 Some of the features of Valibot can't be converted to JSON schema. JS-specific types like `blob` or `nan` obviously
 can't have an equivalent.  
