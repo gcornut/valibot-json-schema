@@ -5,7 +5,8 @@ import { $schema } from '../utils/json-schema';
 import { SCHEMA_CONVERTERS, type SupportedSchemas } from './schemas';
 import { toDefinitionURI } from './toDefinitionURI';
 import type { Context, DefinitionNameMap, ToJSONSchemaOptions } from './types';
-import { convertPipe } from './validations';
+
+import { convertPipe } from './actions/convertPipe';
 
 function getDefNameMap(definitions: ToJSONSchemaOptions['definitions'] = {}) {
     const map: DefinitionNameMap = new Map();

@@ -1,8 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
-import type { GenericSchema, GenericSchemaAsync, GenericValidation } from 'valibot';
+import type { GenericSchema, GenericSchemaAsync, GenericValidation, PipeItem } from 'valibot';
 import type { ValueOf } from '../utils/ValueOf';
 import type { SupportedSchemas } from './schemas';
-import { SupportedValidation } from './validations';
 
 export const DateStrategy = {
     string: 'string',
@@ -89,4 +88,4 @@ export type BaseConverter = (schema: SupportedSchemas) => JSONSchema7;
 
 export type SchemaConverter<S extends GenericSchema> = (schema: S, convert: BaseConverter, context: Context) => JSONSchema7;
 
-export type ValidationConverter<V extends GenericValidation> = (validation: V, context: Context) => JSONSchema7;
+export type ValidationConverter<V extends PipeItem<any, any, any>> = (validation: V, context: Context) => JSONSchema7;

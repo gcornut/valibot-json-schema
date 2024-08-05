@@ -1,4 +1,3 @@
-import type { JSONSchema7 } from 'json-schema';
 import type {
     EmailAction,
     IntegerAction,
@@ -12,14 +11,14 @@ import type {
     MinLengthAction,
     MinValueAction,
     MultipleOfAction,
-    PipeItem,
     RegexAction,
     UuidAction,
     ValueAction,
 } from 'valibot';
-import { assert } from '../utils/assert';
-import type { PipeSchema, SupportedSchemas } from './schemas';
-import type { Context, ValidationConverter } from './types';
+
+import { assert } from '../../utils/assert';
+import type { SupportedSchemas } from '../schemas';
+import type { Context, ValidationConverter } from '../types';
 
 export type SupportedValidation =
     | LengthAction<any, any, any>
@@ -38,7 +37,13 @@ export type SupportedValidation =
     | UuidAction<any, any>
     | EmailAction<any, any>;
 
-const VALIDATION_BY_SCHEMA: {
+function asDateRequirement(type: 'value' | 'minValue' | 'maxValue', requirement: any, context: Context) {
+    assert(requirement, () => context.dateStrategy === 'integer', `${type} validation is only available with 'integer' date strategy`);
+    assert(requirement, (r) => r instanceof Date, `Non-date value used for ${type} validation`);
+    return requirement.getTime();
+}
+
+export const VALIDATION_BY_SCHEMA: {
     [schema in SupportedSchemas['type']]?: {
         [K in SupportedValidation['type']]?: ValidationConverter<Extract<SupportedValidation, { type: K }>>;
     };
@@ -78,39 +83,3 @@ const VALIDATION_BY_SCHEMA: {
         max_value: ({ requirement }, context) => ({ maximum: asDateRequirement('maxValue', requirement, context) }),
     },
 };
-
-function asDateRequirement(type: 'value' | 'minValue' | 'maxValue', requirement: any, context: Context) {
-    assert(requirement, () => context.dateStrategy === 'integer', `${type} validation is only available with 'integer' date strategy`);
-    assert(requirement, (r) => r instanceof Date, `Non-date value used for ${type} validation`);
-    return requirement.getTime();
-}
-
-/**
- * Convert a validation pipe to JSON schema.
- */
-export function convertPipe(
-    schemaType: keyof typeof VALIDATION_BY_SCHEMA,
-    pipe: PipeSchema['pipe'] | undefined,
-    context: Context,
-): JSONSchema7 {
-    const [schema, ...pipeItems] = pipe || [];
-    if (!schema) return {};
-
-    // Convert child schema pipe
-    const childPipe = convertPipe(schemaType, (schema as PipeSchema)?.pipe, context);
-
-    function convertPipeItem(def: JSONSchema7, validation: PipeItem<any, any, any>) {
-        const validationType = (validation as SupportedValidation).type;
-        const validationConverter =
-            context.customValidationConversion?.[schemaType]?.[validationType] || VALIDATION_BY_SCHEMA[schemaType]?.[validationType];
-
-        if (!validationConverter && context.ignoreUnknownValidation) return {};
-        assert(validationConverter, Boolean, `Unsupported valibot validation \`${validationType}\` for schema \`${schemaType}\``);
-
-        const converted = (validationConverter as ValidationConverter<any>)(validation, context);
-        return Object.assign(def, converted);
-    }
-
-    // Convert pipe items
-    return pipeItems.reduce(convertPipeItem, childPipe);
-}

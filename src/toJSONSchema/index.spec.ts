@@ -1187,3 +1187,13 @@ describe('pipe nesting', () => {
         }),
     );
 });
+
+describe('metadata', () => {
+    it(
+        'should convert description metadata',
+        testCase({
+            schema: v.pipe(v.number(), v.description('A number')),
+            jsonSchema: { $schema, type: 'number', description: 'A number' },
+        }),
+    );
+});
