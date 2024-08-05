@@ -244,3 +244,4 @@ Here is the list of supported Valibot features (some have partial support):
 | `ipv4` validation         | ✅ supported (JSON schema format)                                                                 |
 | `ipv6` validation         | ✅ supported (JSON schema format)                                                                 |
 | `uuid` validation         | ✅ supported (JSON schema format)                                                                 |
+| `description` metadata    | ✅ supported                                                                                      |

@@ -32,13 +32,16 @@ import {
     getDefault,
     never,
 } from 'valibot';
+
 import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures';
 import { assert } from '../utils/assert';
 import { isEqual } from '../utils/isEqual';
 import { assertJSONLiteral } from '../utils/json-schema';
 import { isNeverSchema, isNullishSchema, isOptionalSchema, isStringSchema } from '../utils/valibot';
+
 import { toDefinitionURI } from './toDefinitionURI';
 import type { SchemaConverter } from './types';
+
 type NonPipeSchemas =
     | AnySchema
     | LiteralSchema<any, any>
