@@ -30,7 +30,6 @@ import {
     type UnionSchema,
     type VariantSchema,
     getDefault,
-    never,
 } from 'valibot';
 
 import { assignExtraJSONSchemaFeatures } from '../extension/assignExtraJSONSchemaFeatures';
@@ -174,7 +173,8 @@ export const SCHEMA_CONVERTERS: {
         return SCHEMA_CONVERTERS.object_with_rest(schema as any, convert, context);
     },
     strict_object(schema, convert, context) {
-        return SCHEMA_CONVERTERS.object_with_rest({ ...schema, rest: never() } as any, convert, context);
+        const object = SCHEMA_CONVERTERS.object_with_rest(schema as any, convert, context);
+        return { ...object, additionalProperties: false };
     },
     record({ key, value }, convert) {
         assert(key, isStringSchema, 'Unsupported record key type: %');
