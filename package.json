@@ -47,7 +47,7 @@
     "check": "yarn type-check && yarn lint && yarn test --run"
   },
   "dependencies": {
-    "valibot": "~0.37.0"
+    "valibot": "~0.41.0"
   },
   "optionalDependencies": {
     "@types/json-schema": ">= 7.0.14",

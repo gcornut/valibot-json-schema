@@ -20,7 +20,7 @@ export function convertPipe(
     if (!schema) return {};
 
     // Convert child schema pipe
-    const childPipe = convertPipe(schemaType, (schema as PipeSchema)?.pipe, context);
+    const childPipe = convertPipe(schemaType, (schema as any)?.pipe, context);
 
     function convertPipeItem(def: JSONSchema7, validation: PipeItem<any, any, any>) {
         const validationType = validation.type;
