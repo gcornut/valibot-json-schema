@@ -9,6 +9,7 @@ export interface WithJSONSchemaFeatures {
     [JSON_SCHEMA_FEATURES_KEY]: JSONSchemaFeatures;
 }
 
+/** @deprecated use jsonSchemaMetadata() instead */
 export function withJSONSchemaFeatures<S extends GenericSchema>(schema: S, features: JSONSchemaFeatures): S & WithJSONSchemaFeatures {
     return Object.assign(schema, { [JSON_SCHEMA_FEATURES_KEY]: features });
 }
