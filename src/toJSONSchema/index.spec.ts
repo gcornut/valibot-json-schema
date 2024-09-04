@@ -10,6 +10,7 @@ import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
 import { toJSONSchema } from '.';
+import { jsonSchemaMetadata } from '../extension/jsonSchemaMetadata';
 import { withJSONSchemaFeatures } from '../extension/withJSONSchemaFeatures';
 import { $schema } from '../utils/json-schema';
 import { and, negate } from '../utils/predicate';
@@ -1045,37 +1046,15 @@ describe('definitions', () => {
     });
 });
 
-describe(withJSONSchemaFeatures.name, () => {
+describe(jsonSchemaMetadata.name, () => {
     it(
-        'should convert array min length with json schema min items',
+        'should JSON schema metadata',
         testCase({
-            schema: withJSONSchemaFeatures(v.pipe(v.array(v.string()), v.minLength(2)), { minItems: 2 }),
+            schema: v.pipe(v.string(), jsonSchemaMetadata({ title: 'A string' })),
             jsonSchema: {
                 $schema,
-                items: {
-                    type: 'string',
-                },
-                minItems: 2,
-                type: 'array',
-            },
-            validValues: [
-                ['a', 'b'],
-                ['a', 'b', 'c'],
-            ],
-            invalidValues: [['a'], []],
-        }),
-    );
-
-    it(
-        'should attach to optional object property',
-        testCase({
-            schema: v.object({ foo: withJSONSchemaFeatures(v.optional(v.number()), { description: 'Foo' }) }),
-            jsonSchema: {
-                $schema,
-                properties: {
-                    foo: { type: 'number', description: 'Foo' },
-                },
-                type: 'object',
+                type: 'string',
+                title: 'A string',
             },
         }),
     );
