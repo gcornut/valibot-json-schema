@@ -29,6 +29,7 @@ program
     .addOption(
         new Option('--bigintStrategy <strategy>', 'Define how bigint validator should be converted').choices(Object.values(BigIntStrategy)),
     )
+    .option('--jsonIndent <nb_spaces>', 'JSON indent characters (defaults to 2 spaces).')
     .action(
         (
             sourcePath,
@@ -41,6 +42,7 @@ program
                 undefinedStrategy,
                 bigintStrategy,
                 ignoreUnknownValidation,
+                jsonIndent,
             },
         ) => {
             try {
@@ -86,7 +88,7 @@ program
                 bigintStrategy,
                 ignoreUnknownValidation,
             });
-            const jsonSchemaString = stableStringify(jsonSchema, null, 2);
+            const jsonSchemaString = stableStringify(jsonSchema, null, Number.parseInt(jsonIndent) || jsonIndent || 2);
             if (out) {
                 // Output to file
                 fs.writeFileSync(out, jsonSchemaString);
