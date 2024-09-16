@@ -1,3 +1,8 @@
+
+> [!CAUTION]
+> This project is now deprecated as Valibot now has an official JSON schema converter in the [@valibot/to-json-schema](https://github.com/fabian-hiller/valibot/tree/main/packages/to-json-schema).
+> The command line interface is moved to the project [@gcornut/cli-valibot-to-json-schema](https://github.com/gcornut/cli-valibot-to-json-schema).
+
 # @gcornut/valibot-json-schema
 
 CLI and JS utility to convert [Valibot](https://valibot.dev) schemas to JSON schema (draft 07).
